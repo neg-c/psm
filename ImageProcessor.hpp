@@ -1,11 +1,10 @@
 #pragma once
 
+#include <iostream>
 #include <span>
 #include <stdexcept>
 #include <unordered_map>
 #include <utility>
-
-#include <iostream>
 
 namespace cvt {
 
@@ -37,12 +36,12 @@ void Color(std::span<const T> src, std::span<T> dst, Format src_format,
       conversion_table.find(std::make_pair(src_format, dst_format));
 
   switch (cvt_format_it->second) {
-  case Conversion::ksRGB2oRGB:
-    srgb2orgb(src, dst, 3);
-    break;
-  default:
-    throw std::invalid_argument("Unsupported format");
+    case Conversion::ksRGB2oRGB:
+      srgb2orgb(src, dst, 3);
+      break;
+    default:
+      throw std::invalid_argument("Unsupported format");
   }
 }
 
-} // namespace cvt
+}  // namespace cvt
