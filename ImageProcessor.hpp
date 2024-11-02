@@ -150,8 +150,7 @@ void srgb2orgb(std::span<const T> src, std::span<T> dst, std::size_t channel) {
 
   RowXf norm_src = normalize(map_src);
   Mat4fView norm_4d(norm_src.data(), norm_src.cols() / channel, channel);
-  Mat3f rgb = norm_4d.leftCols(3);
-  Mat3f norm_rgb = switch_rb(rgb);
+  Mat3f norm_rgb = switch_rb(norm_4d.leftCols(3));
   Mat3f lcc = rgb2lcc(norm_rgb);
   Mat3f orgb = lcc2orgb(lcc);
 
