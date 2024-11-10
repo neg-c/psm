@@ -14,7 +14,7 @@ Prisma - color space conversion library
 
 ### Prerequisites
 
-- CMake (v3.25 or higher)
+- CMake (v3.26 or higher)
 - Ninja
 - vcpkg
 
@@ -39,7 +39,7 @@ $ cmake --build build/<chosen-preset>
 
 ```bash
 # There is an application that uses psm
-$ ./build/<chosen-preset>/src/app/psm_cli
+$ ./build/<chosen-preset>/src/bin/psm_cli
 ```
 
 # License

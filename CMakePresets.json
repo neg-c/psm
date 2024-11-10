@@ -2,7 +2,7 @@
   "version": 3,
   "cmakeMinimumRequired": {
     "major": 3,
-    "minor": 28,
+    "minor": 26,
     "patch": 0
   },
   "configurePresets": [
@@ -14,7 +14,6 @@
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-        "VCPKG_OVERLAY_PORTS": "${sourceDir}/overlays",
         "VCPKG_INSTALL_OPTIONS": "--clean-after-build"
       }
     },
