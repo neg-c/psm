@@ -1,4 +1,4 @@
-add_library(psm SHARED psm.cpp orgb.cpp utils.cpp)
+add_library(psm SHARED psm.cpp orgb.cpp)
 
 target_sources(
   psm
@@ -17,4 +17,4 @@ target_include_directories(
 find_package(Eigen3 REQUIRED)
 
 target_link_libraries(psm PUBLIC Eigen3::Eigen)
-target_compile_features(psm INTERFACE cxx_std_20)
+target_compile_features(psm PUBLIC cxx_std_20)
