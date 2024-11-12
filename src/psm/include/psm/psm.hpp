@@ -5,6 +5,7 @@
 #include <utility>
 
 #include "psm/orgb.hpp"
+namespace psm {
 
 enum class Format { ksRGB, koRGB };
 enum class Conversion { ksRGB2oRGB };
@@ -36,5 +37,7 @@ void Color(std::span<const T> src, std::span<T> dst, Format src_format,
       throw std::invalid_argument("Unsupported format");
   }
 }
+
+}  // namespace psm
 
 #endif  // PSM_HPP
