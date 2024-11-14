@@ -1,7 +1,8 @@
 #include <format>
 #include <iostream>
+#include <vector>
 
-#include "psm/psm.hpp"
+import psm;
 
 template <typename T>
 void print_buffer(const std::span<T>& buffer) {

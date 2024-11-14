@@ -1,4 +1,8 @@
-#include "psm/orgb.hpp"
+module;
+
+#include <Eigen/Dense>
+
+module psm.orgb;
 
 namespace psm {
 
@@ -109,5 +113,4 @@ Mat3f orgb2lcc(const Mat3f& orgb) {
   }
   return lcc;
 }
-
 }  // namespace psm
