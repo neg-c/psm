@@ -28,7 +28,7 @@ target_sources(
 
 find_package(Eigen3 REQUIRED)
 
-target_link_libraries(psm PRIVATE psm_orgb)
-target_link_libraries(psm_orgb PUBLIC Eigen3::Eigen)
+target_link_libraries(psm PUBLIC psm_orgb)
+target_link_libraries(psm_orgb PRIVATE Eigen3::Eigen)
 target_compile_features(psm PUBLIC cxx_std_20)
 target_compile_features(psm_orgb PUBLIC cxx_std_20)
