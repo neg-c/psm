@@ -1,9 +1,8 @@
-module;
+#ifndef ORGB_HPP
+#define ORGB_HPP
 
 #include <Eigen/Dense>
 #include <span>
-
-export module psm.orgb;
 
 namespace psm {
 
@@ -28,7 +27,7 @@ Mat3f lcc2rgb(Mat3f lcc);
 Mat3f lcc2orgb(Mat3f lcc);
 Mat3f orgb2lcc(const Mat3f& orgb);
 
-export template <typename T>
+template <typename T>
 void srgb2orgb(std::span<const T> src, std::span<T> dst, std::size_t channel) {
   Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
 
@@ -51,3 +50,4 @@ void srgb2orgb(std::span<const T> src, std::span<T> dst, std::size_t channel) {
 }
 
 }  // namespace psm
+#endif  // ORGB_HPP

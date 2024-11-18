@@ -2,8 +2,7 @@ include(GNUInstallDirs)
 install(
   TARGETS ${CMAKE_PROJECT_NAME} ${CMAKE_PROJECT_NAME}_orgb
   EXPORT ${CMAKE_PROJECT_NAME}Library
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/${CMAKE_PROJECT_NAME}
-  FILE_SET modules)
+  FILE_SET HEADERS)
 
 if(UNIX)
   install(CODE "execute_process(COMMAND ldconfig)")

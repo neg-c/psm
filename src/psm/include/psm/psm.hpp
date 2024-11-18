@@ -1,17 +1,14 @@
-module;
+#ifndef PSM_HPP
+#define PSM_HPP
 
 #include <span>
-#include <stdexcept>
-#include <unordered_map>
 #include <utility>
 
-export module psm;
-import psm.orgb;
-
+#include "psm/orgb.hpp"
 namespace psm {
 
-export enum class Format { ksRGB, koRGB };
-export enum class Conversion { ksRGB2oRGB };
+enum class Format { ksRGB, koRGB };
+enum class Conversion { ksRGB2oRGB };
 
 struct PairHash {
   template <class T, class U>
@@ -22,13 +19,9 @@ struct PairHash {
   }
 };
 
-export std::unordered_map<std::pair<Format, Format>, Conversion, PairHash>
+static std::unordered_map<std::pair<Format, Format>, Conversion, PairHash>
     conversion_table{
         {std::pair(Format::ksRGB, Format::koRGB), Conversion::ksRGB2oRGB}};
-
-export template <typename T>
-void Color(std::span<const T> src, std::span<T> dst, Format src_format,
-           Format dst_format);
 
 template <typename T>
 void Color(std::span<const T> src, std::span<T> dst, Format src_format,
@@ -46,3 +39,5 @@ void Color(std::span<const T> src, std::span<T> dst, Format src_format,
 }
 
 }  // namespace psm
+
+#endif  // PSM_HPP
