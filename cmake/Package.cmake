@@ -1,0 +1,5 @@
+set(CPACK_PACKAGE_VENDOR "Genci Berisha")
+set(CPACK_PACKAGE_CONTACT "me@genciberisha.dev")
+set(CPACK_PACKAGE_DESCRIPTION "Color Space conversion library")
+set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+include(CPack)

@@ -10,4 +10,5 @@ include(NoInSourceBuilds)
 
 add_subdirectory(src bin)
 
-# include(Packaging)
+include(Package)
+include(Install)
