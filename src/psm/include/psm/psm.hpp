@@ -4,6 +4,7 @@
 #include <span>
 #include <unordered_map>
 #include <utility>
+#include <stdexcept>
 
 #include "orgb.hpp"
 #include "psm/orgb.hpp"

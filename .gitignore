@@ -35,6 +35,7 @@
 .cache/
 .idea/
 .vscode/
+.vs/
 
 # Build
 build/

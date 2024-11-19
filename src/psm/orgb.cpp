@@ -2,6 +2,7 @@
 
 #include <Eigen/Dense>
 #include <memory>
+#include <numbers>
 
 namespace psm {
 
@@ -70,19 +71,19 @@ Mat3f OrgbImpl::switch_rb(Mat3f src) {
 }
 
 double OrgbImpl::convertToRGBangle(double theta) {
-  if (theta < M_PI / 3) {
+  if (theta < std::numbers::pi / 3) {
     return (3.0f / 2.0f) * theta;
-  } else if (theta <= M_PI && theta >= M_PI / 3) {
-    return M_PI / 2 + (3.0f / 4.0f) * (theta - M_PI / 3);
+  } else if (theta <= std::numbers::pi && theta >= std::numbers::pi / 3) {
+    return std::numbers::pi / 2 + (3.0f / 4.0f) * (theta - std::numbers::pi / 3);
   }
   return -1337;
 }
 
 double OrgbImpl::convertToOrgbangle(double theta) {
-  if (theta < M_PI / 2) {
+  if (theta < std::numbers::pi / 2) {
     return (2.0f / 3.0f) * theta;
-  } else if (theta <= M_PI && theta >= M_PI / 2) {
-    return M_PI / 3 + (4.0f / 3.0f) * (theta - M_PI / 2);
+  } else if (theta <= std::numbers::pi && theta >= std::numbers::pi / 2) {
+    return std::numbers::pi / 3 + (4.0f / 3.0f) * (theta - std::numbers::pi / 2);
   }
   return -1337;
 }

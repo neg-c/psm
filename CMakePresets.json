@@ -36,10 +36,11 @@
         "value": "host=x64",
         "strategy": "external"
       },
-      "cacheVariables": {
-        "ENABLE_CPPCHECK_DEFAULT": "FALSE",
-        "ENABLE_CLANG_TIDY_DEFAULT": "FALSE"
-      }
+        "cacheVariables": {
+            "CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS": "ON",
+            "ENABLE_CPPCHECK_DEFAULT": "FALSE",
+            "ENABLE_CLANG_TIDY_DEFAULT": "FALSE"
+        }
     },
     {
       "name": "conf-unixlike-common",
