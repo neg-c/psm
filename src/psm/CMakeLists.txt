@@ -14,6 +14,6 @@ target_sources(
 find_package(Eigen3 REQUIRED)
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC ${CMAKE_PROJECT_NAME}_orgb)
-target_link_libraries(${CMAKE_PROJECT_NAME}_orgb PUBLIC Eigen3::Eigen)
+target_link_libraries(${CMAKE_PROJECT_NAME}_orgb PRIVATE Eigen3::Eigen)
 target_compile_features(${CMAKE_PROJECT_NAME} PUBLIC cxx_std_20)
 target_compile_features(${CMAKE_PROJECT_NAME}_orgb PUBLIC cxx_std_20)

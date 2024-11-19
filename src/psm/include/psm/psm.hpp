@@ -2,8 +2,10 @@
 #define PSM_HPP
 
 #include <span>
+#include <unordered_map>
 #include <utility>
 
+#include "orgb.hpp"
 #include "psm/orgb.hpp"
 namespace psm {
 
@@ -30,9 +32,11 @@ void Color(std::span<const T> src, std::span<T> dst, Format src_format,
       conversion_table.find(std::make_pair(src_format, dst_format));
 
   switch (cvt_format_it->second) {
-    case Conversion::ksRGB2oRGB:
-      srgb2orgb(src, dst, 4);
+    case Conversion::ksRGB2oRGB: {
+      Orgb orgb;
+      orgb.convert(src, dst);
       break;
+    }
     default:
       throw std::invalid_argument("Unsupported format");
   }
