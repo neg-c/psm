@@ -14,8 +14,7 @@ Prisma - color space conversion library
 
 ### Prerequisites
 
-- CMake (v3.26 or higher)
-- Ninja
+- CMake (v3.25 or higher)
 - vcpkg
 
 For **Debian** like systems:

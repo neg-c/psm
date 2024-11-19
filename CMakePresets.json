@@ -2,7 +2,7 @@
   "version": 3,
   "cmakeMinimumRequired": {
     "major": 3,
-    "minor": 26,
+    "minor": 27,
     "patch": 0
   },
   "configurePresets": [
@@ -10,11 +10,11 @@
       "name": "conf-common",
       "description": "General settings that apply to all configurations",
       "hidden": true,
-      "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-        "VCPKG_INSTALL_OPTIONS": "--clean-after-build"
+        "VCPKG_INSTALL_OPTIONS": "--clean-after-build",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
       }
     },
     {
@@ -22,6 +22,7 @@
       "description": "Windows settings for MSBuild toolchain that apply to msvc and clang",
       "hidden": true,
       "inherits": "conf-common",
+      "generator": "Ninja",
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
@@ -37,8 +38,7 @@
       },
       "cacheVariables": {
         "ENABLE_CPPCHECK_DEFAULT": "FALSE",
-        "ENABLE_CLANG_TIDY_DEFAULT": "FALSE",
-        "CMAKE_TOOLCHAIN_FILE": "~/.local/share/vcpkg/scripts/buildsystems/vcpkg.cmake"
+        "ENABLE_CLANG_TIDY_DEFAULT": "FALSE"
       }
     },
     {
@@ -46,6 +46,7 @@
       "description": "Unix-like OS settings for clang toolchains",
       "hidden": true,
       "inherits": "conf-common",
+      "generator": "Unix Makefiles",
       "condition": {
         "type": "inList",
         "string": "${hostSystemName}",
@@ -55,7 +56,6 @@
         ]
       },
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "~/.local/share/vcpkg/scripts/buildsystems/vcpkg.cmake"
       },
       "vendor": {
         "microsoft.com/VisualStudioRemoteSettings/CMake/1.0": {
