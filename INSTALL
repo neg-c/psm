@@ -3,7 +3,7 @@
 ## Prerequisites
 To build and use Prisma (`psm`), ensure your system meets the following requirements:
 - **Operating System**: Linux or Windows
-- **Compiler**: GCC 13+, Clang 17+, or MSVC 19.29+
+- **Compiler**: GCC 13+, Clang 16+, or MSVC 19.29+
 - **CMake**: Version 3.25 or higher
 - **vcpkg**: Required for dependency management
 
