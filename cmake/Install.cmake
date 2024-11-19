@@ -1,7 +1,7 @@
 include(GNUInstallDirs)
 install(
-  TARGETS ${CMAKE_PROJECT_NAME} ${CMAKE_PROJECT_NAME}_orgb
-  EXPORT ${CMAKE_PROJECT_NAME}Library
+  TARGETS psm psm_orgb
+  EXPORT psmLibrary
   FILE_SET HEADERS)
 
 if(UNIX)
@@ -9,11 +9,11 @@ if(UNIX)
 endif()
 
 install(
-  EXPORT ${CMAKE_PROJECT_NAME}Library
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/${CMAKE_PROJECT_NAME}/cmake
-  NAMESPACE ${CMAKE_PROJECT_NAME}::)
+  EXPORT psmLibrary
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/psm/cmake
+  NAMESPACE psm::)
 
-install(FILES "${CMAKE_SOURCE_DIR}/cmake/${CMAKE_PROJECT_NAME}Config.cmake"
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/${CMAKE_PROJECT_NAME}/cmake)
+install(FILES "${CMAKE_SOURCE_DIR}/cmake/psmConfig.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/psm/cmake)
 
-install(TARGETS ${CMAKE_PROJECT_NAME}_cli RUNTIME)
+install(TARGETS psm_cli RUNTIME)
