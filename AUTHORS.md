@@ -1,9 +1,6 @@
 
 ---
 
-### **AUTHORS**
-
-```markdown
 # AUTHORS
 
 ## Project Lead
