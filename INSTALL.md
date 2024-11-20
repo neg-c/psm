@@ -4,27 +4,29 @@
 To build and use Prisma (`psm`), ensure your system meets the following requirements:
 - **Operating System**: Linux or Windows
 - **Compiler**: GCC 13+, Clang 16+, or MSVC 19.29+
-- **CMake**: Version 3.25 or higher
+- **CMake**: Version 3.27 or higher
 - **vcpkg**: Required for dependency management
+
+### Windows
+On Windows, Visual Studio comes with `vcpkg` integrated. You can proceed to the **Building** section directly without needing to install `vcpkg` separately.
+
+### Linux
+On Linux, `vcpkg` is not pre-installed, so you’ll need to install it manually. Follow these steps to set it up, then proceed to the **Building** section.
 
 ### Install vcpkg
 If you don't have vcpkg installed, follow these steps:
 1. Clone the vcpkg repository:
    ```bash
-   sudo apt install git curl zip unzip tar pkg-config
    git clone https://github.com/microsoft/vcpkg.git /usr/local/vcpkg
    /usr/local/vcpkg/bootstrap-vcpkg.sh
    /usr/local/vcpkg/vcpkg integrate install
    export VCPKG_ROOT=/usr/local/vcpkg/ >> ~/.bashrc
    source ~/.bashrc
   ```
-## Building and Install Prisma
- Debian-like
- ```bash
-  sudo apt update && sudo apt install build-essential cmake curl zip unzip tar
 
 ### Building
 Prisma includes pre-defined CMake presets to simplify the configuration process.
+Assuming that the VCPKG_ROOT is set:
 1. List Available presets
    ```bash
    cmake --list-presets
