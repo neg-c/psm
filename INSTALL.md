@@ -23,7 +23,7 @@ If you don't have vcpkg installed, follow these steps:
    $ source ~/.bashrc
    ```
 
-### Building
+## Building
 Prisma includes pre-defined CMake presets to simplify the configuration process.
 Assuming that the VCPKG_ROOT is set:
 1. List Available presets
@@ -36,7 +36,7 @@ Assuming that the VCPKG_ROOT is set:
    ```bash
    $ cmake --build build/<preset-name>
 
-### Installing
+## Installing
 To install Prisma system-wide, run:
 ```bash
 cmake --install <build-directory>/<preset-name>
