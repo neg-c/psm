@@ -15,27 +15,26 @@ On Linux, `vcpkg` is not pre-installed, so you’ll need to install it manually.
 
 ### Install vcpkg
 If you don't have vcpkg installed, follow these steps:
-1. Clone the vcpkg repository:
    ```bash
-   git clone https://github.com/microsoft/vcpkg.git /usr/local/vcpkg
-   /usr/local/vcpkg/bootstrap-vcpkg.sh
-   /usr/local/vcpkg/vcpkg integrate install
-   export VCPKG_ROOT=/usr/local/vcpkg/ >> ~/.bashrc
-   source ~/.bashrc
-  ```
+   $ git clone https://github.com/microsoft/vcpkg.git /usr/local/vcpkg
+   $ /usr/local/vcpkg/bootstrap-vcpkg.sh
+   $ /usr/local/vcpkg/vcpkg integrate install
+   $ export VCPKG_ROOT=/usr/local/vcpkg/ >> ~/.bashrc
+   $ source ~/.bashrc
+   ```
 
 ### Building
 Prisma includes pre-defined CMake presets to simplify the configuration process.
 Assuming that the VCPKG_ROOT is set:
 1. List Available presets
    ```bash
-   cmake --list-presets
+   $ cmake --list-presets
 2. Use a preset to configure
    ```bash
-   cmake --preset <preset-name>
+   $ cmake --preset <preset-name>
 3. Build the project
    ```bash
-   cmake --build build/<preset-name>
+   $ cmake --build build/<preset-name>
 
 ### Installing
 To install Prisma system-wide, run:
