@@ -9,7 +9,7 @@
 - **Flexible Integration**: Can be built, installed, or directly included in other projects.
 
 ## Getting Started
-Follow the instructions in the `INSTALL` file to build and integrate Prisma into your project.
+Follow the instructions in the [INSTALL](INSTALL.md) file to build and integrate Prisma into your project.
 
 ## Usage Example
 Refer to the example provided in `src/psm_cli` for a simple demonstration.
