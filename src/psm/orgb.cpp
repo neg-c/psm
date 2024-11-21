@@ -33,8 +33,7 @@ class OrgbImpl {
     Mat3f bgr = switch_rb(rgb);
     Mat4f bgra = scaleTo4d(bgr, norm_4d.rightCols(1));
 
-    RowXfView result =
-        RowXfView(bgra.data(), bgra.cols() * bgra.rows() * channel);
+    RowXfView result = RowXfView(bgra.data(), bgra.cols() * bgra.rows());
 
     Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
     dst_map = (result * 255).cwiseMin(255).cwiseMax(0).template cast<T>();
