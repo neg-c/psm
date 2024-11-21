@@ -73,7 +73,8 @@ double OrgbImpl::convertToRGBangle(double theta) {
   if (theta < std::numbers::pi / 3) {
     return (3.0f / 2.0f) * theta;
   } else if (theta <= std::numbers::pi && theta >= std::numbers::pi / 3) {
-    return std::numbers::pi / 2 + (3.0f / 4.0f) * (theta - std::numbers::pi / 3);
+    return std::numbers::pi / 2 +
+           (3.0f / 4.0f) * (theta - std::numbers::pi / 3);
   }
   return -1337;
 }
@@ -82,7 +83,8 @@ double OrgbImpl::convertToOrgbangle(double theta) {
   if (theta < std::numbers::pi / 2) {
     return (2.0f / 3.0f) * theta;
   } else if (theta <= std::numbers::pi && theta >= std::numbers::pi / 2) {
-    return std::numbers::pi / 3 + (4.0f / 3.0f) * (theta - std::numbers::pi / 2);
+    return std::numbers::pi / 3 +
+           (4.0f / 3.0f) * (theta - std::numbers::pi / 2);
   }
   return -1337;
 }
