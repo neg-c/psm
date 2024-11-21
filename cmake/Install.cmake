@@ -14,6 +14,7 @@ install(
   NAMESPACE psm::)
 
 install(FILES "${CMAKE_SOURCE_DIR}/cmake/psmConfig.cmake"
+              "${CMAKE_BINARY_DIR}/cmake/psmConfigVersion.cmake"
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/psm/cmake)
 
 install(TARGETS psm_cli RUNTIME)
