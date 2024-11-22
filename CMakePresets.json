@@ -2,7 +2,7 @@
   "version": 3,
   "cmakeMinimumRequired": {
     "major": 3,
-    "minor": 28,
+    "minor": 27,
     "patch": 0
   },
   "configurePresets": [
@@ -10,12 +10,11 @@
       "name": "conf-common",
       "description": "General settings that apply to all configurations",
       "hidden": true,
-      "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-        "VCPKG_OVERLAY_PORTS": "${sourceDir}/overlays",
-        "VCPKG_INSTALL_OPTIONS": "--clean-after-build"
+        "VCPKG_INSTALL_OPTIONS": "--clean-after-build",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
       }
     },
     {
@@ -23,6 +22,7 @@
       "description": "Windows settings for MSBuild toolchain that apply to msvc and clang",
       "hidden": true,
       "inherits": "conf-common",
+      "generator": "Ninja",
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
@@ -36,17 +36,19 @@
         "value": "host=x64",
         "strategy": "external"
       },
-      "cacheVariables": {
-        "ENABLE_CPPCHECK_DEFAULT": "FALSE",
-        "ENABLE_CLANG_TIDY_DEFAULT": "FALSE",
-        "CMAKE_TOOLCHAIN_FILE": "~/.local/share/vcpkg/scripts/buildsystems/vcpkg.cmake"
-      }
+        "cacheVariables": {
+            "CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS": "ON",
+            "CMAKE_CXX_FLAGS": "/EHs",
+            "ENABLE_CPPCHECK_DEFAULT": "FALSE",
+            "ENABLE_CLANG_TIDY_DEFAULT": "FALSE"
+        }
     },
     {
       "name": "conf-unixlike-common",
       "description": "Unix-like OS settings for clang toolchains",
       "hidden": true,
       "inherits": "conf-common",
+      "generator": "Unix Makefiles",
       "condition": {
         "type": "inList",
         "string": "${hostSystemName}",
@@ -56,7 +58,6 @@
         ]
       },
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "~/.local/share/vcpkg/scripts/buildsystems/vcpkg.cmake"
       },
       "vendor": {
         "microsoft.com/VisualStudioRemoteSettings/CMake/1.0": {
@@ -84,7 +85,7 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "cl",
         "CMAKE_CXX_COMPILER": "cl",
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_BUILD_TYPE": "Release",
         "ENABLE_DEVELOPER_MODE": "ON"
       }
     },
@@ -108,7 +109,7 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "cl",
         "CMAKE_CXX_COMPILER": "cl",
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_BUILD_TYPE": "Release",
         "ENABLE_DEVELOPER_MODE": "OFF"
       }
     },
@@ -117,11 +118,11 @@
       "displayName": "clang Debug",
       "description": "Target Windows with the clang compiler, debug build type",
       "inherits": "conf-windows-common",
-      "cacheVariables": {
-        "CMAKE_C_COMPILER": "clang-cl",
-        "CMAKE_CXX_COMPILER": "clang-cl",
-        "CMAKE_BUILD_TYPE": "Debug"
-      },
+        "cacheVariables": {
+            "CMAKE_C_COMPILER": "clang-cl",
+            "CMAKE_CXX_COMPILER": "clang-cl",
+            "CMAKE_BUILD_TYPE": "Debug"
+        },
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/1.0": {
           "intelliSenseMode": "windows-clang-x64"
@@ -136,7 +137,7 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang-cl",
         "CMAKE_CXX_COMPILER": "clang-cl",
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+        "CMAKE_BUILD_TYPE": "Release"
       },
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/1.0": {
@@ -163,7 +164,7 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "gcc",
         "CMAKE_CXX_COMPILER": "g++",
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+        "CMAKE_BUILD_TYPE": "Release"
       }
     },
     {
@@ -185,7 +186,7 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++",
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+        "CMAKE_BUILD_TYPE": "Release"
       }
     }
   ],

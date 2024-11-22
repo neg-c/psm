@@ -1,10 +1,15 @@
-add_library(ImageProcessor STATIC ImageProcessor.hpp)
+cmake_minimum_required(VERSION 3.27)
+project(
+  psm
+  VERSION 0.0.1
+  LANGUAGES CXX)
 
-find_package(Eigen3 REQUIRED)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
-target_include_directories(
-  ImageProcessor INTERFACE "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
-                           "$<INSTALL_INTERFACE:${CMAKE_INSTALL_LIBDIR}>")
+include(NoInSourceBuilds)
 
-target_link_libraries(ImageProcessor PUBLIC Eigen3::Eigen)
-target_compile_features(ImageProcessor INTERFACE cxx_std_20)
+add_subdirectory(src bin)
+
+include(Package)
+include(Version)
+include(Install)

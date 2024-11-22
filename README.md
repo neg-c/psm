@@ -1,47 +1,47 @@
-# psm
+# Prisma (`psm`)
 
-Prisma - color space conversion library
+## Description
+**Prisma (`psm`)** is a modern C++20 library for color space conversions. It currently supports converting colors from **sRGB** to **oRGB** and aims to include more color space conversions in the future.
 
-## Table of Contents
-
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Build and Installation](#build-and-installation)
-- [Usage](#usage)
-- [License](#license)
+## Features
+- **Color Space Conversion**: Supports sRGB to oRGB.
+- **C++20 Compatibility**: Built with modern C++20 features.
+- **Flexible Integration**: Can be built, installed, or directly included in other projects.
 
 ## Getting Started
+Follow the instructions in the [INSTALL](INSTALL.md) file to build and integrate Prisma into your project.
 
-### Prerequisites
+## Usage Example
+Refer to the example provided in `src/psm_cli` for a simple demonstration.
+Or to simply get started:
+```cpp
+#include "psm/psm.hpp"
 
-- CMake (v3.25 or higher)
-- Ninja
-- vcpkg
+int main() {
+  // load_image is your placeholder for and rgba image
+  std::vector<unsigned char> input_image = load_image(); 
 
-For **Debian** like systems:
+  std::vector<unsigned char> output_image(input_image.size());
 
-```bash
-$ sudo apt install cmake ninja-build
+  std::span<const unsigned char> src_span(input_image.data(),
+                                          input_image.size());
+  std::span<unsigned char> result_span(output_image.data(),
+                                       output_image.size());
+
+  psm::Color(src_span, result_span, psm::Format::ksRGB, psm::Format::koRGB);
+
+  return 0;
+}
 ```
 
-### Build and Installation
-
-```bash
-# List the provided presets
-$ cmake --list-presets
-# Then configure with
-$ cmake --preset <chosen-preset>
-# And Build
-$ cmake --build build/<chosen-preset>
-```
-
-# Usage
-
-```bash
-# There is an application that uses psm
-$ ./build/<chosen-preset>/src/app/psm_cli
+## Integration with CMake
+Add Prisma (`psm`) to your CMake project:
+```cmake
+...
+find_package(psm REQUIRED)
+target_link_libraries(<your_target> PRIVATE psm::psm)
+...
 ```
 
 # License
-
-[MIT License](LICENSE)
+Prisma is licensed under [LICENSE](LICENSE)
