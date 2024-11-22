@@ -4,7 +4,14 @@ add_library(psm_orgb SHARED)
 target_sources(
   psm
   PRIVATE psm.cpp
-  PUBLIC FILE_SET HEADERS BASE_DIRS include FILES include/psm/psm.hpp)
+  PUBLIC FILE_SET
+         HEADERS
+         BASE_DIRS
+         include
+         ${CMAKE_BINARY_DIR}/include/psm
+         FILES
+         include/psm/psm.hpp
+         ${CMAKE_BINARY_DIR}/include/psm/version.hpp)
 
 target_sources(
   psm_orgb
