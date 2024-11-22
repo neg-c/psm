@@ -8,7 +8,7 @@ target_sources(
          HEADERS
          BASE_DIRS
          include
-         ${CMAKE_BINARY_DIR}/include/psm
+         ${CMAKE_BINARY_DIR}/include/
          FILES
          include/psm/psm.hpp
          ${CMAKE_BINARY_DIR}/include/psm/version.hpp)
