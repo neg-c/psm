@@ -14,14 +14,15 @@ On Windows, Visual Studio comes with `vcpkg` integrated. You can proceed to the 
 On Linux, `vcpkg` is not pre-installed, so you’ll need to install it manually. Follow these steps to set it up, then proceed to the **Building** section.
 
 ### Install vcpkg
-If you don't have vcpkg installed, follow these steps:
-   ```bash
-   $ git clone https://github.com/microsoft/vcpkg.git /usr/local/vcpkg
-   $ /usr/local/vcpkg/bootstrap-vcpkg.sh
-   $ /usr/local/vcpkg/vcpkg integrate install
-   $ export VCPKG_ROOT=/usr/local/vcpkg/ >> ~/.bashrc
-   $ source ~/.bashrc
-   ```
+The recommended way to install vcpkg is in your home directory:
+
+```bash
+$ git clone https://github.com/microsoft/vcpkg.git ~/vcpkg
+$ ~/vcpkg/bootstrap-vcpkg.sh
+$ ~/vcpkg/vcpkg integrate install
+$ echo "export VCPKG_ROOT=~/vcpkg" >> ~/.bashrc
+$ source ~/.bashrc
+```
 
 ## Building
 Prisma includes pre-defined CMake presets to simplify the configuration process.
