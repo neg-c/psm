@@ -1,0 +1,61 @@
+name: build-linux
+on:
+  pull_request_target:
+    types: [opened]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+        include:
+          - compiler: gcc
+            version: 13
+          - compiler: clang
+            version: 16
+
+    steps:
+      - name: Install basic dependencies
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
+          apt-get update
+          apt-get install -y git curl wget tar zip unzip cmake pkg-config
+
+      - name: Setup GCC
+        if: matrix.compiler == 'gcc'
+        run: |
+          apt-get install -y gcc-${{ matrix.version }} g++-${{ matrix.version }}
+          ln -sf /usr/bin/gcc-${{ matrix.version }} /usr/bin/gcc
+          ln -sf /usr/bin/g++-${{ matrix.version }} /usr/bin/g++
+
+      - name: Setup Clang
+        if: matrix.compiler == 'clang'
+        run: |
+          apt-get install -y clang-${{ matrix.version }} clang++-${{ matrix.version }}
+          ln -sf /usr/bin/clang-${{ matrix.version }} /usr/bin/clang
+          ln -sf /usr/bin/clang++-${{ matrix.version }} /usr/bin/clang++
+
+      - name: Setup vcpkg
+        run: |
+          if [ ! -d ~/vcpkg ]; then
+            git clone https://github.com/microsoft/vcpkg.git ~/vcpkg
+            ~/vcpkg/bootstrap-vcpkg.sh
+          fi
+          ~/vcpkg/vcpkg integrate install
+          echo "VCPKG_ROOT=~/vcpkg" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Configure CMake
+        run: |
+          cmake --preset unixlike-${{ matrix.compiler }}-debug
+
+      - name: Build
+        run: |
+          cmake --build build/unixlike-${{ matrix.compiler }}-debug
