@@ -4,7 +4,7 @@ on:
     types: [opened]
 
 jobs:
-  format-check:
+  cmake-format-check:
     runs-on: ubuntu-latest
 
     steps:
@@ -16,11 +16,5 @@ jobs:
         with:
           source: '.'
           exclude: 'third_party external'
-          inplace: true
-      - uses: EndBug/add-and-commit@v4
-        with:
-          author_name: QualityBot
-          author_email: robot@quality.com
-          message: ':art: Committing cmake-format changes'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          inplace: False
+          style: file

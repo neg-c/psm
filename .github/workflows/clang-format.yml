@@ -4,7 +4,7 @@ on:
     types: [opened]
 
 jobs:
-  format-check:
+  clang-format-check:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,11 +18,5 @@ jobs:
           exclude: './third_party ./external'
           extensions: 'cppm,cxxm,ixx,mpp,cc,cxx,cpp,hh,hxx,hpp'
           clangFormatVersion: 18
-          inplace: True
-      - uses: EndBug/add-and-commit@v4
-        with:
-          author_name: QualityBot
-          author_email: robot@quality.com
-          message: ':art: Committing clang-format changes'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          inplace: False
+          style: file
