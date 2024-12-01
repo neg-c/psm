@@ -12,7 +12,7 @@ jobs:
         compiler: [msvc, clang]
         include:
           - compiler: msvc
-            preset: windows-msvc-debug-user-mode
+            preset: windows-msvc-debug
           - compiler: clang
             preset: windows-clang-debug
 
