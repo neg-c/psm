@@ -2,9 +2,9 @@
 #define PSM_HPP
 
 #include <span>
+#include <stdexcept>
 #include <unordered_map>
 #include <utility>
-#include <stdexcept>
 
 #include "orgb.hpp"
 #include "psm/orgb.hpp"
