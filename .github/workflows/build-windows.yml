@@ -9,18 +9,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler: [msvc, clang-cl]
+        compiler: [msvc, clang]
         include:
           - compiler: msvc
-            toolset: v143
-          - compiler: clang-cl
-            toolset: ClangCL
+            preset: windows-msvc-debug-user-mode
+          - compiler: clang
+            preset: windows-clang-debug
 
     steps:
       - name: Setup Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1
-        with:
-          toolset: ${{ matrix.toolset }}
 
       - uses: actions/checkout@v4
         with:
@@ -29,10 +27,10 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake --preset windows-${{ matrix.compiler }}-debug
+          cmake --preset ${{ matrix.preset }}
         env:
           VCPKG_ROOT: C:\vcpkg
 
       - name: Build
         run: |
-          cmake --build build/windows-${{ matrix.compiler }}-debug
+          cmake --build build/${{ matrix.preset }}
