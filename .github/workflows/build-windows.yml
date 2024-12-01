@@ -22,22 +22,6 @@ jobs:
         with:
           toolset: ${{ matrix.toolset }}
 
-      - name: Install Clang
-        if: matrix.compiler == 'clang-cl'
-        run: |
-          curl -fsSL -o LLVM.exe https://github.com/llvm/llvm-project/releases/download/llvmorg-16.0.0/LLVM-16.0.0-win64.exe
-          7z x LLVM.exe -y -o"C:/Program Files/LLVM"
-          echo "C:/Program Files/LLVM/bin" >> $env:GITHUB_PATH
-
-      - name: Setup vcpkg
-        run: |
-          if (-not (Test-Path $env:USERPROFILE/vcpkg)) {
-            git clone https://github.com/microsoft/vcpkg.git $env:USERPROFILE/vcpkg
-            $env:USERPROFILE/vcpkg/bootstrap-vcpkg.bat
-          }
-          $env:USERPROFILE/vcpkg/vcpkg integrate install
-          echo "VCPKG_ROOT=$env:USERPROFILE/vcpkg" >> $env:GITHUB_ENV
-
       - uses: actions/checkout@v4
         with:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -46,7 +30,9 @@ jobs:
       - name: Configure CMake
         run: |
           cmake --preset windows-${{ matrix.compiler }}-debug
+        env:
+          VCPKG_ROOT: C:\vcpkg
 
       - name: Build
         run: |
-          cmake --build build/windows-${{ matrix.compiler }}-debug 
+          cmake --build build/windows-${{ matrix.compiler }}-debug
