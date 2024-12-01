@@ -1,7 +1,7 @@
 name: build-windows
 on:
   pull_request_target:
-    types: [opened]
+    types: [opened, synchronize, reopened]
 
 jobs:
   build-windows:
