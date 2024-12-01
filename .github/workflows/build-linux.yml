@@ -5,7 +5,7 @@ on:
 
 jobs:
   build-linux:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -19,24 +19,22 @@ jobs:
     steps:
       - name: Install basic dependencies
         run: |
-          export DEBIAN_FRONTEND=noninteractive
-          ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
-          apt-get update
-          apt-get install -y git curl wget tar zip unzip cmake pkg-config
+          sudo apt-get update
+          sudo apt-get install -y git curl wget tar zip unzip cmake pkg-config
 
       - name: Setup GCC
         if: matrix.compiler == 'gcc'
         run: |
-          apt-get install -y gcc-${{ matrix.version }} g++-${{ matrix.version }}
-          ln -sf /usr/bin/gcc-${{ matrix.version }} /usr/bin/gcc
-          ln -sf /usr/bin/g++-${{ matrix.version }} /usr/bin/g++
+          sudo apt-get install -y gcc-${{ matrix.version }} g++-${{ matrix.version }}
+          sudo ln -sf /usr/bin/gcc-${{ matrix.version }} /usr/bin/gcc
+          sudo ln -sf /usr/bin/g++-${{ matrix.version }} /usr/bin/g++
 
       - name: Setup Clang
         if: matrix.compiler == 'clang'
         run: |
-          apt-get install -y clang-${{ matrix.version }} clang++-${{ matrix.version }}
-          ln -sf /usr/bin/clang-${{ matrix.version }} /usr/bin/clang
-          ln -sf /usr/bin/clang++-${{ matrix.version }} /usr/bin/clang++
+          sudo apt-get install -y clang-${{ matrix.version }} clang++-${{ matrix.version }}
+          sudo ln -sf /usr/bin/clang-${{ matrix.version }} /usr/bin/clang
+          sudo ln -sf /usr/bin/clang++-${{ matrix.version }} /usr/bin/clang++
 
       - name: Setup vcpkg
         run: |
