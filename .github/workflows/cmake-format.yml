@@ -1,7 +1,7 @@
 name: cmake-format
 on:
   pull_request_target:
-    types: [opened]
+    types: [opened, synchronize, reopened]
 
 jobs:
   cmake-format-check:
