@@ -5,4 +5,4 @@ write_basic_package_version_file(
   COMPATIBILITY AnyNewerVersion)
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/version.hpp.in"
-               "${CMAKE_CURRENT_BINARY_DIR}/include/version.hpp" @ONLY)
+               "${CMAKE_CURRENT_BINARY_DIR}/include/psm/version.hpp" @ONLY)
