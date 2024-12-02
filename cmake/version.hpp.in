@@ -3,10 +3,10 @@
 
 namespace psm {
 struct version {
+  static inline constexpr int major = @PROJECT_VERSION_MAJOR@;
+  static inline constexpr int minor = @PROJECT_VERSION_MINOR@;
+  static inline constexpr int patch = @PROJECT_VERSION_PATCH@;
   static inline constexpr std::string_view full = "@PROJECT_VERSION@";
-  static inline constexpr std::string_view major = "@PROJECT_VERSION_MAJOR@";
-  static inline constexpr std::string_view minor = "@PROJECT_VERSION_MINOR@";
-  static inline constexpr std::string_view patch = "@PROJECT_VERSION_PATCH@";
 };
 
 }  // namespace psm
