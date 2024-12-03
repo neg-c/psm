@@ -7,14 +7,11 @@ install(
   RUNTIME COMPONENT libraries
   LIBRARY COMPONENT libraries
   ARCHIVE COMPONENT libraries
-  FILE_SET HEADERS COMPONENT headers
-)
+          FILE_SET HEADERS
+          COMPONENT headers)
 
 # Install CLI tool
-install(
-  TARGETS psm_cli 
-  RUNTIME COMPONENT libraries
-)
+install(TARGETS psm_cli RUNTIME COMPONENT libraries)
 
 # Run ldconfig on Unix systems
 if(UNIX)
@@ -26,23 +23,17 @@ install(
   EXPORT psmLibrary
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/psm/cmake
   NAMESPACE psm::
-  COMPONENT headers
-)
+  COMPONENT headers)
 
 # Install CMake package configuration files
 install(
-  FILES 
-    "${CMAKE_SOURCE_DIR}/cmake/psmConfig.cmake"
-    "${CMAKE_BINARY_DIR}/cmake/psmConfigVersion.cmake"
+  FILES "${CMAKE_SOURCE_DIR}/cmake/psmConfig.cmake"
+        "${CMAKE_BINARY_DIR}/cmake/psmConfigVersion.cmake"
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/psm/cmake
-  COMPONENT headers
-)
+  COMPONENT headers)
 
 # Install documentation files
 install(
-  FILES 
-    "${CMAKE_SOURCE_DIR}/LICENSE"
-    "${CMAKE_SOURCE_DIR}/README.md"
+  FILES "${CMAKE_SOURCE_DIR}/LICENSE" "${CMAKE_SOURCE_DIR}/README.md"
   DESTINATION ${CMAKE_INSTALL_DOCDIR}
-  COMPONENT documentation
-)
+  COMPONENT documentation)
