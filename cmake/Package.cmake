@@ -1,5 +1,57 @@
+# Basic package information
 set(CPACK_PACKAGE_VENDOR "Genci Berisha")
 set(CPACK_PACKAGE_CONTACT "me@genciberisha.dev")
 set(CPACK_PACKAGE_DESCRIPTION "Color Space conversion library")
-set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/neg-c/psm")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+
+# Version information from project
+set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+
+# Platform-specific configurations
+if(WIN32)
+  # Windows-specific settings
+  set(CPACK_GENERATOR "NSIS;ZIP")
+  set(CPACK_NSIS_PACKAGE_NAME "${PROJECT_NAME}")
+  set(CPACK_NSIS_DISPLAY_NAME "${PROJECT_NAME}")
+  set(CPACK_NSIS_CONTACT "${CPACK_PACKAGE_CONTACT}")
+  set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
+  set(CPACK_NSIS_MODIFY_PATH ON)
+  set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64")
+
+  # ZIP specific
+  set(CPACK_ZIP_COMPONENT_INSTALL ON)
+else()
+  # Linux-specific settings
+  set(CPACK_GENERATOR "DEB;RPM;TGZ")
+
+  # DEB specific
+  set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+  set(CPACK_DEBIAN_PACKAGE_SECTION "libs")
+  set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
+  set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT) # Use standardized naming
+
+  # RPM specific
+  set(CPACK_RPM_PACKAGE_ARCHITECTURE "x86_64")
+  set(CPACK_RPM_PACKAGE_LICENSE "MIT")
+  set(CPACK_RPM_PACKAGE_GROUP "Development/Libraries")
+  set(CPACK_RPM_FILE_NAME RPM-DEFAULT) # Use standardized naming
+
+  # Set compression type for TGZ
+  set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
+endif()
+
+# Component-based installation
+set(CPACK_COMPONENTS_ALL libraries headers documentation)
+set(CPACK_COMPONENT_LIBRARIES_DISPLAY_NAME "Libraries")
+set(CPACK_COMPONENT_HEADERS_DISPLAY_NAME "C++ Headers")
+set(CPACK_COMPONENT_DOCUMENTATION_DISPLAY_NAME "Documentation")
+
+# Dependencies
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.17)")
+set(CPACK_RPM_PACKAGE_REQUIRES "glibc >= 2.17")
+
 include(CPack)
