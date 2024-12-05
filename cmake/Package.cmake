@@ -31,6 +31,7 @@ else()
   set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT) # Use standardized naming
 
   set(CPACK_RPM_PACKAGE_ARCHITECTURE "${PACKAGE_ARCHITECTURE}")
+
   set(CPACK_RPM_PACKAGE_LICENSE "MIT")
   set(CPACK_RPM_PACKAGE_GROUP "Development/Libraries")
   set(CPACK_RPM_FILE_NAME RPM-DEFAULT) # Use standardized naming
@@ -52,7 +53,5 @@ set(CPACK_COMPONENT_APPLICATIONS_REQUIRED ON)
 
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.17)")
 set(CPACK_RPM_PACKAGE_REQUIRES "glibc >= 2.17")
-
-
 
 include(CPack)
