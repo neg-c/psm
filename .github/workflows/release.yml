@@ -9,7 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.validate_version.outputs.version }}
+      project_name: ${{ steps.get_project_name.outputs.project_name }}
     steps:
+      - uses: actions/checkout@v4
+
       - name: Validate version format
         id: validate_version
         run: |
@@ -20,6 +23,32 @@ jobs:
           VERSION=${GITHUB_REF_NAME#v}
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Validated version: $VERSION"
+
+      - name: Get CMake project version
+        id: get_cmake_version
+        run: |
+          CMAKE_VERSION=$(grep -A2 "^project" CMakeLists.txt | grep "VERSION" | sed 's/.*VERSION *\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/')
+          echo "cmake_version=$CMAKE_VERSION" >> $GITHUB_OUTPUT
+          echo "Found CMake version: $CMAKE_VERSION"
+
+      - name: Compare versions
+        run: |
+          TAG_VERSION="${{ steps.validate_version.outputs.version }}"
+          CMAKE_VERSION="${{ steps.get_cmake_version.outputs.cmake_version }}"
+          
+          if [ "$TAG_VERSION" != "$CMAKE_VERSION" ]; then
+            echo "::error::Version mismatch! Git tag ($TAG_VERSION) does not match CMake version ($CMAKE_VERSION)"
+            echo "Please ensure the version in CMakeLists.txt matches the git tag"
+            exit 1
+          fi
+          echo "Version validation successful: $TAG_VERSION"
+
+      - name: Get project name from CMakeLists.txt
+        id: get_project_name
+        run: |
+          PROJECT_NAME=$(grep -A1 "^project(" CMakeLists.txt | tr -d '\n' | sed -n 's/.*project(\s*\([^ ]*\).*/\1/p')
+          echo "project_name=$PROJECT_NAME" >> $GITHUB_OUTPUT
+          echo "Found project name: $PROJECT_NAME"
 
   build-windows:
     needs: validate
@@ -67,8 +96,8 @@ jobs:
         with:
           name: windows-packages
           path: |
-            ./build/${{ matrix.preset }}/libzero-${{ steps.get_version.outputs.version }}-win64.zip
-            ./build/${{ matrix.preset }}/libzero-${{ steps.get_version.outputs.version }}-win64.exe
+            ./build/${{ matrix.preset }}/*.exe
+            ./build/${{ matrix.preset }}/*.zip
 
   build-linux:
     needs: validate
@@ -110,7 +139,7 @@ jobs:
           echo "VCPKG_ROOT=~/vcpkg" >> $GITHUB_ENV
 
       - name: Configure CMake
-        run: cmake --preset ${{ matrix.preset }}
+        run: cmake --preset ${{ matrix.preset }} -DCMAKE_INSTALL_PREFIX=/usr/
 
       - name: Build
         run: cmake --build build/${{ matrix.preset }}
@@ -127,9 +156,9 @@ jobs:
         with:
           name: linux-packages
           path: |
-            ./build/${{ matrix.preset }}/libzero-${{ steps.get_version.outputs.version }}-linux-amd64.deb
-            ./build/${{ matrix.preset }}/libzero-${{ steps.get_version.outputs.version }}-linux-amd64.rpm
-            ./build/${{ matrix.preset }}/libzero-${{ steps.get_version.outputs.version }}-linux-amd64.tar.gz
+            ./build/${{ matrix.preset }}/*.deb
+            ./build/${{ matrix.preset }}/*.rpm
+            ./build/${{ matrix.preset }}/*.tar.gz
 
   create-and-upload:
     needs: [validate, build-windows, build-linux]
@@ -140,45 +169,71 @@ jobs:
         with:
           path: artifacts
 
-      - name: Verify artifacts
+      - name: Verify artifacts exist
         run: |
           if [ ! -d "artifacts/windows-packages" ] || [ ! -d "artifacts/linux-packages" ]; then
-            echo "::error::Missing artifacts"
+            echo "::error::Missing artifacts directories"
             exit 1
           fi
           
-          # Verify that all expected files exist
-          expected_files=(
-            "windows-packages/libzero-${{ needs.validate.outputs.version }}-win64.zip"
-            "windows-packages/libzero-${{ needs.validate.outputs.version }}-win64.exe"
-            "linux-packages/libzero-${{ needs.validate.outputs.version }}-linux-amd64.deb"
-            "linux-packages/libzero-${{ needs.validate.outputs.version }}-linux-amd64.rpm"
-            "linux-packages/libzero-${{ needs.validate.outputs.version }}-linux-amd64.tar.gz"
-          )
+          # Check if we have at least one file of each type
+          if [ $(find artifacts/windows-packages -name "*.exe" | wc -l) -eq 0 ]; then
+            echo "::error::Missing Windows installer (exe)"
+            exit 1
+          fi
+          if [ $(find artifacts/windows-packages -name "*.zip" | wc -l) -eq 0 ]; then
+            echo "::error::Missing Windows ZIP package"
+            exit 1
+          fi
+          if [ $(find artifacts/linux-packages -name "*.deb" | wc -l) -eq 0 ]; then
+            echo "::error::Missing Debian package"
+            exit 1
+          fi
+          if [ $(find artifacts/linux-packages -name "*.rpm" | wc -l) -eq 0 ]; then
+            echo "::error::Missing RPM package"
+            exit 1
+          fi
+          if [ $(find artifacts/linux-packages -name "*.tar.gz" | wc -l) -eq 0 ]; then
+            echo "::error::Missing Linux tarball"
+            exit 1
+          fi
+
+      - name: Generate checksums
+        id: generate_checksums
+        run: |
+          cd artifacts
+          mkdir -p checksums
           
-          for file in "${expected_files[@]}"; do
-            if [ ! -f "artifacts/$file" ]; then
-              echo "::error::Missing artifact: $file"
-              exit 1
-            fi
-          done
+          # Generate SHA256 checksums for all packages
+          (
+            cd windows-packages && sha256sum *.exe *.zip 2>/dev/null
+            cd ../linux-packages && sha256sum *.deb *.rpm *.tar.gz 2>/dev/null
+          ) | tee checksums/SHA256SUMS
+          
+          # Create formatted message for release body
+          echo 'CHECKSUMS<<EOF' >> $GITHUB_ENV
+          echo '```' >> $GITHUB_ENV
+          cat checksums/SHA256SUMS >> $GITHUB_ENV
+          echo '```' >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref_name }}
-          draft: false
-          prerelease: false
-
-      - name: Upload Release Assets
+      - name: Create Release and Upload Assets
         uses: softprops/action-gh-release@v1
         with:
+          draft: true
+          body: |
+            ## Checksums
+            ${{ env.CHECKSUMS }}
+            
+            ## Manual Steps Required:
+            1. Add changelog from CHANGELOG.md
+            2. Download artifacts
+            3. Sign artifacts with GPG
+            4. Upload signed artifacts
+            5. Publish release
           files: |
             artifacts/windows-packages/*
             artifacts/linux-packages/*
+            artifacts/checksums/SHA256SUMS
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
