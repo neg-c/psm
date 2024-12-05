@@ -4,18 +4,18 @@ include(GNUInstallDirs)
 install(
   TARGETS psm psm_orgb
   EXPORT psmLibrary
-  RUNTIME COMPONENT libraries
-  LIBRARY COMPONENT libraries
-  ARCHIVE COMPONENT libraries
+  RUNTIME COMPONENT applications
+  LIBRARY COMPONENT applications
+  ARCHIVE COMPONENT applications
           FILE_SET HEADERS
-          COMPONENT headers)
+          COMPONENT applications)
 
 # Install CLI tool
-install(TARGETS psm_cli RUNTIME COMPONENT libraries)
+install(TARGETS psm_cli RUNTIME COMPONENT applications)
 
 # Run ldconfig on Unix systems
 if(UNIX)
-  install(CODE "execute_process(COMMAND ldconfig)" COMPONENT libraries)
+  install(CODE "execute_process(COMMAND ldconfig)" COMPONENT applications)
 endif()
 
 # Install CMake configuration files
@@ -30,7 +30,7 @@ install(
   FILES "${CMAKE_SOURCE_DIR}/cmake/psmConfig.cmake"
         "${CMAKE_BINARY_DIR}/cmake/psmConfigVersion.cmake"
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/psm/cmake
-  COMPONENT headers)
+  COMPONENT applications)
 
 # Install documentation files
 install(
