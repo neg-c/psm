@@ -1,0 +1,184 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.validate_version.outputs.version }}
+    steps:
+      - name: Validate version format
+        id: validate_version
+        run: |
+          if [[ ! $GITHUB_REF_NAME =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$ ]]; then
+            echo "Invalid version format. Expected format: v1.2.3 or v1.2.3-beta"
+            exit 1
+          fi
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Validated version: $VERSION"
+
+  build-windows:
+    needs: validate
+    runs-on: windows-2022
+    strategy:
+      matrix:
+        compiler: [msvc]
+        include:
+          - compiler: msvc
+            preset: windows-msvc-release
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Get version from tag
+        id: get_version
+        shell: pwsh
+        run: |
+          $version = $env:GITHUB_REF_NAME -replace '^v',''
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Setup Developer Command Prompt
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install NSIS
+        run: choco install nsis -y
+
+      - name: Configure CMake
+        run: cmake --preset ${{ matrix.preset }}
+        env:
+          VCPKG_ROOT: C:\vcpkg
+        
+      - name: Build
+        run: cmake --build build/${{ matrix.preset }}
+
+      - name: Package
+        run: |
+          cd build/${{ matrix.preset }}
+          cpack -G NSIS || (echo "::error::NSIS packaging failed" && exit 1)
+          cpack -G ZIP || (echo "::error::ZIP packaging failed" && exit 1)
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-packages
+          path: |
+            ./build/${{ matrix.preset }}/libzero-${{ steps.get_version.outputs.version }}-win64.zip
+            ./build/${{ matrix.preset }}/libzero-${{ steps.get_version.outputs.version }}-win64.exe
+
+  build-linux:
+    needs: validate
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        compiler: [gcc]
+        include:
+          - compiler: gcc
+            version: 13
+            preset: unixlike-gcc-release
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git curl wget tar zip unzip cmake pkg-config
+          sudo apt-get install -y gcc-${{ matrix.version }} g++-${{ matrix.version }}
+          sudo apt-get install -y rpm
+
+      - name: Setup vcpkg
+        id: vcpkg
+        run: |
+          if [ ! -d ~/vcpkg ]; then
+            echo "Installing vcpkg..."
+            git clone https://github.com/microsoft/vcpkg.git ~/vcpkg
+            ~/vcpkg/bootstrap-vcpkg.sh
+            if [ $? -ne 0 ]; then
+              echo "::error::vcpkg bootstrap failed"
+              exit 1
+            fi
+          fi
+          ~/vcpkg/vcpkg integrate install
+          echo "VCPKG_ROOT=~/vcpkg" >> $GITHUB_ENV
+
+      - name: Configure CMake
+        run: cmake --preset ${{ matrix.preset }}
+
+      - name: Build
+        run: cmake --build build/${{ matrix.preset }}
+
+      - name: Package
+        run: |
+          cd build/${{ matrix.preset }}
+          cpack -G DEB
+          cpack -G RPM
+          cpack -G TGZ
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-packages
+          path: |
+            ./build/${{ matrix.preset }}/libzero-${{ steps.get_version.outputs.version }}-linux-amd64.deb
+            ./build/${{ matrix.preset }}/libzero-${{ steps.get_version.outputs.version }}-linux-amd64.rpm
+            ./build/${{ matrix.preset }}/libzero-${{ steps.get_version.outputs.version }}-linux-amd64.tar.gz
+
+  create-and-upload:
+    needs: [validate, build-windows, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Verify artifacts
+        run: |
+          if [ ! -d "artifacts/windows-packages" ] || [ ! -d "artifacts/linux-packages" ]; then
+            echo "::error::Missing artifacts"
+            exit 1
+          fi
+          
+          # Verify that all expected files exist
+          expected_files=(
+            "windows-packages/libzero-${{ needs.validate.outputs.version }}-win64.zip"
+            "windows-packages/libzero-${{ needs.validate.outputs.version }}-win64.exe"
+            "linux-packages/libzero-${{ needs.validate.outputs.version }}-linux-amd64.deb"
+            "linux-packages/libzero-${{ needs.validate.outputs.version }}-linux-amd64.rpm"
+            "linux-packages/libzero-${{ needs.validate.outputs.version }}-linux-amd64.tar.gz"
+          )
+          
+          for file in "${expected_files[@]}"; do
+            if [ ! -f "artifacts/$file" ]; then
+              echo "::error::Missing artifact: $file"
+              exit 1
+            fi
+          done
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/windows-packages/*
+            artifacts/linux-packages/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
