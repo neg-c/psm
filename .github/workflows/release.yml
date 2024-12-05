@@ -9,7 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.validate_version.outputs.version }}
+      project_name: ${{ steps.get_project_name.outputs.project_name }}
+      architecture: ${{ steps.get_architecture.outputs.architecture }}
     steps:
+      - uses: actions/checkout@v4
+
       - name: Validate version format
         id: validate_version
         run: |
@@ -20,6 +24,39 @@ jobs:
           VERSION=${GITHUB_REF_NAME#v}
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Validated version: $VERSION"
+
+      - name: Get CMake project version
+        id: get_cmake_version
+        run: |
+          CMAKE_VERSION=$(grep -m1 "VERSION" CMakeLists.txt | sed -n 's/.*VERSION \([0-9]*\.[0-9]*\.[0-9]*\).*/\1/p')
+          echo "cmake_version=$CMAKE_VERSION" >> $GITHUB_OUTPUT
+          echo "Found CMake version: $CMAKE_VERSION"
+
+      - name: Compare versions
+        run: |
+          TAG_VERSION="${{ steps.validate_version.outputs.version }}"
+          CMAKE_VERSION="${{ steps.get_cmake_version.outputs.cmake_version }}"
+          
+          if [ "$TAG_VERSION" != "$CMAKE_VERSION" ]; then
+            echo "::error::Version mismatch! Git tag ($TAG_VERSION) does not match CMake version ($CMAKE_VERSION)"
+            echo "Please ensure the version in CMakeLists.txt matches the git tag"
+            exit 1
+          fi
+          echo "Version validation successful: $TAG_VERSION"
+
+      - name: Get project name from CMakeLists.txt
+        id: get_project_name
+        run: |
+          PROJECT_NAME=$(grep -m1 "project(" CMakeLists.txt | sed -n 's/.*project(\([^)]*\)).*/\1/p' | awk '{print $1}')
+          echo "project_name=$PROJECT_NAME" >> $GITHUB_OUTPUT
+          echo "Found project name: $PROJECT_NAME"
+
+      - name: Get architecture from Package.cmake
+        id: get_architecture
+        run: |
+          ARCHITECTURE=$(grep -m1 "set(PACKAGE_ARCHITECTURE" cmake/Package.cmake | sed -n 's/.*set(PACKAGE_ARCHITECTURE "\([^"]*\)").*/\1/p')
+          echo "architecture=$ARCHITECTURE" >> $GITHUB_OUTPUT
+          echo "Found architecture: $ARCHITECTURE"
 
   build-windows:
     needs: validate
@@ -67,8 +104,8 @@ jobs:
         with:
           name: windows-packages
           path: |
-            ./build/${{ matrix.preset }}/libzero-${{ steps.get_version.outputs.version }}-win64.zip
-            ./build/${{ matrix.preset }}/libzero-${{ steps.get_version.outputs.version }}-win64.exe
+            ./build/${{ matrix.preset }}/${{ needs.validate.outputs.project_name }}-${{ steps.get_version.outputs.version }}-windows-${{ needs.validate.outputs.architecture }}.zip
+            ./build/${{ matrix.preset }}/${{ needs.validate.outputs.project_name }}-${{ steps.get_version.outputs.version }}-windows-${{ needs.validate.outputs.architecture }}.exe
 
   build-linux:
     needs: validate
@@ -127,9 +164,9 @@ jobs:
         with:
           name: linux-packages
           path: |
-            ./build/${{ matrix.preset }}/libzero-${{ steps.get_version.outputs.version }}-linux-amd64.deb
-            ./build/${{ matrix.preset }}/libzero-${{ steps.get_version.outputs.version }}-linux-amd64.rpm
-            ./build/${{ matrix.preset }}/libzero-${{ steps.get_version.outputs.version }}-linux-amd64.tar.gz
+            ./build/${{ matrix.preset }}/${{ needs.validate.outputs.project_name }}-${{ steps.get_version.outputs.version }}-linux-amd64.deb
+            ./build/${{ matrix.preset }}/${{ needs.validate.outputs.project_name }}-${{ steps.get_version.outputs.version }}-linux-amd64.rpm
+            ./build/${{ matrix.preset }}/${{ needs.validate.outputs.project_name }}-${{ steps.get_version.outputs.version }}-linux-amd64.tar.gz
 
   create-and-upload:
     needs: [validate, build-windows, build-linux]
@@ -149,11 +186,11 @@ jobs:
           
           # Verify that all expected files exist
           expected_files=(
-            "windows-packages/libzero-${{ needs.validate.outputs.version }}-win64.zip"
-            "windows-packages/libzero-${{ needs.validate.outputs.version }}-win64.exe"
-            "linux-packages/libzero-${{ needs.validate.outputs.version }}-linux-amd64.deb"
-            "linux-packages/libzero-${{ needs.validate.outputs.version }}-linux-amd64.rpm"
-            "linux-packages/libzero-${{ needs.validate.outputs.version }}-linux-amd64.tar.gz"
+            "windows-packages/${{ needs.validate.outputs.project_name }}-${{ needs.validate.outputs.version }}-windows-${{ needs.validate.outputs.architecture }}.zip"
+            "windows-packages/${{ needs.validate.outputs.project_name }}-${{ needs.validate.outputs.version }}-windows-${{ needs.validate.outputs.architecture }}.exe"
+            "linux-packages/${{ needs.validate.outputs.project_name }}-${{ needs.validate.outputs.version }}-linux-amd64.deb"
+            "linux-packages/${{ needs.validate.outputs.project_name }}-${{ needs.validate.outputs.version }}-linux-amd64.rpm"
+            "linux-packages/${{ needs.validate.outputs.project_name }}-${{ needs.validate.outputs.version }}-linux-amd64.tar.gz"
           )
           
           for file in "${expected_files[@]}"; do
