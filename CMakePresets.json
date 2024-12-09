@@ -36,12 +36,12 @@
         "value": "host=x64",
         "strategy": "external"
       },
-        "cacheVariables": {
-            "CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS": "ON",
-            "CMAKE_CXX_FLAGS": "/EHs",
-            "ENABLE_CPPCHECK_DEFAULT": "FALSE",
-            "ENABLE_CLANG_TIDY_DEFAULT": "FALSE"
-        }
+      "cacheVariables": {
+        "CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS": "ON",
+        "CMAKE_CXX_FLAGS": "/EHs",
+        "ENABLE_CPPCHECK_DEFAULT": "FALSE",
+        "ENABLE_CLANG_TIDY_DEFAULT": "FALSE"
+      }
     },
     {
       "name": "conf-unixlike-common",
@@ -94,11 +94,11 @@
       "displayName": "clang Debug",
       "description": "Target Windows with the clang compiler, debug build type",
       "inherits": "conf-windows-common",
-        "cacheVariables": {
-            "CMAKE_C_COMPILER": "clang-cl",
-            "CMAKE_CXX_COMPILER": "clang-cl",
-            "CMAKE_BUILD_TYPE": "Debug"
-        },
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang-cl",
+        "CMAKE_CXX_COMPILER": "clang-cl",
+        "CMAKE_BUILD_TYPE": "Debug"
+      },
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/1.0": {
           "intelliSenseMode": "windows-clang-x64"
