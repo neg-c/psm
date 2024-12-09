@@ -29,15 +29,9 @@ simply get started:
 int main() {
   // load_image is your placeholder for and rgba image
   std::vector<unsigned char> input_image = load_image();
-
   std::vector<unsigned char> output_image(input_image.size());
 
-  std::span<const unsigned char> src_span(input_image.data(),
-                                          input_image.size());
-  std::span<unsigned char> result_span(output_image.data(),
-                                       output_image.size());
-
-  psm::Color(src_span, result_span, psm::Format::ksRGB, psm::Format::koRGB);
+  psm::Convert(input_image, output_image, psm::Format::ksRGB, psm::Format::koRGB);
 
   return 0;
 }
