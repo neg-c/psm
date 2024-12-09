@@ -1,12 +1,14 @@
+#include <concepts>
 #include <format>
 #include <iostream>
+#include <ranges>
 #include <vector>
 
 #include "psm/psm.hpp"
 
-template <typename T>
-void print_buffer(const std::span<T>& buffer) {
-  for (size_t i = 0; i < buffer.size(); ++i) {
+template <std::ranges::contiguous_range Buffer>
+void print_buffer(const Buffer& buffer) {
+  for (size_t i = 0; i < std::ranges::size(buffer); ++i) {
     std::cout << std::format("[{}] ", buffer[i]);
   }
   std::cout << "\n";
