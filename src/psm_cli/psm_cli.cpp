@@ -24,18 +24,13 @@ int main() {
 
   std::vector<unsigned char> output_image(input_image.size());
 
-  std::span<const unsigned char> src_span(input_image.data(),
-                                          input_image.size());
-  std::span<unsigned char> result_span(output_image.data(),
-                                       output_image.size());
-
   std::cout << "Input Image (RGBA):\n";
-  print_buffer(src_span);
+  print_buffer(std::span{input_image});
 
-  psm::Color(src_span, result_span, psm::Format::ksRGB, psm::Format::koRGB);
+  psm::Color(input_image, output_image, psm::Format::ksRGB, psm::Format::koRGB);
 
   std::cout << "Output Image (oRGB):\n";
-  print_buffer(result_span);
+  print_buffer(std::span{output_image});
 
   return 0;
 }
