@@ -10,6 +10,7 @@ jobs:
     outputs:
       version: ${{ steps.validate_version.outputs.version }}
       project_name: ${{ steps.get_project_name.outputs.project_name }}
+      is_prerelease: ${{ steps.validate_version.outputs.is_prerelease }}
     steps:
       - uses: actions/checkout@v4
 
@@ -17,19 +18,34 @@ jobs:
         id: validate_version
         run: |
           if [[ ! $GITHUB_REF_NAME =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$ ]]; then
-            echo "Invalid version format. Expected format: v1.2.3 or v1.2.3-beta"
+            echo "Invalid version format. Expected format: v1.2.3 or v1.2.3-alpha"
             exit 1
           fi
           VERSION=${GITHUB_REF_NAME#v}
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
+          # Check if this is a pre-release version
+          if [[ $VERSION == *-* ]]; then
+            echo "is_prerelease=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_prerelease=false" >> $GITHUB_OUTPUT
+          fi
           echo "Validated version: $VERSION"
 
-      - name: Get CMake project version
+      - name: Get CMake project version and suffix
         id: get_cmake_version
         run: |
           CMAKE_VERSION=$(grep -A2 "^project" CMakeLists.txt | grep "VERSION" | sed 's/.*VERSION *\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/')
-          echo "cmake_version=$CMAKE_VERSION" >> $GITHUB_OUTPUT
-          echo "Found CMake version: $CMAKE_VERSION"
+          CMAKE_SUFFIX=$(grep "PROJECT_VERSION_SUFFIX" CMakeLists.txt | sed 's/.*"\(.*\)".*/\1/')
+          
+          if [ -n "$CMAKE_SUFFIX" ]; then
+            FULL_CMAKE_VERSION="${CMAKE_VERSION}-${CMAKE_SUFFIX}"
+          else
+            FULL_CMAKE_VERSION="${CMAKE_VERSION}"
+          fi
+          
+          echo "cmake_version=$FULL_CMAKE_VERSION" >> $GITHUB_OUTPUT
+          echo "Found CMake version: $FULL_CMAKE_VERSION"
 
       - name: Compare versions
         run: |
@@ -38,7 +54,7 @@ jobs:
           
           if [ "$TAG_VERSION" != "$CMAKE_VERSION" ]; then
             echo "::error::Version mismatch! Git tag ($TAG_VERSION) does not match CMake version ($CMAKE_VERSION)"
-            echo "Please ensure the version in CMakeLists.txt matches the git tag"
+            echo "Please ensure the version in CMakeLists.txt (including any suffix) matches the git tag"
             exit 1
           fi
           echo "Version validation successful: $TAG_VERSION"
@@ -221,6 +237,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           draft: true
+          prerelease: ${{ needs.validate.outputs.is_prerelease == 'true' }}
           body: |
             ## Checksums
             ${{ env.CHECKSUMS }}
