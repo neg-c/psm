@@ -36,6 +36,11 @@ install(
 
 # Install documentation files
 install(
-  FILES "${CMAKE_SOURCE_DIR}/LICENSE" "${CMAKE_SOURCE_DIR}/README.md"
+  FILES 
+    "${CMAKE_SOURCE_DIR}/LICENSE"
+    "${CMAKE_SOURCE_DIR}/README.md"
+    "${CMAKE_SOURCE_DIR}/INSTALL.md"
+    "${CMAKE_SOURCE_DIR}/CHANGELOG.md"
+    "${CMAKE_SOURCE_DIR}/AUTHORS.md"
   DESTINATION ${CMAKE_INSTALL_DOCDIR}
   COMPONENT documentation)
