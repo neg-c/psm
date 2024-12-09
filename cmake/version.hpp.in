@@ -1,12 +1,19 @@
 #ifndef VERSION_HPP
 #define VERSION_HPP
 
+#include <string_view>
+
 namespace psm {
 struct version {
   static inline constexpr int major = @PROJECT_VERSION_MAJOR@;
   static inline constexpr int minor = @PROJECT_VERSION_MINOR@;
   static inline constexpr int patch = @PROJECT_VERSION_PATCH@;
-  static inline constexpr std::string_view full = "@PROJECT_VERSION@";
+  static inline constexpr std::string_view full = "@FULL_PROJECT_VERSION@";
+#ifdef @PROJECT_VERSION_SUFFIX @
+  static inline constexpr std::string_view suffix = "@PROJECT_VERSION_SUFFIX@";
+#else
+  static inline constexpr std::string_view suffix = "";
+#endif
 };
 
 }  // namespace psm
