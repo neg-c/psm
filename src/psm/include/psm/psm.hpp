@@ -31,8 +31,8 @@ static std::unordered_map<std::pair<Format, Format>, Conversion, PairHash>
 
 namespace detail {
 template <typename T>
-void ColorImpl(std::span<const T> src, std::span<T> dst, Format src_format,
-               Format dst_format) {
+void ConvertImpl(std::span<const T> src, std::span<T> dst, Format src_format,
+                 Format dst_format) {
   auto cvt_format_it =
       conversion_table.find(std::make_pair(src_format, dst_format));
 
@@ -50,9 +50,9 @@ void ColorImpl(std::span<const T> src, std::span<T> dst, Format src_format,
 
 template <std::ranges::contiguous_range Src_Range,
           std::ranges::contiguous_range Dst_Range>
-void Color(const Src_Range& src, Dst_Range& dst, Format src_format,
-           Format dst_format) {
-  detail::ColorImpl(std::span{src}, std::span{dst}, src_format, dst_format);
+void Convert(const Src_Range& src, Dst_Range& dst, Format src_format,
+             Format dst_format) {
+  detail::ConvertImpl(std::span{src}, std::span{dst}, src_format, dst_format);
 }
 
 }  // namespace psm

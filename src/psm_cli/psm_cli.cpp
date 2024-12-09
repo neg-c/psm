@@ -27,7 +27,8 @@ int main() {
   std::cout << "Input Image (RGBA):\n";
   print_buffer(std::span{input_image});
 
-  psm::Color(input_image, output_image, psm::Format::ksRGB, psm::Format::koRGB);
+  psm::Convert(input_image, output_image, psm::Format::ksRGB,
+               psm::Format::koRGB);
 
   std::cout << "Output Image (oRGB):\n";
   print_buffer(std::span{output_image});
