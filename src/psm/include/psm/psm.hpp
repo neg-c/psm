@@ -1,15 +1,13 @@
 #ifndef PSM_HPP
 #define PSM_HPP
 
-#include <concepts>
 #include <ranges>
 #include <span>
 #include <stdexcept>
-#include <unordered_map>
-#include <utility>
+#include <type_traits>
 
 #include "orgb.hpp"
-#include "psm/orgb.hpp"
+#include "srgb.hpp"
 
 namespace psm {
 
@@ -30,20 +28,25 @@ static std::unordered_map<std::pair<Format, Format>, Conversion, PairHash>
         {std::pair(Format::ksRGB, Format::koRGB), Conversion::ksRGB2oRGB}};
 
 namespace detail {
-template <typename T>
-void ConvertImpl(std::span<const T> src, std::span<T> dst, Format src_format,
-                 Format dst_format) {
-  auto cvt_format_it =
-      conversion_table.find(std::make_pair(src_format, dst_format));
-
-  switch (cvt_format_it->second) {
-    case Conversion::ksRGB2oRGB: {
-      Orgb orgb;
-      orgb.convert(src, dst);
-      break;
-    }
-    default:
-      throw std::invalid_argument("Unsupported format");
+template <typename SrcFormat, typename DstFormat, typename T>
+void ConvertImpl(std::span<const T> src, std::span<T> dst) {
+  if constexpr (std::is_same_v<SrcFormat, sRGB> &&
+                std::is_same_v<DstFormat, oRGB>) {
+    Orgb orgb;
+    Srgb srgb;
+    std::vector<float> tmp(src.size());
+    orgb.convert(src, dst);
+    srgb.toXYZ(src, tmp);
+    orgb.fromXYZ(tmp, dst);
+  } else if constexpr (std::is_same_v<SrcFormat, oRGB> &&
+                       std::is_same_v<DstFormat, sRGB>) {
+    Orgb orgb;
+    Srgb srgb;
+    std::vector<float> tmp(src.size());
+    orgb.toXYZ(src, tmp);
+    srgb.fromXYZ(tmp, dst);
+  } else {
+    throw std::invalid_argument("Unsupported format");
   }
 }
 }  // namespace detail

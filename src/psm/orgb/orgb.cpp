@@ -39,6 +39,16 @@ class OrgbImpl {
     dst_map = (result * 255).cwiseMin(255).cwiseMax(0).template cast<T>();
   }
 
+  template <typename T>
+  void toXYZ(std::span<const T> src, std::span<float> dst) {
+    // TODO: Implement
+  }
+
+  template <typename T>
+  void fromXYZ(std::span<float> src, std::span<T> dst) {
+    // TODO: Implement
+  }
+
  private:
   Mat4f scaleTo4d(Mat3f lcc, const Eigen::MatrixXf& alpha);
   Mat3f switch_rb(Mat3f src);
@@ -176,5 +186,18 @@ void Orgb::convert(std::span<const T> src, std::span<T> dst) {
 }
 
 template void psm::Orgb::convert<unsigned char>(std::span<const unsigned char>,
+                                                std::span<unsigned char>);
+template <typename T>
+void Orgb::toXYZ(std::span<const T> src, std::span<float> dst) {
+  impl_->toXYZ(src, dst);
+}
+template <typename T>
+void Orgb::fromXYZ(std::span<float> src, std::span<T> dst) {
+  impl_->fromXYZ(src, dst);
+}
+
+template void psm::Orgb::toXYZ<unsigned char>(std::span<const unsigned char>,
+                                              std::span<float>);
+template void psm::Orgb::fromXYZ<unsigned char>(std::span<float>,
                                                 std::span<unsigned char>);
 }  // namespace psm
