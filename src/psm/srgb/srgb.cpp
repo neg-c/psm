@@ -53,7 +53,7 @@ class SrgbImpl {
     // clang-format off
     xyz2rgb <<  3.2404542f, -1.5371385f, -0.4985314f,
                 -0.9692660f,  1.8760108f,  0.0415560f,
-                 0.0556434f, -0.2040259f,  1.0572252f;
+                0.0556434f, -0.2040259f,  1.0572252f;
     // clang-format on
 
     Mat3f linear_rgb = xyz * xyz2rgb;

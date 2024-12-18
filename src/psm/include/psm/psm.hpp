@@ -35,7 +35,6 @@ void ConvertImpl(std::span<const T> src, std::span<T> dst) {
     Orgb orgb;
     Srgb srgb;
     std::vector<float> tmp(src.size());
-    orgb.convert(src, dst);
     srgb.toXYZ(src, tmp);
     orgb.fromXYZ(tmp, dst);
   } else if constexpr (std::is_same_v<SrcFormat, oRGB> &&

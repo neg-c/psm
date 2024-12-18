@@ -28,9 +28,9 @@ class OrgbImpl {
     Mat3f lcc = rgb2lcc(norm_rgb);
     Mat3f orgb = lcc2orgb(lcc);
 
-    Mat3f back_lcc = orgb2lcc(orgb);
-    Mat3f rgb = lcc2rgb(back_lcc);
-    Mat3f bgr = switch_rb(rgb);
+    // Mat3f back_lcc = orgb2lcc(orgb);
+    // Mat3f rgb = lcc2rgb(back_lcc);
+    Mat3f bgr = switch_rb(orgb);
     Mat4f bgra = scaleTo4d(bgr, norm_4d.rightCols(1));
 
     RowXfView result = RowXfView(bgra.data(), bgra.cols() * bgra.rows());
@@ -41,12 +41,60 @@ class OrgbImpl {
 
   template <typename T>
   void toXYZ(std::span<const T> src, std::span<float> dst) {
-    // TODO: Implement
+    Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
+    RowXf norm_src = normalize(map_src);
+    Mat4fView norm_4d(norm_src.data(), norm_src.cols() / 4, 4);
+    Mat3f norm_orgb = switch_rb(norm_4d.leftCols(3));
+
+    Mat3f back_lcc = orgb2lcc(norm_orgb);
+    Mat3f rgb = lcc2rgb(back_lcc);
+
+
+    Eigen::Matrix3f rgb2xyz;
+    // clang-format off
+    rgb2xyz << 0.4124564f, 0.3575761f, 0.1804375f,
+               0.2126729f, 0.7151522f, 0.0721750f,
+               0.0193339f, 0.1191920f, 0.9503041f;
+    // clang-format on
+
+    Mat3f xyz = rgb * rgb2xyz;
+
+    Mat4f xyza = scaleTo4d(xyz, norm_4d.rightCols(1));
+
+    RowXfView result = RowXfView(xyza.data(), xyza.cols() * xyza.rows());
+    Eigen::Map<Eigen::RowVectorX<float>> dst_map(dst.data(), dst.size());
+    dst_map = (result * 255.0f).template cast<float>();
   }
 
   template <typename T>
   void fromXYZ(std::span<float> src, std::span<T> dst) {
-    // TODO: Implement
+    Eigen::Map<const Eigen::RowVectorX<float>> map_src(src.data(), src.size());
+    RowXf norm_src = normalize(map_src);
+    Mat4fView norm_4d(norm_src.data(), norm_src.cols() / 4, 4);
+    Mat3f xyz = norm_4d.leftCols(3);
+
+    Eigen::Matrix3f xyz2rgb;
+    // clang-format off
+    xyz2rgb <<  3.2404542f, -1.5371385f, -0.4985314f,
+                -0.9692660f,  1.8760108f,  0.0415560f,
+                 0.0556434f, -0.2040259f,  1.0572252f;
+    // clang-format on
+
+    Mat3f linear_rgb = xyz * xyz2rgb;
+
+    Mat3f rgb = linear_rgb.unaryExpr([](float x) {
+      return (x <= 0.0031308f) ? 12.92f * x
+                               : 1.055f * std::pow(x, 1.0f / 2.4f) - 0.055f;
+    });
+
+    Mat3f lcc = rgb2lcc(rgb);
+    Mat3f orgb = lcc2orgb(lcc);
+    Mat3f obgr = switch_rb(orgb);
+    Mat4f obgra = scaleTo4d(obgr, norm_4d.rightCols(1));
+
+    RowXfView result = RowXfView(obgra.data(), obgra.cols() * obgra.rows());
+    Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
+    dst_map = (result * 255).cwiseMin(255).cwiseMax(0).template cast<T>();
   }
 
  private:
