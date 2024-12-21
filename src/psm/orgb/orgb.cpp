@@ -49,6 +49,10 @@ class OrgbImpl {
     Mat3f back_lcc = orgb2lcc(norm_orgb);
     Mat3f rgb = lcc2rgb(back_lcc);
 
+    Mat3f linear_rgb = rgb.unaryExpr([](float x) {
+      return (x <= 0.04045f) ? x / 12.92f
+                             : std::pow((x + 0.055f) / 1.055f, 2.4f);
+    });
 
     Eigen::Matrix3f rgb2xyz;
     // clang-format off
@@ -57,7 +61,7 @@ class OrgbImpl {
                0.0193339f, 0.1191920f, 0.9503041f;
     // clang-format on
 
-    Mat3f xyz = rgb * rgb2xyz;
+    Mat3f xyz = linear_rgb * rgb2xyz;
 
     Mat4f xyza = scaleTo4d(xyz, norm_4d.rightCols(1));
 
