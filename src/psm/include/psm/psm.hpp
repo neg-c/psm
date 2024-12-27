@@ -1,9 +1,9 @@
 #pragma once
 
+#include <cstddef>
 #include <ranges>
 #include <span>
 #include <type_traits>
-#include <vector>
 
 #include "color_space_traits.hpp"
 #include "orgb.hpp"
