@@ -26,8 +26,10 @@ class Orgb {
   template <typename T>
   [[deprecated]] void convert(std::span<const T> src, std::span<T> dst);
 
-  void toXYZ(std::span<const float> src, std::span<float> dst);
-  void fromXYZ(std::span<float> src, std::span<float> dst);
+  template <typename T>
+  void fromSRGB(std::span<const T> src, std::span<float> dst);
+  template <typename T>
+  void toSRGB(std::span<const float> src, std::span<T> dst);
 
  private:
   std::unique_ptr<OrgbImpl> impl_;
