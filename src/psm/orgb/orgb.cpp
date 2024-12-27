@@ -39,9 +39,8 @@ class OrgbImpl {
     dst_map = (result * 255).cwiseMin(255).cwiseMax(0).template cast<T>();
   }
 
-  template <typename T>
-  void toXYZ(std::span<const T> src, std::span<float> dst) {
-    Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
+  void toXYZ(std::span<const float> src, std::span<float> dst) {
+    Eigen::Map<const Eigen::RowVectorX<float>> map_src(src.data(), src.size());
     RowXf norm_src = normalize(map_src);
     Mat4fView norm_4d(norm_src.data(), norm_src.cols() / 4, 4);
     Mat3f norm_orgb = switch_rb(norm_4d.leftCols(3));
@@ -67,11 +66,10 @@ class OrgbImpl {
 
     RowXfView result = RowXfView(xyza.data(), xyza.cols() * xyza.rows());
     Eigen::Map<Eigen::RowVectorX<float>> dst_map(dst.data(), dst.size());
-    dst_map = (result * 255.0f).template cast<float>();
+    dst_map = (result * 255.0f);
   }
 
-  template <typename T>
-  void fromXYZ(std::span<float> src, std::span<T> dst) {
+  void fromXYZ(std::span<float> src, std::span<float> dst) {
     Eigen::Map<const Eigen::RowVectorX<float>> map_src(src.data(), src.size());
     RowXf norm_src = normalize(map_src);
     Mat4fView norm_4d(norm_src.data(), norm_src.cols() / 4, 4);
@@ -97,8 +95,8 @@ class OrgbImpl {
     Mat4f obgra = scaleTo4d(obgr, norm_4d.rightCols(1));
 
     RowXfView result = RowXfView(obgra.data(), obgra.cols() * obgra.rows());
-    Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
-    dst_map = (result * 255).cwiseMin(255).cwiseMax(0).template cast<T>();
+    Eigen::Map<Eigen::RowVectorX<float>> dst_map(dst.data(), dst.size());
+    dst_map = (result * 255);
   }
 
  private:
@@ -237,19 +235,11 @@ void Orgb::convert(std::span<const T> src, std::span<T> dst) {
   impl_->srgb2orgb(src, dst, 4);
 }
 
-template void psm::Orgb::convert<unsigned char>(std::span<const unsigned char>,
-                                                std::span<unsigned char>);
-template <typename T>
-void Orgb::toXYZ(std::span<const T> src, std::span<float> dst) {
+void Orgb::toXYZ(std::span<const float> src, std::span<float> dst) {
   impl_->toXYZ(src, dst);
 }
-template <typename T>
-void Orgb::fromXYZ(std::span<float> src, std::span<T> dst) {
+void Orgb::fromXYZ(std::span<float> src, std::span<float> dst) {
   impl_->fromXYZ(src, dst);
 }
 
-template void psm::Orgb::toXYZ<unsigned char>(std::span<const unsigned char>,
-                                              std::span<float>);
-template void psm::Orgb::fromXYZ<unsigned char>(std::span<float>,
-                                                std::span<unsigned char>);
 }  // namespace psm

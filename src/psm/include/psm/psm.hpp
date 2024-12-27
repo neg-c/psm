@@ -28,8 +28,8 @@ static std::unordered_map<std::pair<Format, Format>, Conversion, PairHash>
         {std::pair(Format::ksRGB, Format::koRGB), Conversion::ksRGB2oRGB}};
 
 namespace detail {
-template <typename SrcFormat, typename DstFormat, typename T>
-void ConvertImpl(std::span<const T> src, std::span<T> dst) {
+template <typename SrcFormat, typename DstFormat, typename SrcT, typename DstT>
+void ConvertImpl(std::span<const SrcT> src, std::span<DstT> dst) {
   if constexpr (std::is_same_v<SrcFormat, sRGB> &&
                 std::is_same_v<DstFormat, oRGB>) {
     Orgb orgb;
@@ -52,9 +52,11 @@ void ConvertImpl(std::span<const T> src, std::span<T> dst) {
 
 template <std::ranges::contiguous_range Src_Range,
           std::ranges::contiguous_range Dst_Range>
-void Convert(const Src_Range& src, Dst_Range& dst, Format src_format,
-             Format dst_format) {
-  detail::ConvertImpl(std::span{src}, std::span{dst}, src_format, dst_format);
+void Convert(const Src_Range& src, Dst_Range& dst) {
+  using SrcT = std::ranges::range_value_t<Src_Range>;
+  using DstT = std::ranges::range_value_t<Dst_Range>;
+  detail::ConvertImpl<SrcFormat, DstFormat, SrcT, DstT>(std::span{src},
+                                                        std::span{dst});
 }
 
 }  // namespace psm
