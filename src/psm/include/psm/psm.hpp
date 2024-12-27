@@ -1,5 +1,4 @@
-#ifndef PSM_HPP
-#define PSM_HPP
+#pragma once
 
 #include <ranges>
 #include <span>
@@ -30,5 +29,3 @@ void Convert(Src_Range& src, Dst_Range& dst) {
 }
 
 }  // namespace psm
-
-#endif  // PSM_HPP
