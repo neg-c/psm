@@ -8,10 +8,15 @@ include more color space conversions in the future.
 
 ## Features
 
-- **Color Space Conversion**: Supports sRGB to oRGB.
-- **C++20 Compatibility**: Built with modern C++20 features.
+- **Color Space Conversion**: Supports sRGB to oRGB conversions
+- **C++20 Compatibility**: Built with modern C++20 features
 - **Flexible Integration**: Can be built, installed, or directly included in
-  other projects.
+  other projects
+
+## Limitations
+
+- Currently only processes input data as BGR format
+- Additional channels (like alpha) are ignored during conversion
 
 ## Getting Started
 
@@ -20,8 +25,7 @@ Prisma into your project.
 
 ## Usage Example
 
-Refer to the example provided in `src/psm_cli` for a simple demonstration. Or to
-simply get started:
+Here's a simple example showing BGR color conversion:
 
 ```cpp
 #include "psm/psm.hpp"
