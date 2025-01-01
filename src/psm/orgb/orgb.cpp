@@ -18,63 +18,46 @@ using RowXfConstView = Eigen::Map<const RowXf>;
 class OrgbImpl {
  public:
   OrgbImpl() = default;
-
   template <typename T>
-  void srgb2orgb(std::span<const T> src, std::span<T> dst,
-                 std::size_t channel) {
-    Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
-
-    RowXf norm_src = normalize(map_src);
-    Mat4fView norm_4d(norm_src.data(), norm_src.cols() / channel, channel);
-    Mat3f norm_rgb = switch_rb(norm_4d.leftCols(3));
-    Mat3f lcc = rgb2lcc(norm_rgb);
-    Mat3f orgb = lcc2orgb(lcc);
-
-    Mat3f back_lcc = orgb2lcc(orgb);
-    Mat3f rgb = lcc2rgb(back_lcc);
-    Mat3f bgr = switch_rb(rgb);
-    Mat4f bgra = scaleTo4d(bgr, norm_4d.rightCols(1));
-
-    RowXfView result = RowXfView(bgra.data(), bgra.cols() * bgra.rows());
-
-    Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
-    dst_map = (result * 255).cwiseMin(255).cwiseMax(0).template cast<T>();
-  }
-
-  template <typename T>
-  void fromSRGB(std::span<const T> src, std::span<float> dst) {
+  void fromSRGB(std::span<const T> src, std::span<T> dst) {
     Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
 
     RowXf norm_src = normalize(map_src);
 
-    Eigen::Map<Mat3f> norm_bgr(norm_src.data(), norm_src.cols() / 3, 3);
+    // Assuming BGR as input
+    Mat3fView norm_bgr(norm_src.data(), norm_src.cols() / 3, 3);
     Mat3f norm_rgb = switch_rb(norm_bgr);
     Mat3f lcc = rgb2lcc(norm_rgb);
     Mat3f orgb = lcc2orgb(lcc);
     Mat3f obgr = switch_rb(orgb);
+    // map [-1, 2] to [0, 1] to preserve data when converting back to sRGB
+    Mat3f shifted_obgr = ((obgr.array() + 1.0f) / 3.0f).min(1.0f).max(0.0f);
 
-    RowXfView result = RowXfView(obgr.data(), obgr.cols() * obgr.rows());
-
-    Eigen::Map<Eigen::RowVectorX<float>> dst_map(dst.data(), dst.size());
-    dst_map = (result * 255.0f);
+    RowXfView result(shifted_obgr.data(),
+                     shifted_obgr.cols() * shifted_obgr.rows());
+    Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
+    dst_map =
+        (result * 255.0f).cwiseMin(255.0f).cwiseMax(0.0f).template cast<T>();
   }
 
   template <typename T>
-  void toSRGB(std::span<const float> src, std::span<T> dst) {
-    Eigen::Map<const Eigen::RowVectorX<float>> map_src(src.data(), src.size());
+  void toSRGB(std::span<const T> src, std::span<T> dst) {
+    Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
+    RowXf norm_src = map_src.template cast<float>() / 255.0f;
 
-    RowXf norm_src = normalize(map_src);
+    // Assuming BGR as input
+    Mat3fView norm_obgr(norm_src.data(), norm_src.cols() / 3, 3);
 
-    Eigen::Map<Mat3f> norm_obgr(norm_src.data(), norm_src.cols() / 3, 3);
-    Mat3f obgr = norm_obgr;
+    // remap [0, 1] back to [-1, 2] to preserve data
+    Mat3f unshifted_obgr =
+        ((norm_obgr.array() * 3.0f) - 1.0f).min(2.0f).max(-1.0f);
 
-    Mat3f orgb = switch_rb(obgr);
+    Mat3f orgb = switch_rb(unshifted_obgr);
     Mat3f lcc = orgb2lcc(orgb);
     Mat3f rgb = lcc2rgb(lcc);
     Mat3f bgr = switch_rb(rgb);
 
-    RowXfView result = RowXfView(bgr.data(), bgr.cols() * bgr.rows());
-
+    RowXfView result(bgr.data(), bgr.cols() * bgr.rows());
     Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
     dst_map =
         (result * 255.0f).cwiseMin(255.0f).cwiseMax(0.0f).template cast<T>();
@@ -111,23 +94,23 @@ Mat3f OrgbImpl::switch_rb(Mat3f src) {
 }
 
 double OrgbImpl::convertToRGBangle(double theta) {
+  theta = std::clamp(theta, 0.0, std::numbers::pi);
   if (theta < std::numbers::pi / 3) {
     return (3.0f / 2.0f) * theta;
-  } else if (theta <= std::numbers::pi && theta >= std::numbers::pi / 3) {
+  } else {
     return std::numbers::pi / 2 +
            (3.0f / 4.0f) * (theta - std::numbers::pi / 3);
   }
-  return -1337;
 }
 
 double OrgbImpl::convertToOrgbangle(double theta) {
+  theta = std::clamp(theta, 0.0, std::numbers::pi);
   if (theta < std::numbers::pi / 2) {
     return (2.0f / 3.0f) * theta;
-  } else if (theta <= std::numbers::pi && theta >= std::numbers::pi / 2) {
+  } else {
     return std::numbers::pi / 3 +
            (4.0f / 3.0f) * (theta - std::numbers::pi / 2);
   }
-  return -1337;
 }
 
 Mat3f OrgbImpl::rgb2lcc(Mat3f src) {
@@ -212,21 +195,16 @@ Orgb::Orgb(Orgb&&) noexcept = default;
 Orgb& Orgb::operator=(Orgb&&) noexcept = default;
 
 template <typename T>
-void Orgb::convert(std::span<const T> src, std::span<T> dst) {
-  impl_->srgb2orgb(src, dst, 4);
-}
-
-template <typename T>
-void Orgb::fromSRGB(std::span<const T> src, std::span<float> dst) {
+void Orgb::fromSRGB(std::span<const T> src, std::span<T> dst) {
   impl_->fromSRGB(src, dst);
 }
 template <typename T>
-void Orgb::toSRGB(std::span<const float> src, std::span<T> dst) {
+void Orgb::toSRGB(std::span<const T> src, std::span<T> dst) {
   impl_->toSRGB(src, dst);
 }
 
 template void psm::Orgb::fromSRGB<unsigned char>(std::span<const unsigned char>,
-                                                 std::span<float>);
-template void psm::Orgb::toSRGB<unsigned char>(std::span<const float>,
+                                                 std::span<unsigned char>);
+template void psm::Orgb::toSRGB<unsigned char>(std::span<const unsigned char>,
                                                std::span<unsigned char>);
 }  // namespace psm
