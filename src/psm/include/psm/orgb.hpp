@@ -1,7 +1,6 @@
 #ifndef ORGB_HPP
 #define ORGB_HPP
 
-#include <memory>
 #include <span>
 
 class OrgbImpl;
@@ -10,26 +9,14 @@ namespace psm {
 
 struct oRGB {};
 
-class OrgbImpl;
-
 class Orgb {
  public:
-  Orgb();
-  ~Orgb();
-
-  Orgb(const Orgb&) = delete;
-  Orgb& operator=(const Orgb&) = delete;
-
-  Orgb(Orgb&&) noexcept;
-  Orgb& operator=(Orgb&&) noexcept;
+  Orgb() = delete;
 
   template <typename T>
-  void fromSRGB(std::span<const T> src, std::span<T> dst);
+  static void fromSRGB(const std::span<T>& src, std::span<T> dst);
   template <typename T>
-  void toSRGB(std::span<const T> src, std::span<T> dst);
-
- private:
-  std::unique_ptr<OrgbImpl> impl_;
+  static void toSRGB(const std::span<T>& src, std::span<T> dst);
 };
 
 }  // namespace psm

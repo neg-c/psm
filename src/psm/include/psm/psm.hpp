@@ -16,18 +16,11 @@ struct sRGB {};
 
 namespace detail {
 template <typename SrcFormat, typename DstFormat, typename T>
-void ConvertImpl(std::span<const T> src, std::span<T> dst) {
-  if constexpr (std::is_same_v<SrcFormat, sRGB> &&
-                std::is_same_v<DstFormat, oRGB>) {
-    Orgb orgb;
-    orgb.fromSRGB(src, dst);
-  } else if constexpr (std::is_same_v<SrcFormat, oRGB> &&
-                       std::is_same_v<DstFormat, sRGB>) {
-    Orgb orgb;
-    orgb.toSRGB(src, dst);
-  } else {
-    throw std::invalid_argument("Unsupported format");
-  }
+void ConvertImpl(std::span<T> src, std::span<T> dst) {
+  std::span<T> intermediate{src.data(), src.size()};
+
+  ColorSpace_t<SrcFormat>::toSRGB(src, intermediate);
+  ColorSpace_t<DstFormat>::fromSRGB(intermediate, dst);
 }
 }  // namespace detail
 
