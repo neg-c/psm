@@ -3,7 +3,7 @@
 
 #include <span>
 
-class OrgbImpl;
+#include "color_space.hpp"
 
 namespace psm {
 
@@ -17,6 +17,11 @@ class Orgb {
   static void fromSRGB(const std::span<T>& src, std::span<T> dst);
   template <typename T>
   static void toSRGB(const std::span<T>& src, std::span<T> dst);
+};
+
+template <>
+struct ColorSpace<oRGB> {
+  using Type = Orgb;
 };
 
 }  // namespace psm

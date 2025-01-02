@@ -3,16 +3,14 @@
 
 #include <ranges>
 #include <span>
-#include <stdexcept>
 #include <type_traits>
 #include <vector>
 
+#include "color_space.hpp"
 #include "orgb.hpp"
-#include "psm/orgb.hpp"
+#include "srgb.hpp"
 
 namespace psm {
-
-struct sRGB {};
 
 namespace detail {
 template <typename SrcFormat, typename DstFormat, typename T>
@@ -27,7 +25,7 @@ void ConvertImpl(std::span<T> src, std::span<T> dst) {
 template <typename SrcFormat, typename DstFormat,
           std::ranges::contiguous_range Src_Range,
           std::ranges::contiguous_range Dst_Range>
-void Convert(const Src_Range& src, Dst_Range& dst) {
+void Convert(Src_Range& src, Dst_Range& dst) {
   detail::ConvertImpl<SrcFormat, DstFormat>(std::span{src}, std::span{dst});
 }
 

@@ -1,3 +1,6 @@
+add_subdirectory(orgb)
+add_subdirectory(srgb)
+
 add_library(psm INTERFACE)
 
 target_sources(
@@ -9,9 +12,7 @@ target_sources(
          ${CMAKE_BINARY_DIR}/include/
          FILES
          include/psm/psm.hpp
+         include/psm/color_space.hpp
          ${CMAKE_BINARY_DIR}/include/psm/version.hpp)
 
-add_subdirectory(orgb)
-
-target_link_libraries(psm INTERFACE psm_orgb)
-target_compile_features(psm INTERFACE cxx_std_20)
+target_link_libraries(psm INTERFACE psm_orgb psm_srgb)
