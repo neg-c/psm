@@ -3,7 +3,7 @@
 
 #include <span>
 
-#include "color_space.hpp"
+#include "color_space_traits.hpp"
 
 namespace psm {
 

@@ -6,7 +6,7 @@
 #include <type_traits>
 #include <vector>
 
-#include "color_space.hpp"
+#include "color_space_traits.hpp"
 #include "orgb.hpp"
 #include "srgb.hpp"
 
