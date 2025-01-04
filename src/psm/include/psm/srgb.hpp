@@ -25,7 +25,7 @@ class Srgb {
 };
 
 template <>
-struct ColorSpace<sRGB> {
+struct detail::ColorSpace<sRGB> {
   using Type = Srgb;
 };
 

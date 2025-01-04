@@ -20,7 +20,7 @@ class Orgb {
 };
 
 template <>
-struct ColorSpace<oRGB> {
+struct detail::ColorSpace<oRGB> {
   using Type = Orgb;
 };
 
