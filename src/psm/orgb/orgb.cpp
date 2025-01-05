@@ -40,7 +40,7 @@ class OrgbImpl {
     Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
     dst_map = (result * 255).cwiseMin(255).cwiseMax(0).template cast<T>();
   }
-  
+
   template <typename T>
   void fromSRGB(std::span<const T> src, std::span<float> dst) {
     Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
