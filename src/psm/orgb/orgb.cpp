@@ -1,9 +1,6 @@
 #include "psm/orgb.hpp"
 
 #include <Eigen/Dense>
-#include <array>
-#include <cstring>
-#include <iostream>
 #include <memory>
 #include <numbers>
 
@@ -33,9 +30,9 @@ class OrgbImpl {
     Mat3f lcc = rgb2lcc(norm_rgb);
     Mat3f orgb = lcc2orgb(lcc);
 
-    // Mat3f back_lcc = orgb2lcc(orgb);
-    // Mat3f rgb = lcc2rgb(back_lcc);
-    Mat3f bgr = switch_rb(orgb);
+    Mat3f back_lcc = orgb2lcc(orgb);
+    Mat3f rgb = lcc2rgb(back_lcc);
+    Mat3f bgr = switch_rb(rgb);
     Mat4f bgra = scaleTo4d(bgr, norm_4d.rightCols(1));
 
     RowXfView result = RowXfView(bgra.data(), bgra.cols() * bgra.rows());
@@ -43,7 +40,7 @@ class OrgbImpl {
     Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
     dst_map = (result * 255).cwiseMin(255).cwiseMax(0).template cast<T>();
   }
-
+  
   template <typename T>
   void fromSRGB(std::span<const T> src, std::span<float> dst) {
     Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());

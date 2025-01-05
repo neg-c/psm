@@ -30,6 +30,7 @@ void ConvertImpl(std::span<const SrcT> src, std::span<DstT> dst) {
   }
 }
 }  // namespace detail
+
 template <typename SrcFormat, typename DstFormat,
           std::ranges::contiguous_range Src_Range,
           std::ranges::contiguous_range Dst_Range>
