@@ -144,12 +144,11 @@ void Orgb::fromSRGB(const std::span<T>& src, std::span<T> dst) {
   Mat3f norm_rgb = switch_rb(norm_bgr);
   Mat3f lcc = rgb2lcc(norm_rgb);
   Mat3f orgb = lcc2orgb(lcc);
-  Mat3f obgr = switch_rb(orgb);
   // map [-1, 2] to [0, 1] to preserve data when converting back to sRGB
-  Mat3f shifted_obgr = ((obgr.array() + 1.0f) / 3.0f).min(1.0f).max(0.0f);
+  Mat3f shifted_orgb = ((orgb.array() + 1.0f) / 3.0f).min(1.0f).max(0.0f);
 
-  RowXfView result(shifted_obgr.data(),
-                   shifted_obgr.cols() * shifted_obgr.rows());
+  RowXfView result(shifted_orgb.data(),
+                   shifted_orgb.cols() * shifted_orgb.rows());
   Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
   dst_map =
       (result * 255.0f).cwiseMin(255.0f).cwiseMax(0.0f).template cast<T>();
@@ -160,15 +159,14 @@ void Orgb::toSRGB(const std::span<T>& src, std::span<T> dst) {
   Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
   RowXf norm_src = map_src.template cast<float>() / 255.0f;
 
-  // Assuming BGR as input
+  // Assuming ORGB as input
   Mat3fView norm_obgr(norm_src.data(), norm_src.cols() / 3, 3);
 
   // remap [0, 1] back to [-1, 2] to preserve data
-  Mat3f unshifted_obgr =
+  Mat3f unshifted_orgb =
       ((norm_obgr.array() * 3.0f) - 1.0f).min(2.0f).max(-1.0f);
 
-  Mat3f orgb = switch_rb(unshifted_obgr);
-  Mat3f lcc = orgb2lcc(orgb);
+  Mat3f lcc = orgb2lcc(unshifted_orgb);
   Mat3f rgb = lcc2rgb(lcc);
   Mat3f bgr = switch_rb(rgb);
 
