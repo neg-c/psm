@@ -4,6 +4,7 @@
 #include <ranges>
 #include <vector>
 
+#include "psm/orgb.hpp"
 #include "psm/psm.hpp"
 
 template <std::ranges::contiguous_range Buffer>
@@ -23,12 +24,13 @@ int main() {
   };
 
   std::vector<unsigned char> output_image(input_image.size());
+  std::vector<float> orgb_image(input_image.size());
 
   std::cout << "Input Image (RGBA):\n";
   print_buffer(std::span{input_image});
 
-  psm::Convert(input_image, output_image, psm::Format::ksRGB,
-               psm::Format::koRGB);
+  psm::Convert<psm::sRGB, psm::oRGB>(input_image, orgb_image);
+  psm::Convert<psm::oRGB, psm::sRGB>(orgb_image, output_image);
 
   std::cout << "Output Image (oRGB):\n";
   print_buffer(std::span{output_image});

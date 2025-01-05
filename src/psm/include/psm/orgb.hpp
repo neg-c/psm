@@ -8,7 +8,9 @@ class OrgbImpl;
 
 namespace psm {
 
-class OrgbImpl;  // Forward declaration
+struct oRGB {};
+
+class OrgbImpl;
 
 class Orgb {
  public:
@@ -22,10 +24,15 @@ class Orgb {
   Orgb& operator=(Orgb&&) noexcept;
 
   template <typename T>
-  void convert(std::span<const T> src, std::span<T> dst);
+  [[deprecated]] void convert(std::span<const T> src, std::span<T> dst);
+
+  template <typename T>
+  void fromSRGB(std::span<const T> src, std::span<float> dst);
+  template <typename T>
+  void toSRGB(std::span<const float> src, std::span<T> dst);
 
  private:
-  std::unique_ptr<OrgbImpl> impl_;  // Pimpl
+  std::unique_ptr<OrgbImpl> impl_;
 };
 
 }  // namespace psm

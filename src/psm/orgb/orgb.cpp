@@ -10,8 +10,10 @@ using Mat3f = Eigen::Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor>;
 using Mat4f = Eigen::Matrix<float, Eigen::Dynamic, 4, Eigen::RowMajor>;
 using Mat3fView = Eigen::Map<Mat3f>;
 using Mat4fView = Eigen::Map<Mat4f>;
+using Mat4fConstView = Eigen::Map<const Mat4f>;
 using RowXf = Eigen::RowVectorXf;
 using RowXfView = Eigen::Map<RowXf>;
+using RowXfConstView = Eigen::Map<const RowXf>;
 
 class OrgbImpl {
  public:
@@ -37,6 +39,45 @@ class OrgbImpl {
 
     Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
     dst_map = (result * 255).cwiseMin(255).cwiseMax(0).template cast<T>();
+  }
+
+  template <typename T>
+  void fromSRGB(std::span<const T> src, std::span<float> dst) {
+    Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
+
+    RowXf norm_src = normalize(map_src);
+
+    Eigen::Map<Mat3f> norm_bgr(norm_src.data(), norm_src.cols() / 3, 3);
+    Mat3f norm_rgb = switch_rb(norm_bgr);
+    Mat3f lcc = rgb2lcc(norm_rgb);
+    Mat3f orgb = lcc2orgb(lcc);
+    Mat3f obgr = switch_rb(orgb);
+
+    RowXfView result = RowXfView(obgr.data(), obgr.cols() * obgr.rows());
+
+    Eigen::Map<Eigen::RowVectorX<float>> dst_map(dst.data(), dst.size());
+    dst_map = (result * 255.0f);
+  }
+
+  template <typename T>
+  void toSRGB(std::span<const float> src, std::span<T> dst) {
+    Eigen::Map<const Eigen::RowVectorX<float>> map_src(src.data(), src.size());
+
+    RowXf norm_src = normalize(map_src);
+
+    Eigen::Map<Mat3f> norm_obgr(norm_src.data(), norm_src.cols() / 3, 3);
+    Mat3f obgr = norm_obgr;
+
+    Mat3f orgb = switch_rb(obgr);
+    Mat3f lcc = orgb2lcc(orgb);
+    Mat3f rgb = lcc2rgb(lcc);
+    Mat3f bgr = switch_rb(rgb);
+
+    RowXfView result = RowXfView(bgr.data(), bgr.cols() * bgr.rows());
+
+    Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
+    dst_map =
+        (result * 255.0f).cwiseMin(255.0f).cwiseMax(0.0f).template cast<T>();
   }
 
  private:
@@ -175,6 +216,17 @@ void Orgb::convert(std::span<const T> src, std::span<T> dst) {
   impl_->srgb2orgb(src, dst, 4);
 }
 
-template void psm::Orgb::convert<unsigned char>(std::span<const unsigned char>,
-                                                std::span<unsigned char>);
+template <typename T>
+void Orgb::fromSRGB(std::span<const T> src, std::span<float> dst) {
+  impl_->fromSRGB(src, dst);
+}
+template <typename T>
+void Orgb::toSRGB(std::span<const float> src, std::span<T> dst) {
+  impl_->toSRGB(src, dst);
+}
+
+template void psm::Orgb::fromSRGB<unsigned char>(std::span<const unsigned char>,
+                                                 std::span<float>);
+template void psm::Orgb::toSRGB<unsigned char>(std::span<const float>,
+                                               std::span<unsigned char>);
 }  // namespace psm
