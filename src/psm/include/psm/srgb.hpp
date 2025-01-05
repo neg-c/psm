@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <span>
 
 #include "color_space_traits.hpp"

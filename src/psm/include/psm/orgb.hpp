@@ -1,5 +1,4 @@
-#ifndef ORGB_HPP
-#define ORGB_HPP
+#pragma once
 
 #include <span>
 
@@ -25,4 +24,3 @@ struct detail::ColorSpace<oRGB> {
 };
 
 }  // namespace psm
-#endif  // ORGB_HPP

@@ -1,10 +1,9 @@
-#ifndef PSM_HPP
-#define PSM_HPP
+#pragma once
 
+#include <cstddef>
 #include <ranges>
 #include <span>
 #include <type_traits>
-#include <vector>
 
 #include "color_space_traits.hpp"
 #include "orgb.hpp"
@@ -30,5 +29,3 @@ void Convert(Src_Range& src, Dst_Range& dst) {
 }
 
 }  // namespace psm
-
-#endif  // PSM_HPP

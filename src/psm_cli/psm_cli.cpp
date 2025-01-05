@@ -16,16 +16,16 @@ void print_buffer(const Buffer& buffer) {
 
 int main() {
   std::vector<unsigned char> input_image = {
-      255, 0,   0,   255,  // Red pixel (R=255, G=0, B=0, A=255)
-      0,   255, 0,   255,  // Green pixel (R=0, G=255, B=0, A=255)
-      0,   0,   255, 255,  // Blue pixel (R=0, G=0, B=255, A=255)
-      255, 255, 0,   255   // Yellow pixel (R=255, G=255, B=0, A=255)
+      0,   0,   255,  // Blue pixel (B=0, G=0, R=255)
+      0,   255, 0,    // Green pixel (B=0, G=255, R=0)
+      255, 0,   0,    // Red pixel (B=255, G=0, R=0)
+      0,   255, 255   // Yellow pixel (B=0, G=255, R=255)
   };
 
   std::vector<unsigned char> output_image(input_image.size());
 
-  std::cout << "Input Image (RGBA):\n";
-  print_buffer(std::span{input_image});
+  std::cout << "Input Image (BGR):\n";
+  print_buffer(input_image);
 
   psm::Convert<psm::sRGB, psm::oRGB>(input_image, output_image);
   psm::Convert<psm::oRGB, psm::sRGB>(output_image, output_image);
