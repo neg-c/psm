@@ -1,6 +1,8 @@
 #ifndef PSM_HPP
 #define PSM_HPP
 
+#include <concepts>
+#include <ranges>
 #include <span>
 #include <stdexcept>
 #include <unordered_map>
@@ -8,6 +10,7 @@
 
 #include "orgb.hpp"
 #include "psm/orgb.hpp"
+
 namespace psm {
 
 enum class Format { ksRGB, koRGB };
@@ -26,9 +29,10 @@ static std::unordered_map<std::pair<Format, Format>, Conversion, PairHash>
     conversion_table{
         {std::pair(Format::ksRGB, Format::koRGB), Conversion::ksRGB2oRGB}};
 
+namespace detail {
 template <typename T>
-void Color(std::span<const T> src, std::span<T> dst, Format src_format,
-           Format dst_format) {
+void ConvertImpl(std::span<const T> src, std::span<T> dst, Format src_format,
+                 Format dst_format) {
   auto cvt_format_it =
       conversion_table.find(std::make_pair(src_format, dst_format));
 
@@ -41,6 +45,14 @@ void Color(std::span<const T> src, std::span<T> dst, Format src_format,
     default:
       throw std::invalid_argument("Unsupported format");
   }
+}
+}  // namespace detail
+
+template <std::ranges::contiguous_range Src_Range,
+          std::ranges::contiguous_range Dst_Range>
+void Convert(const Src_Range& src, Dst_Range& dst, Format src_format,
+             Format dst_format) {
+  detail::ConvertImpl(std::span{src}, std::span{dst}, src_format, dst_format);
 }
 
 }  // namespace psm
