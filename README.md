@@ -27,13 +27,19 @@ simply get started:
 #include "psm/psm.hpp"
 
 int main() {
-  // load_image is your placeholder for and rgba image
-  std::vector<unsigned char> input_image = load_image();
+  // Input data in BGR format
+  std::vector<unsigned char> input_image = {
+      0,   0,   255,  // Blue pixel (B=0, G=0, R=255)
+      0,   255, 0,    // Green pixel (B=0, G=255, R=0)
+      255, 0,   0     // Red pixel (B=255, G=0, R=0)
+  };
+
+  // Allocate output buffer
   std::vector<unsigned char> output_image(input_image.size());
 
-  psm::Convert(input_image, output_image, psm::Format::ksRGB, psm::Format::koRGB);
-
-  return 0;
+  // Convert BGR to oRGB and back
+  psm::Convert<psm::sRGB, psm::oRGB>(input_image, output_image);
+  psm::Convert<psm::oRGB, psm::sRGB>(output_image, output_image);
 }
 ```
 

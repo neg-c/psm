@@ -2,7 +2,7 @@ include(GNUInstallDirs)
 
 # Install libraries and headers with components
 install(
-  TARGETS psm psm_orgb
+  TARGETS psm psm_orgb psm_srgb
   EXPORT psmLibrary
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

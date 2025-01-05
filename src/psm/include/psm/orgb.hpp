@@ -1,38 +1,27 @@
 #ifndef ORGB_HPP
 #define ORGB_HPP
 
-#include <memory>
 #include <span>
 
-class OrgbImpl;
+#include "color_space_traits.hpp"
 
 namespace psm {
 
 struct oRGB {};
 
-class OrgbImpl;
-
 class Orgb {
  public:
-  Orgb();
-  ~Orgb();
-
-  Orgb(const Orgb&) = delete;
-  Orgb& operator=(const Orgb&) = delete;
-
-  Orgb(Orgb&&) noexcept;
-  Orgb& operator=(Orgb&&) noexcept;
+  Orgb() = delete;
 
   template <typename T>
-  [[deprecated]] void convert(std::span<const T> src, std::span<T> dst);
-
+  static void fromSRGB(const std::span<T>& src, std::span<T> dst);
   template <typename T>
-  void fromSRGB(std::span<const T> src, std::span<float> dst);
-  template <typename T>
-  void toSRGB(std::span<const float> src, std::span<T> dst);
+  static void toSRGB(const std::span<T>& src, std::span<T> dst);
+};
 
- private:
-  std::unique_ptr<OrgbImpl> impl_;
+template <>
+struct detail::ColorSpace<oRGB> {
+  using Type = Orgb;
 };
 
 }  // namespace psm
