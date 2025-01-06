@@ -1,8 +1,8 @@
 #include <cstddef>
 #include <format>
 #include <iostream>
+#include <opencv2/opencv.hpp>
 #include <ranges>
-#include <vector>
 
 #include "psm/psm.hpp"
 
@@ -14,25 +14,52 @@ void print_buffer(const Buffer& buffer) {
   std::cout << "\n";
 }
 
-int main() {
-  std::vector<unsigned char> input_image = {
-      0,   0,   255,  // Blue pixel (B=0, G=0, R=255)
-      0,   255, 0,    // Green pixel (B=0, G=255, R=0)
-      255, 0,   0,    // Red pixel (B=255, G=0, R=0)
-      0,   255, 255   // Yellow pixel (B=0, G=255, R=255)
-  };
+static int window(const std::basic_string<char>& wndName, const cv::Mat& roi,
+                  bool freeze) {
+  cv::namedWindow(wndName, cv::WINDOW_NORMAL);
+  cv::setWindowProperty(wndName, cv::WND_PROP_FULLSCREEN, cv::WND_PROP_TOPMOST);
+  cv::imshow(wndName, roi);
+  if (freeze) {
+    while (true) {
+      int c = cv::waitKey();
+      if (c == 27) {
+        break;
+      }
+    }
+  }
+  return 0;
+}
 
-  std::vector<unsigned char> output_image(input_image.size());
+int main(int argc, char* argv[]) {
+  if (argc != 2) {
+    std::cerr << "Usage: " << argv[0] << " <image_path>\n";
+    return 1;
+  }
 
-  std::cout << "Input Image (BGR):\n";
-  print_buffer(input_image);
+  cv::Mat image = cv::imread(argv[1], cv::IMREAD_UNCHANGED);
+  cv::Mat out_image(image.rows, image.cols, CV_8UC3);
 
-  psm::Convert<psm::sRGB, psm::oRGB>(input_image, output_image);
-  psm::AdjustChannels<psm::oRGB>(output_image, 0, 10, 10);
-  psm::Convert<psm::oRGB, psm::sRGB>(output_image, output_image);
+  if (image.empty()) {
+    std::cerr << "Error: Could not load image " << argv[1] << "\n";
+    return 1;
+  }
 
-  std::cout << "Output Image (BGR):\n";
-  print_buffer(output_image);
+  // Use image directly without conversion
+  if (image.channels() != 3 && image.channels() != 4) {
+    std::cerr << "Error: Image must be RGB or RGBA\n";
+    return 1;
+  }
+
+  std::span<unsigned char> in_span(
+      image.ptr(), image.ptr() + image.total() * image.channels());
+  std::span<unsigned char> out_span(
+      out_image.ptr(),
+      out_image.ptr() + out_image.total() * out_image.channels());
+
+  psm::Convert<psm::sRGB, psm::oRGB>(in_span, out_span);
+  psm::Convert<psm::oRGB, psm::sRGB>(out_span, out_span);
+  window("kfjdalkf", image, false);
+  window("kfjdalkdfsadff", out_image, true);
 
   return 0;
 }

@@ -1,6 +1,9 @@
 add_executable(psm_cli psm_cli.cpp)
 
-target_link_libraries(psm_cli PRIVATE psm)
+find_package(OpenCV REQUIRED)
+
+target_link_libraries(psm_cli PRIVATE psm opencv_core opencv_imgcodecs
+                                      opencv_imgproc opencv_highgui)
 
 if(MSVC)
   add_custom_command(
