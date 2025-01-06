@@ -1,6 +1,8 @@
-add_subdirectory(orgb)
-add_subdirectory(srgb)
 add_subdirectory(detail)
+add_subdirectory(srgb)
+add_subdirectory(orgb)
+add_subdirectory(adobe_rgb)
+
 
 add_library(psm INTERFACE)
 
