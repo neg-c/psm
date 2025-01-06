@@ -24,7 +24,7 @@ Mat3f switch_rb(Mat3f src) {
 
 template <typename T>
 RowXf linearize(const Eigen::Map<const Eigen::RowVectorX<T>>& src) {
-  RowXf normalized = src.template cast<float>() / 255.0f;
+  const RowXf normalized = src.template cast<float>() / 255.0f;
   return normalized.unaryExpr([](float value) {
     return (value <= 0.04045f) ? (value / 12.92f)
                                : std::pow((value + 0.055f) / 1.055f, 2.4f);
@@ -33,7 +33,7 @@ RowXf linearize(const Eigen::Map<const Eigen::RowVectorX<T>>& src) {
 
 template <typename T>
 RowXf delinearize(const Eigen::Map<const Eigen::RowVectorX<T>>& src) {
-  RowXf normalized = src.template cast<float>();
+  const RowXf normalized = src.template cast<float>();
   return normalized.unaryExpr([](float value) {
     return (value <= 0.0031308f)
                ? (12.92f * value)
