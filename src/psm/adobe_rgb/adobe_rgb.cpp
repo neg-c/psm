@@ -48,7 +48,7 @@ Mat3f rgb2xyz(const Mat3f& src) {
                    0.2126729f, 0.7151522f, 0.0721750f,
                    0.0193339f, 0.1191920f, 0.9503041f;
   // clang-format on
-  return src * transform_mat;
+  return src * transform_mat.transpose();
 }
 
 Mat3f xyz2adobe_rgb(const Mat3f& src) {
@@ -58,7 +58,7 @@ Mat3f xyz2adobe_rgb(const Mat3f& src) {
                    -0.9692660f, 1.8760108f, 0.0415560f,
                    0.0134474f, -0.1183897f, 1.0154096f;
   // clang-format on
-  return src * transform_mat;
+  return src * transform_mat.transpose();
 }
 
 Mat3f xyz2rgb(const Mat3f& src) {
@@ -68,7 +68,7 @@ Mat3f xyz2rgb(const Mat3f& src) {
                   -0.9692660f,  1.8760108f,  0.0415560f,
                    0.0556434f, -0.2040259f,  1.0572252f;
   // clang-format on
-  return src * transform_mat;
+  return src * transform_mat.transpose();
 }
 
 Mat3f adobe_rgb2xyz(const Mat3f& src) {
@@ -78,7 +78,7 @@ Mat3f adobe_rgb2xyz(const Mat3f& src) {
                    0.2973769f,  0.6273491f,  0.0752741f,
                    0.0270343f,  0.0706872f,  0.9911085f;
   // clang-format on
-  return src * transform_mat;
+  return src * transform_mat.transpose();
 }
 
 namespace psm {
@@ -112,7 +112,7 @@ void AdobeRgb::fromSRGB(const std::span<T>& src, std::span<T> dst) {
 template <typename T>
 void AdobeRgb::toSRGB(const std::span<T>& src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
-  RowXf norm_src = linearize(map_src);  // Linearize Adobe RGB values
+  RowXf norm_src = linearize(map_src);
 
   // Assuming BGR as input
   const Mat3fView norm_bgr(norm_src.data(), norm_src.cols() / 3, 3);
