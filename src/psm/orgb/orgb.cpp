@@ -2,6 +2,8 @@
 
 #include <Eigen/Dense>
 #include <cmath>
+#include <iostream>
+#include <limits>
 #include <numbers>
 
 namespace {
@@ -174,9 +176,29 @@ void Orgb::toSRGB(const std::span<T>& src, std::span<T> dst) {
       (result * 255.0f).cwiseMin(255.0f).cwiseMax(0.0f).template cast<T>();
 }
 
+template <typename T>
+void Orgb::adjustChannels(std::span<T> buffer, std::optional<T> b,
+                          std::optional<T> g, std::optional<T> r) {
+  Eigen::Map<Eigen::RowVectorX<T>> map_src(buffer.data(), buffer.size());
+
+  Eigen::Map<Eigen::Matrix<T, Eigen::Dynamic, 3, Eigen::RowMajor>> split_src(
+      map_src.data(), buffer.size() / 3, 3);
+
+  Eigen::Array<float, 1, 3> adjustments;
+  adjustments << b.value_or(0), g.value_or(0), r.value_or(0);
+
+  split_src = (split_src.template cast<float>().array().rowwise() + adjustments)
+                  .cwiseMin(255.0f)
+                  .cwiseMax(0.0f)
+                  .template cast<T>();
+}
+
 template void Orgb::fromSRGB<unsigned char>(const std::span<unsigned char>&,
                                             std::span<unsigned char>);
 template void Orgb::toSRGB<unsigned char>(const std::span<unsigned char>&,
                                           std::span<unsigned char>);
-
+template void Orgb::adjustChannels<unsigned char>(std::span<unsigned char>,
+                                                  std::optional<unsigned char>,
+                                                  std::optional<unsigned char>,
+                                                  std::optional<unsigned char>);
 }  // namespace psm

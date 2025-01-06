@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <span>
 
 #include "color_space_traits.hpp"
@@ -21,6 +22,10 @@ class Srgb {
   static void toSRGB(const std::span<T>& src, std::span<T> dst) {
     dst = src;  // passthrough cuz we are already in sRGB
   }
+
+  template <typename T>
+  static void adjustChannels(std::span<T> buffer, std::optional<T> b,
+                             std::optional<T> g, std::optional<T> r);
 };
 
 template <>
