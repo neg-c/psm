@@ -1,9 +1,9 @@
+#include <cstddef>
 #include <format>
 #include <iostream>
 #include <ranges>
 #include <vector>
 
-#include "psm/orgb.hpp"
 #include "psm/psm.hpp"
 
 template <std::ranges::contiguous_range Buffer>
