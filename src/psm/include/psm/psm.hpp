@@ -25,7 +25,9 @@ template <typename SrcFormat, typename DstFormat,
           std::ranges::contiguous_range Src_Range,
           std::ranges::contiguous_range Dst_Range>
 void Convert(Src_Range& src, Dst_Range& dst) {
-  detail::ConvertImpl<SrcFormat, DstFormat>(std::span{src}, std::span{dst});
+  detail::ConvertImpl<SrcFormat, DstFormat>(
+      std::span<std::ranges::range_value_t<Src_Range>>{src.data(), src.size()},
+      std::span<std::ranges::range_value_t<Dst_Range>>{dst.data(), dst.size()});
 }
 
 }  // namespace psm
