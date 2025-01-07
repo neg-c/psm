@@ -57,8 +57,9 @@ int main(int argc, char* argv[]) {
       out_image.ptr() + out_image.total() * out_image.channels());
 
   psm::Convert<psm::sRGB, psm::oRGB>(in_span, out_span);
+  psm::AdjustChannels<psm::oRGB>(out_span, {0, 20, 20});
   psm::Convert<psm::oRGB, psm::sRGB>(out_span, out_span);
-  window("kfjdalkf", image, false);
+  window("kdfafjdalkf", image, false);
   window("kfjdalkdfsadff", out_image, true);
 
   return 0;

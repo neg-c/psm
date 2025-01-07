@@ -1,9 +1,9 @@
 #pragma once
 
-#include <optional>
 #include <span>
 
 #include "color_space_traits.hpp"
+#include "percent_type.hpp"
 
 namespace psm {
 
@@ -24,8 +24,8 @@ class Srgb {
   }
 
   template <typename T>
-  static void adjustChannels(std::span<T> buffer, std::optional<T> b,
-                             std::optional<T> g, std::optional<T> r);
+  static void adjustChannels(std::span<T> buffer,
+                             const Percent& adjust_percentage);
 };
 
 template <>

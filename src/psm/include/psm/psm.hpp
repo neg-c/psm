@@ -1,13 +1,13 @@
 #pragma once
 
 #include <cstddef>
-#include <optional>
 #include <ranges>
 #include <span>
 #include <type_traits>
 
 #include "color_space_traits.hpp"
 #include "orgb.hpp"
+#include "percent_type.hpp"
 #include "srgb.hpp"
 
 namespace psm {
@@ -22,11 +22,8 @@ void ConvertImpl(std::span<T> src, std::span<T> dst) {
 }
 
 template <typename Format, typename T>
-void AdjustChannelsImpl(std::span<T> buffer,
-                        std::optional<T> channel0 = std::nullopt,
-                        std::optional<T> channel1 = std::nullopt,
-                        std::optional<T> channel2 = std::nullopt) {
-  ColorSpace_t<Format>::adjustChannels(buffer, channel0, channel1, channel2);
+void AdjustChannelsImpl(std::span<T> buffer, const Percent& adjust_percentage) {
+  ColorSpace_t<Format>::adjustChannels(buffer, adjust_percentage);
 }
 }  // namespace detail
 
@@ -40,13 +37,8 @@ void Convert(Src_Range& src, Dst_Range& dst) {
 }
 
 template <typename Format, std::ranges::contiguous_range Range>
-void AdjustChannels(
-    Range& buffer,
-    std::optional<std::ranges::range_value_t<Range>> channel0 = std::nullopt,
-    std::optional<std::ranges::range_value_t<Range>> channel1 = std::nullopt,
-    std::optional<std::ranges::range_value_t<Range>> channel2 = std::nullopt) {
-  detail::AdjustChannelsImpl<Format>(std::span{buffer}, channel0, channel1,
-                                     channel2);
+void AdjustChannels(Range& buffer, const Percent& adjust_percentage) {
+  detail::AdjustChannelsImpl<Format>(std::span{buffer}, adjust_percentage);
 }
 
 }  // namespace psm
