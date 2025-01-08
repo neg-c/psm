@@ -4,10 +4,6 @@
 
 namespace psm {
 
-template void Srgb::fromSRGB<unsigned char>(const std::span<unsigned char>&,
-                                            std::span<unsigned char>);
-template void Srgb::toSRGB<unsigned char>(const std::span<unsigned char>&,
-                                          std::span<unsigned char>);
 template <typename T>
 void Srgb::adjustChannels(std::span<T> buffer,
                           const Percent& adjust_percentage) {
@@ -28,6 +24,10 @@ void Srgb::adjustChannels(std::span<T> buffer,
                   .template cast<T>();
 }
 
+template void Srgb::fromSRGB<unsigned char>(const std::span<unsigned char>&,
+                                            std::span<unsigned char>);
+template void Srgb::toSRGB<unsigned char>(const std::span<unsigned char>&,
+                                          std::span<unsigned char>);
 template void Srgb::adjustChannels<unsigned char>(std::span<unsigned char>,
                                                   const Percent&);
 
