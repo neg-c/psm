@@ -1,5 +1,6 @@
 add_subdirectory(orgb)
 add_subdirectory(srgb)
+add_subdirectory(detail)
 
 add_library(psm INTERFACE)
 
