@@ -1,4 +1,5 @@
 #include "psm/detail/adjust_channels.hpp"
+
 #include <Eigen/Dense>
 
 namespace psm::detail {
@@ -23,6 +24,6 @@ void adjustChannels(std::span<T> buffer, const Percent& adjust_percentage) {
 }
 
 template void adjustChannels<unsigned char>(std::span<unsigned char>,
-                                          const Percent&);
+                                            const Percent&);
 
-}  // namespace psm::detail 
+}  // namespace psm::detail

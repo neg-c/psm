@@ -7,7 +7,7 @@
 
 #include "color_space_traits.hpp"
 #include "orgb.hpp"
-#include "percent_type.hpp"
+#include "percent.hpp"
 #include "srgb.hpp"
 
 namespace psm {

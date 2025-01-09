@@ -14,7 +14,7 @@ target_sources(
          FILES
          include/psm/psm.hpp
          include/psm/color_space_traits.hpp
-         include/psm/percent_type.hpp
+         include/psm/percent.hpp
          ${CMAKE_BINARY_DIR}/include/psm/version.hpp)
 
 target_link_libraries(psm INTERFACE psm_orgb psm_srgb)

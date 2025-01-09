@@ -3,7 +3,7 @@
 #include <span>
 
 #include "color_space_traits.hpp"
-#include "percent_type.hpp"
+#include "percent.hpp"
 
 namespace psm {
 
