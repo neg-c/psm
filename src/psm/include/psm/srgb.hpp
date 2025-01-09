@@ -3,6 +3,7 @@
 #include <span>
 
 #include "color_space_traits.hpp"
+#include "percent.hpp"
 
 namespace psm {
 
@@ -21,6 +22,10 @@ class Srgb {
   static void toSRGB(const std::span<T>& src, std::span<T> dst) {
     dst = src;  // passthrough cuz we are already in sRGB
   }
+
+  template <typename T>
+  static void adjustChannels(std::span<T> buffer,
+                             const Percent& adjust_percentage);
 };
 
 template <>

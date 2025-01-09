@@ -28,6 +28,7 @@ int main() {
   print_buffer(input_image);
 
   psm::Convert<psm::sRGB, psm::oRGB>(input_image, output_image);
+  psm::AdjustChannels<psm::oRGB>(output_image, {0, 20, 20});
   psm::Convert<psm::oRGB, psm::sRGB>(output_image, output_image);
 
   std::cout << "Output Image (BGR):\n";
