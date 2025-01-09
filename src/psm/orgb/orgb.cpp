@@ -5,6 +5,7 @@
 #include <iostream>
 #include <limits>
 #include <numbers>
+
 #include "psm/detail/adjust_channels.hpp"
 
 namespace {
@@ -179,7 +180,7 @@ void Orgb::toSRGB(const std::span<T>& src, std::span<T> dst) {
 
 template <typename T>
 void Orgb::adjustChannels(std::span<T> buffer,
-                         const Percent& adjust_percentage) {
+                          const Percent& adjust_percentage) {
   detail::adjustChannels(buffer, adjust_percentage);
 }
 
