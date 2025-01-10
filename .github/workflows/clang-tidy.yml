@@ -1,0 +1,34 @@
+name: clang-tidy
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  clang-tidy-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install basic dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git curl wget pkg-config
+
+      - name: Setup vcpkg
+        run: |
+          if [ ! -d ~/vcpkg ]; then
+            git clone https://github.com/microsoft/vcpkg.git ~/vcpkg
+            ~/vcpkg/bootstrap-vcpkg.sh
+          fi
+          ~/vcpkg/vcpkg integrate install
+          echo "VCPKG_ROOT=~/vcpkg" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+      - uses: ZehMatt/clang-tidy-annotations@v1.1.1
+        with:
+          source: '.'
+          build_dir: 'build/unixlike-gcc-debug'
+          cmake_args: '--preset unixlike-gcc-debug'
+

@@ -1,0 +1,397 @@
+---
+Checks: '
+  bugprone-*,
+  clang-analyzer-*,
+  cppcoreguidelines-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  misc-const-correctness,
+  misc-unused-parameters,
+  misc-non-private-member-variables-in-classes,
+  modernize-use-nullptr,
+  modernize-use-using,
+  modernize-use-nodiscard,
+  modernize-use-noexcept,
+  modernize-use-equals-default,
+  modernize-use-equals-delete,
+  modernize-use-emplace,
+  modernize-loop-convert,
+  modernize-make-unique,
+  modernize-make-shared,
+  modernize-concat-nested-namespaces,
+  cppcoreguidelines-explicit-virtual-functions,
+  cppcoreguidelines-virtual-class-destructor,
+  -modernize-use-trailing-return-type,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -readability-magic-numbers,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -cppcoreguidelines-avoid-c-arrays,
+  -modernize-avoid-c-arrays,
+  -cppcoreguidelines-pro-type-reinterpret-cast,
+  -cppcoreguidelines-pro-type-union-access,
+  -bugprone-easily-swappable-parameters,
+  -readability-uppercase-literal-suffix,
+  modernize-use-std-numbers,
+  modernize-use-constraints,
+  performance-no-automatic-move,
+  cppcoreguidelines-prefer-member-initializer,
+  modernize-use-auto,
+  modernize-use-uncaught-exceptions,
+  readability-container-contains,
+  readability-qualified-auto,
+  readability-redundant-access-specifiers,
+  -modernize-pass-by-value,
+  -cppcoreguidelines-pro-type-member-init,
+  -modernize-use-nodiscard,
+  -cppcoreguidelines-special-member-functions,
+  performance-inefficient-string-concatenation,
+  performance-type-promotion-in-math-fn,
+  readability-simplify-subscript-expr,
+  modernize-use-std-span,
+  bugprone-standalone-empty,
+  bugprone-suspicious-string-compare,
+  bugprone-string-constructor,
+  modernize-avoid-bind,
+  cppcoreguidelines-prefer-member-initializer,
+  modernize-use-transparent-functors,
+  performance-faster-string-find,
+  readability-static-accessed-through-instance,
+  # Ranges specific
+  performance-inefficient-algorithm,
+  modernize-replace-random-shuffle,
+  readability-use-anyofallof,
+  # Format specific
+  modernize-use-std-print,  # C++23 but good to enable for future
+  readability-static-definition-in-anonymous-namespace,
+  performance-unnecessary-copy-initialization,
+  bugprone-incorrect-roundings,
+  bugprone-not-null-terminated-result,
+  bugprone-string-integer-assignment,
+  cppcoreguidelines-pro-type-member-init,
+  cppcoreguidelines-slicing,
+  modernize-pass-by-value,
+  performance-move-constructor-init,
+  # Span/View specific
+  cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  cppcoreguidelines-pro-bounds-constant-array-index,
+  cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  performance-no-int-to-ptr,
+  bugprone-sizeof-container,
+  bugprone-string-constructor,
+  modernize-avoid-c-arrays,
+  readability-container-data-pointer,
+  # Range adaptor specific
+  modernize-use-ranges,
+  performance-range-adaptors,
+  readability-range-loop-construction,
+  bugprone-range-loop-analysis,
+  modernize-loop-convert,
+  performance-for-range-copy,
+  readability-range-loop-bind-reference,
+  modernize-use-transparent-functors,
+  readability-redundant-string-init,
+  performance-inefficient-algorithm,
+  bugprone-misplaced-range-iterator,
+  # Template specific
+  bugprone-forwarding-reference-overload,
+  bugprone-multiple-statement-macro,
+  bugprone-macro-repeated-side-effects,
+  bugprone-suspicious-semicolon,
+  cppcoreguidelines-special-member-functions,
+  modernize-use-using,
+  modernize-use-auto,
+  readability-simplify-boolean-expr,
+  readability-named-parameter,
+  readability-redundant-declaration,
+  readability-function-size,
+  misc-non-private-member-variables-in-classes,
+  performance-unnecessary-value-param,
+  performance-type-promotion-in-math-fn,
+  performance-move-const-arg,
+  cppcoreguidelines-pro-type-member-init,
+  cppcoreguidelines-pro-type-static-cast-downcast,
+  bugprone-narrowing-conversions,
+  cppcoreguidelines-narrowing-conversions,
+  performance-no-automatic-move,
+  bugprone-implicit-widening-of-multiplication-result,
+'
+
+WarningsAsErrors: '
+  *-const-*,
+  *-use-const-*,
+  misc-const-correctness,
+  cppcoreguidelines-avoid-non-const-global-variables,
+  modernize-use-std-numbers,
+  modernize-use-constraints
+'
+
+HeaderFilterRegex: '.*'
+FormatStyle: file
+
+CheckOptions:
+  # Allow shorter names for mathematical variables (x, y, i, etc.)
+  - key: readability-identifier-length.MinimumVariableNameLength
+    value: 1
+  - key: readability-identifier-length.MinimumParameterNameLength
+    value: 1
+  # Common math variable names to ignore
+  - key: readability-identifier-length.IgnoredVariableNames
+    value: 'x|y|z|w|i|j|k|n|m|a|b|c|u|v'
+  # Increase complexity threshold for math-heavy functions
+  - key: readability-function-cognitive-complexity.Threshold
+    value: 30
+  # Allow more parameters for vector/matrix operations
+  - key: readability-function-size.ParameterThreshold
+    value: 8
+  # Floating point comparison tolerance
+  - key: bugprone-incorrect-roundings.Precision
+    value: 0.00001
+  - key: cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor
+    value: true
+  # Only enforce uppercase for long literals
+  - key: readability-uppercase-literal-suffix.NewSuffixes
+    value: 'L;UL;LL;ULL'
+  # Modern C++ specific configurations
+  - key: modernize-use-nullptr.NullMacros
+    value: 'NULL'
+  - key: modernize-loop-convert.MinConfidence
+    value: reasonable
+  - key: cppcoreguidelines-explicit-virtual-functions.IgnoreDestructors
+    value: true
+  - key: modernize-use-nodiscard.ReplacementString
+    value: '[[nodiscard]]'
+  - key: modernize-use-noexcept.ReplacementString
+    value: '[[noexcept]]'
+  - key: readability-function-cognitive-complexity.IgnoreMacros
+    value: true
+  # Enforce override keyword
+  - key: modernize-use-override.AllowOverrideAndFinal
+    value: true
+  # Smart pointer preferences
+  - key: performance-move-const-arg.CheckTriviallyCopyableMove
+    value: true
+  # Class member initialization
+  - key: cppcoreguidelines-prefer-member-initializer.UseAssignment
+    value: false
+  # C++20 specific configurations
+  - key: modernize-use-nodiscard.ReplacementString
+    value: '[[nodiscard("Explain reason here")]]'
+  # Concepts and constraints
+  - key: modernize-use-constraints.ConstraintsOnly
+    value: true
+  - key: modernize-use-constraints.CheckTemplateTypeConstraints
+    value: true
+  # Range-based configurations
+  - key: readability-container-contains.IncludeStyle
+    value: llvm
+  # Auto guidelines
+  - key: readability-qualified-auto.AddConstToQualified
+    value: true
+  # Spacing for concepts
+  - key: readability-braces-around-statements.ShortStatementLines
+    value: 2
+  # Configure constexpr usage
+  - key: performance-no-automatic-move.AllowedTypes
+    value: 'std::array;std::span;std::string_view'
+  # Spaceship operator configurations
+  - key: readability-redundant-member-init.IgnoreBaseInCopyConstructors
+    value: true
+  # Module-related settings (if using C++20 modules)
+  - key: readability-identifier-naming.ModuleCase
+    value: lower_case
+  - key: readability-identifier-naming.ModulePrefix
+    value: ''
+  # Coroutine configurations
+  - key: readability-function-cognitive-complexity.IgnoreCoroutines
+    value: true
+  # std::span specific configurations
+  - key: modernize-use-std-span.SpanTypes
+    value: '::std::span;::gsl::span'
+  - key: performance-faster-string-find.StringLikeClasses
+    value: '::std::basic_string;::std::basic_string_view;::std::span'
+  
+  # Ranges configurations
+  - key: readability-use-anyofallof.MacroName
+    value: 'CHECK'
+  - key: performance-inefficient-algorithm.EnableRangeAlgorithms
+    value: true
+  
+  # String view and span preferences
+  - key: performance-unnecessary-value-param.AllowedTypes
+    value: 'std::span;std::string_view'
+  
+  # Format related
+  - key: readability-identifier-naming.FormatStringPieces
+    value: 'fmt_string'
+  - key: readability-identifier-naming.FormatStringPiecesCase
+    value: lower_case
+  
+  # Additional span safety
+  - key: cppcoreguidelines-pro-bounds-constant-array-index.GslHeader
+    value: '<span>'
+  - key: cppcoreguidelines-pro-bounds-constant-array-index.IncludeStyle
+    value: llvm
+  
+  # Range-based for loop preferences
+  - key: modernize-loop-convert.UseCxx20ReverseRanges
+    value: true
+  
+  # Container operations
+  - key: readability-container-contains.IncludeStyle
+    value: llvm
+  - key: readability-container-contains.RangesCustomization
+    value: true 
+  
+  # Span specific configurations
+  - key: performance-unnecessary-copy-initialization.ExcludedContainerTypes
+    value: '::std::span;::std::string_view'
+  
+  # View lifetime checks
+  - key: bugprone-dangling-handle.HandleClasses
+    value: '::std::string_view;::std::span;::std::ranges::subrange'
+    
+  # Span bounds checking
+  - key: cppcoreguidelines-pro-bounds-constant-array-index.IncludeStyle
+    value: llvm
+  - key: cppcoreguidelines-pro-bounds-pointer-arithmetic.IncludeStyle
+    value: llvm
+    
+  # Container to span/view conversion preferences
+  - key: modernize-avoid-c-arrays.IgnoreTypes
+    value: 'char;wchar_t;char8_t;char16_t;char32_t'
+    
+  # View construction preferences
+  - key: bugprone-string-constructor.StringNames
+    value: '::std::basic_string;::std::basic_string_view'
+  - key: bugprone-string-constructor.WarnOnLargeLength
+    value: true
+    
+  # Span size checks
+  - key: bugprone-sizeof-container.WarnOnSizeOfConstant
+    value: true
+  - key: bugprone-sizeof-container.WarnOnSizeOfIntegerExpression
+    value: true
+    
+  # View/Span parameter passing
+  - key: performance-unnecessary-value-param.AllowedTypes
+    value: 'std::span;std::string_view;std::ranges::view'
+    
+  # Pointer decay to span/view
+  - key: cppcoreguidelines-pro-bounds-array-to-pointer-decay.WarnOnTheUse
+    value: true
+    
+  # Container data access
+  - key: readability-container-data-pointer.IncludeStyle
+    value: llvm 
+  
+  # Range adaptor configurations
+  - key: performance-range-adaptors.WarnOnCopyableTypes
+    value: true
+  - key: performance-range-adaptors.AllowedTypes
+    value: '::std::ranges::views::all;::std::ranges::views::filter;::std::ranges::views::transform;::std::ranges::views::take;::std::ranges::views::drop;::std::ranges::views::reverse'
+    
+  # Range loop configurations
+  - key: readability-range-loop-construction.WarnOnNonConstRange
+    value: true
+  - key: readability-range-loop-construction.WarnOnCopyableRange
+    value: true
+    
+  # Range adaptor composition
+  - key: modernize-use-ranges.AllowComplexRangeConstruction
+    value: true
+  - key: modernize-use-ranges.MaxComplexityThreshold
+    value: 3
+    
+  # View lifetime safety for range adaptors
+  - key: bugprone-dangling-handle.HandleClasses
+    value: '::std::string_view;::std::span;::std::ranges::subrange;::std::ranges::view;::std::ranges::ref_view'
+    
+  # Range-based algorithm preferences
+  - key: performance-inefficient-algorithm.EnableRangeAlgorithms
+    value: true
+  - key: performance-inefficient-algorithm.WarnOnRangeAdaptors
+    value: true
+    
+  # Range loop binding
+  - key: readability-range-loop-bind-reference.WarnOnCopy
+    value: true
+  - key: readability-range-loop-bind-reference.IncludeStyle
+    value: llvm
+    
+  # Range iterator safety
+  - key: bugprone-misplaced-range-iterator.WarnOnEndIterator
+    value: true
+  - key: bugprone-misplaced-range-iterator.CheckIncrements
+    value: true
+    
+  # Range projection configurations
+  - key: modernize-use-ranges.AllowProjections
+    value: true
+  - key: modernize-use-ranges.PreferProjections
+    value: true 
+  
+  # Template metaprogramming configurations
+  - key: readability-function-size.StatementThreshold
+    value: 100  # Allow larger template functions
+    
+  # Template parameter naming
+  - key: readability-identifier-naming.TemplateParameterCase
+    value: CamelCase
+  - key: readability-identifier-naming.TemplateParameterPrefix
+    value: 'T'
+  - key: readability-identifier-naming.TypeTemplateParameterCase
+    value: CamelCase
+  - key: readability-identifier-naming.ValueTemplateParameterCase
+    value: CamelCase
+    
+  # Template specialization
+  - key: cppcoreguidelines-special-member-functions.AllowMissingMoveFunctionsWhenCopyIsDeleted
+    value: true
+  - key: modernize-use-using.IgnoreTemplateScope
+    value: false
+    
+  # SFINAE and concepts configurations
+  - key: readability-function-cognitive-complexity.IgnoreTemplates
+    value: true
+  - key: modernize-use-constraints.IgnoreTemplateTemplateParameters
+    value: false
+    
+  # Template debugging aids
+  - key: readability-function-size.VariableThreshold
+    value: 30  # Allow more variables in template functions
+  - key: readability-function-size.NestingThreshold
+    value: 8   # Allow deeper nesting in template metaprogramming
+    
+  # Type trait usage
+  - key: modernize-use-transparent-functors.SafeTypes
+    value: '::std::type_identity;::std::type_identity_t'
+    
+  # Template instantiation depth
+  - key: readability-function-size.ParameterThreshold
+    value: 12  # Allow more parameters for template functions
+    
+  # CRTP configurations
+  - key: cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor
+    value: true
+    
+  # Template alias preferences
+  - key: modernize-use-using.IgnoreTypeTemplateParameters
+    value: false
+    
+  # Variadic template configurations
+  - key: readability-function-cognitive-complexity.IgnoreVariadic
+    value: true
+    
+  # Type deduction guidelines
+  - key: modernize-use-auto.MinTypeNameLength
+    value: 5
+  - key: modernize-use-auto.RemoveStars
+    value: true
+
+    # Add floating point specific configurations
+  - key: bugprone-narrowing-conversions.WarnOnFloatingPointNarrowingConversion
+    value: true
+  - key: performance-type-promotion-in-math-fn.IncludeStyle
+    value: llvm
