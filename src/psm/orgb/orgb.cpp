@@ -89,8 +89,8 @@ Mat3f lcc2orgb(Mat3f lcc) {
 
     Eigen::Matrix2f rotation_matrix;
     // clang-format off
-    rotation_matrix << std::cosf(angle), -std::sinf(angle),
-                      std::sinf(angle), std::cosf(angle);
+    rotation_matrix << std::cos(angle), -std::sin(angle),
+                      std::sin(angle), std::cos(angle);
     // clang-format on
     const Eigen::Vector2f C1C2(C1, C2);
     const Eigen::Vector2f CybCrg = rotation_matrix * C1C2;
@@ -116,8 +116,8 @@ Mat3f orgb2lcc(const Mat3f& orgb) {
 
     Eigen::Matrix2f rotation_matrix;
     // clang-format off
-    rotation_matrix << std::cosf(angle), -std::sinf(angle),
-                      std::sinf(angle), std::cosf(angle);
+    rotation_matrix << std::cos(angle), -std::sin(angle),
+                      std::sin(angle), std::cos(angle);
     // clang-format on
     const Eigen::Vector2f CybCrg(Cyb, Crg);
     const Eigen::Vector2f C1C2 = rotation_matrix * CybCrg;
