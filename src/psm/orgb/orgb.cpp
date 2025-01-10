@@ -2,8 +2,6 @@
 
 #include <Eigen/Dense>
 #include <cmath>
-#include <iostream>
-#include <limits>
 #include <numbers>
 
 #include "psm/detail/adjust_channels.hpp"
@@ -17,7 +15,7 @@ using Mat4fView = Eigen::Map<Mat4f>;
 using RowXf = Eigen::RowVectorXf;
 using RowXfView = Eigen::Map<RowXf>;
 
-Mat4f scaleTo4d(Mat3f lcc, const Eigen::MatrixXf& alpha) {
+Mat4f scaleTo4d(const Mat3f& lcc, const Eigen::MatrixXf& alpha) {
   Mat4f rgba(lcc.rows(), 4);
   rgba.leftCols(3) = lcc;
   rgba.col(rgba.cols() - 1) = alpha;
@@ -37,27 +35,26 @@ RowXf normalize(const Eigen::Map<const Eigen::RowVectorX<T>>& src) {
   return src.template cast<float>() / 255.0f;
 }
 
-double convertToRGBangle(double theta) {
-  theta = std::clamp(theta, 0.0, std::numbers::pi);
-  if (theta < std::numbers::pi / 3) {
+float convertToRGBangle(float theta) {
+  theta = std::clamp(theta, 0.0f, std::numbers::pi_v<float>);
+  if (theta < std::numbers::pi_v<float> / 3.0f) {
     return (3.0f / 2.0f) * theta;
-  } else {
-    return std::numbers::pi / 2 +
-           (3.0f / 4.0f) * (theta - std::numbers::pi / 3);
   }
+  return std::numbers::pi_v<float> / 2.0f +
+         (3.0f / 4.0f) * (theta - std::numbers::pi_v<float> / 3.0f);
 }
 
-double convertToOrgbangle(double theta) {
-  theta = std::clamp(theta, 0.0, std::numbers::pi);
-  if (theta < std::numbers::pi / 2) {
+float convertToOrgbangle(float theta) {
+  theta = std::clamp(theta, 0.0f, std::numbers::pi_v<float>);
+  if (theta < std::numbers::pi_v<float> / 2.0f) {
     return (2.0f / 3.0f) * theta;
-  } else {
-    return std::numbers::pi / 3 +
-           (4.0f / 3.0f) * (theta - std::numbers::pi / 2);
   }
+
+  return std::numbers::pi_v<float> / 3 +
+         (4.0f / 3.0f) * (theta - std::numbers::pi_v<float> / 2);
 }
 
-Mat3f rgb2lcc(Mat3f src) {
+Mat3f rgb2lcc(const Mat3f& src) {
   Eigen::Matrix3f transform_mat;
   // clang-format off
   transform_mat << 0.2990f, 0.5870f, 0.1140f,
@@ -67,7 +64,7 @@ Mat3f rgb2lcc(Mat3f src) {
   return src * transform_mat;
 }
 
-Mat3f lcc2rgb(Mat3f lcc) {
+Mat3f lcc2rgb(const Mat3f& lcc) {
   Eigen::Matrix3f transform_mat;
   // clang-format off
   transform_mat << 1.0000f, 0.1140f, 0.7436f,
@@ -81,22 +78,22 @@ Mat3f lcc2orgb(Mat3f lcc) {
   Mat3f orgb(lcc.rows(), 3);
 
   for (int i = 0; i < lcc.rows(); ++i) {
-    double L = lcc(i, 0);
-    double C1 = lcc(i, 1);
-    double C2 = lcc(i, 2);
+    const float L = lcc(i, 0);
+    const float C1 = lcc(i, 1);
+    const float C2 = lcc(i, 2);
 
-    double theta = std::atan2(C2, C1);
-    double orgb_theta =
+    const float theta = std::atan2(C2, C1);
+    const float orgb_theta =
         (theta > 0.0f) ? convertToRGBangle(theta) : -convertToRGBangle(-theta);
-    double angle = orgb_theta - theta;
+    const float angle = orgb_theta - theta;
 
     Eigen::Matrix2f rotation_matrix;
     // clang-format off
-    rotation_matrix << std::cos(angle), -std::sin(angle),
-                      std::sin(angle), std::cos(angle);
+    rotation_matrix << std::cosf(angle), -std::sinf(angle),
+                      std::sinf(angle), std::cosf(angle);
     // clang-format on
-    Eigen::Vector2f C1C2(C1, C2);
-    Eigen::Vector2f CybCrg = rotation_matrix * C1C2;
+    const Eigen::Vector2f C1C2(C1, C2);
+    const Eigen::Vector2f CybCrg = rotation_matrix * C1C2;
     orgb(i, 0) = L;
     orgb(i, 1) = CybCrg(0);
     orgb(i, 2) = CybCrg(1);
@@ -108,22 +105,22 @@ Mat3f orgb2lcc(const Mat3f& orgb) {
   Mat3f lcc(orgb.rows(), 3);
 
   for (int i = 0; i < orgb.rows(); ++i) {
-    double L = orgb(i, 0);
-    double Cyb = orgb(i, 1);
-    double Crg = orgb(i, 2);
+    const float L = orgb(i, 0);
+    const float Cyb = orgb(i, 1);
+    const float Crg = orgb(i, 2);
 
-    double theta = std::atan2(Crg, Cyb);
-    double rgb_theta = (theta > 0.0f) ? convertToOrgbangle(theta)
-                                      : -convertToOrgbangle(-theta);
-    double angle = rgb_theta - theta;
+    const float theta = std::atan2(Crg, Cyb);
+    const float rgb_theta = (theta > 0.0f) ? convertToOrgbangle(theta)
+                                           : -convertToOrgbangle(-theta);
+    const float angle = rgb_theta - theta;
 
     Eigen::Matrix2f rotation_matrix;
     // clang-format off
-    rotation_matrix << std::cos(angle), -std::sin(angle),
-                      std::sin(angle), std::cos(angle);
+    rotation_matrix << std::cosf(angle), -std::sinf(angle),
+                      std::sinf(angle), std::cosf(angle);
     // clang-format on
-    Eigen::Vector2f CybCrg(Cyb, Crg);
-    Eigen::Vector2f C1C2 = rotation_matrix * CybCrg;
+    const Eigen::Vector2f CybCrg(Cyb, Crg);
+    const Eigen::Vector2f C1C2 = rotation_matrix * CybCrg;
 
     lcc(i, 0) = L;
     lcc(i, 1) = C1C2(0);
@@ -138,19 +135,19 @@ namespace psm {
 
 template <typename T>
 void Orgb::fromSRGB(const std::span<T>& src, std::span<T> dst) {
-  Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
+  const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
   RowXf norm_src = normalize(map_src);
 
   // Assuming BGR as input
-  Mat3fView norm_bgr(norm_src.data(), norm_src.cols() / 3, 3);
-  Mat3f norm_rgb = switch_rb(norm_bgr);
-  Mat3f lcc = rgb2lcc(norm_rgb);
+  const Mat3fView norm_bgr(norm_src.data(), norm_src.cols() / 3, 3);
+  const Mat3f norm_rgb = switch_rb(norm_bgr);
+  const Mat3f lcc = rgb2lcc(norm_rgb);
   Mat3f orgb = lcc2orgb(lcc);
   // map [-1, 2] to [0, 1] to preserve data when converting back to sRGB
   Mat3f shifted_orgb = ((orgb.array() + 1.0f) / 3.0f).min(1.0f).max(0.0f);
 
-  RowXfView result(shifted_orgb.data(),
-                   shifted_orgb.cols() * shifted_orgb.rows());
+  const RowXfView result(shifted_orgb.data(),
+                         shifted_orgb.cols() * shifted_orgb.rows());
   Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
   dst_map =
       (result * 255.0f).cwiseMin(255.0f).cwiseMax(0.0f).template cast<T>();
@@ -158,21 +155,21 @@ void Orgb::fromSRGB(const std::span<T>& src, std::span<T> dst) {
 
 template <typename T>
 void Orgb::toSRGB(const std::span<T>& src, std::span<T> dst) {
-  Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
+  const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
   RowXf norm_src = map_src.template cast<float>() / 255.0f;
 
   // Assuming ORGB as input
   Mat3fView norm_obgr(norm_src.data(), norm_src.cols() / 3, 3);
 
   // remap [0, 1] back to [-1, 2] to preserve data
-  Mat3f unshifted_orgb =
+  const Mat3f unshifted_orgb =
       ((norm_obgr.array() * 3.0f) - 1.0f).min(2.0f).max(-1.0f);
 
-  Mat3f lcc = orgb2lcc(unshifted_orgb);
-  Mat3f rgb = lcc2rgb(lcc);
+  const Mat3f lcc = orgb2lcc(unshifted_orgb);
+  const Mat3f rgb = lcc2rgb(lcc);
   Mat3f bgr = switch_rb(rgb);
 
-  RowXfView result(bgr.data(), bgr.cols() * bgr.rows());
+  const RowXfView result(bgr.data(), bgr.cols() * bgr.rows());
   Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
   dst_map =
       (result * 255.0f).cwiseMin(255.0f).cwiseMax(0.0f).template cast<T>();
