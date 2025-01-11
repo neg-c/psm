@@ -1,7 +1,6 @@
 #pragma once
 
-namespace psm {
-namespace detail {
+namespace psm::detail {
 
 // Primary template declaration
 template <typename Tag>
@@ -11,5 +10,4 @@ struct ColorSpace;
 template <typename Tag>
 using ColorSpace_t = typename ColorSpace<Tag>::Type;
 
-}  // namespace detail
-}  // namespace psm
+}  // namespace psm::detail
