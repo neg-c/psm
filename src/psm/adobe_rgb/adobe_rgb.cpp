@@ -81,7 +81,7 @@ Mat3f adobe_rgb2xyz(const Mat3f& src) {
   return src * transform_mat.transpose();
 }
 
-namespace psm {
+namespace psm::detail {
 
 template <typename T>
 void AdobeRgb::fromSRGB(const std::span<T>& src, std::span<T> dst) {
@@ -138,4 +138,4 @@ template void AdobeRgb::fromSRGB<unsigned char>(const std::span<unsigned char>&,
                                                 std::span<unsigned char>);
 template void AdobeRgb::toSRGB<unsigned char>(const std::span<unsigned char>&,
                                               std::span<unsigned char>);
-}  // namespace psm
+}  // namespace psm::detail

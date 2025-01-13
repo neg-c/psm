@@ -4,6 +4,8 @@
 
 namespace psm {
 
+namespace detail {
+
 class AdobeRgb {
  public:
   AdobeRgb() = delete;
@@ -14,8 +16,10 @@ class AdobeRgb {
   static void toSRGB(const std::span<T>& src, std::span<T> dst);
 };
 
+}  // namespace detail
+
 struct AdobeRGB {
-  using type = AdobeRgb;
+  using type = detail::AdobeRgb;
 };
 
 }  // namespace psm

@@ -3,6 +3,8 @@
 
 namespace psm {
 
+namespace detail {
+
 class Orgb {
  public:
   Orgb() = delete;
@@ -13,8 +15,10 @@ class Orgb {
   static void toSRGB(const std::span<T>& src, std::span<T> dst);
 };
 
+}  // namespace detail
+
 struct oRGB {
-  using type = Orgb;
+  using type = detail::Orgb;
 };
 
 }  // namespace psm
