@@ -1,7 +1,5 @@
 #pragma once
-
 #include <span>
-
 #include "color_space_traits.hpp"
 #include "percent.hpp"
 
@@ -12,6 +10,7 @@ struct sRGB {};
 class Srgb {
  public:
   Srgb() = delete;
+  using tag_type = sRGB;
 
   template <typename T>
   static void fromSRGB(const std::span<T>& src, std::span<T> dst) {
@@ -24,9 +23,12 @@ class Srgb {
   }
 };
 
-template <>
-struct detail::ColorSpace<sRGB> {
-  using Type = Srgb;
+// Specialization for this color space's tag
+template<>
+struct psm::detail::ColorSpaceFromTag<sRGB> {
+    using type = Srgb;
 };
+
+static_assert(psm::detail::ColorSpaceType<Srgb>, "Srgb must satisfy ColorSpaceType concept");
 
 }  // namespace psm

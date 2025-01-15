@@ -1,7 +1,5 @@
 #pragma once
-
 #include <span>
-
 #include "color_space_traits.hpp"
 #include "percent.hpp"
 
@@ -12,6 +10,7 @@ struct oRGB {};
 class Orgb {
  public:
   Orgb() = delete;
+  using tag_type = oRGB;
 
   template <typename T>
   static void fromSRGB(const std::span<T>& src, std::span<T> dst);
@@ -19,9 +18,12 @@ class Orgb {
   static void toSRGB(const std::span<T>& src, std::span<T> dst);
 };
 
-template <>
-struct detail::ColorSpace<oRGB> {
-  using Type = Orgb;
+// Specialization for this color space's tag
+template<>
+struct detail::ColorSpaceFromTag<oRGB> {
+    using type = Orgb;
 };
+
+static_assert(psm::detail::ColorSpaceType<Orgb>, "Orgb must satisfy ColorSpaceType concept");
 
 }  // namespace psm

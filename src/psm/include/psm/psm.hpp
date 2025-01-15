@@ -12,12 +12,15 @@
 namespace psm {
 
 namespace detail {
-template <typename SrcFormat, typename DstFormat, typename T>
+template <typename SrcTag, typename DstTag, typename T>
 void ConvertImpl(std::span<T> src, std::span<T> dst) {
   const std::span<T> intermediate{src.data(), src.size()};
 
-  ColorSpace_t<SrcFormat>::toSRGB(src, intermediate);
-  ColorSpace_t<DstFormat>::fromSRGB(intermediate, dst);
+  using SrcColorSpace = ColorSpaceFromTag_t<SrcTag>;
+  using DstColorSpace = ColorSpaceFromTag_t<DstTag>;
+
+  SrcColorSpace::toSRGB(src, intermediate);
+  DstColorSpace::fromSRGB(intermediate, dst);
 }
 
 template <typename T>
