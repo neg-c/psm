@@ -16,8 +16,14 @@ template <typename SrcTag, typename DstTag, typename T>
 void ConvertImpl(std::span<T> src, std::span<T> dst) {
   const std::span<T> intermediate{src.data(), src.size()};
 
-  using SrcColorSpace = ColorSpaceFromTag_t<SrcTag>;
-  using DstColorSpace = ColorSpaceFromTag_t<DstTag>;
+  static_assert(ColorSpaceType<SrcTag>,
+                "Source color space tag must satisfy ColorSpaceType concept");
+  static_assert(
+      ColorSpaceType<DstTag>,
+      "Destination color space tag must satisfy ColorSpaceType concept");
+
+  using SrcColorSpace = detail::ColorSpaceImpl<SrcTag>;
+  using DstColorSpace = detail::ColorSpaceImpl<DstTag>;
 
   SrcColorSpace::toSRGB(src, intermediate);
   DstColorSpace::fromSRGB(intermediate, dst);
