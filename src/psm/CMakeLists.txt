@@ -19,4 +19,4 @@ target_sources(
          include/psm/percent.hpp
          ${CMAKE_BINARY_DIR}/include/psm/version.hpp)
 
-target_link_libraries(psm INTERFACE psm_orgb psm_srgb psm_detail)
+target_link_libraries(psm INTERFACE psm_detail psm_orgb psm_srgb psm_adobe_rgb)

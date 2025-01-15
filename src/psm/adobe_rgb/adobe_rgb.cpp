@@ -2,9 +2,6 @@
 
 #include <Eigen/Dense>
 #include <cmath>
-#include <numbers>
-
-#include "psm/detail/adjust_channels.hpp"
 
 namespace {
 
@@ -135,17 +132,8 @@ void AdobeRgb::toSRGB(const std::span<T>& src, std::span<T> dst) {
                 .template cast<T>();
 }
 
-template <typename T>
-void AdobeRgb::adjustChannels(std::span<T> buffer,
-                              const Percent& adjust_percentage) {
-  detail::adjustChannels(buffer, adjust_percentage);
-}
-
 template void AdobeRgb::fromSRGB<unsigned char>(const std::span<unsigned char>&,
                                                 std::span<unsigned char>);
 template void AdobeRgb::toSRGB<unsigned char>(const std::span<unsigned char>&,
                                               std::span<unsigned char>);
-
-template void AdobeRgb::adjustChannels<unsigned char>(std::span<unsigned char>,
-                                                      const Percent&);
 }  // namespace psm
