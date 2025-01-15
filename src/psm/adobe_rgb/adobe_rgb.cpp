@@ -93,9 +93,10 @@ void AdobeRgb::fromSRGB(const std::span<T>& src, std::span<T> dst) {
   const Mat3f norm_rgb = switch_rb(norm_bgr);
   const Mat3f xyz = rgb2xyz(norm_rgb);
   const Mat3f adobe_rgb = xyz2adobe_rgb(xyz);
+  const Mat3f adobe_bgr = switch_rb(adobe_rgb);
 
   const Eigen::Map<const RowXf> adobe_rgb_row(
-      adobe_rgb.data(), adobe_rgb.rows() * adobe_rgb.cols());
+      adobe_bgr.data(), adobe_bgr.rows() * adobe_bgr.cols());
   RowXf encoded_adobe_rgb = delinearize(adobe_rgb_row);
 
   const Mat3fView result(encoded_adobe_rgb.data(), encoded_adobe_rgb.size() / 3,
