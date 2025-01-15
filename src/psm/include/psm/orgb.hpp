@@ -1,13 +1,7 @@
 #pragma once
-
 #include <span>
 
-#include "color_space_traits.hpp"
-#include "percent.hpp"
-
 namespace psm {
-
-struct oRGB {};
 
 class Orgb {
  public:
@@ -19,9 +13,8 @@ class Orgb {
   static void toSRGB(const std::span<T>& src, std::span<T> dst);
 };
 
-template <>
-struct detail::ColorSpace<oRGB> {
-  using Type = Orgb;
+struct oRGB {
+  using type = Orgb;
 };
 
 }  // namespace psm

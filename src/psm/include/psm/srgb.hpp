@@ -1,13 +1,7 @@
 #pragma once
-
 #include <span>
 
-#include "color_space_traits.hpp"
-#include "percent.hpp"
-
 namespace psm {
-
-struct sRGB {};
 
 class Srgb {
  public:
@@ -15,18 +9,17 @@ class Srgb {
 
   template <typename T>
   static void fromSRGB(const std::span<T>& src, std::span<T> dst) {
-    dst = src;  // passthrough cuz we are already in sRGB
+    dst = src;
   }
 
   template <typename T>
   static void toSRGB(const std::span<T>& src, std::span<T> dst) {
-    dst = src;  // passthrough cuz we are already in sRGB
+    dst = src;
   }
 };
 
-template <>
-struct detail::ColorSpace<sRGB> {
-  using Type = Srgb;
+struct sRGB {
+  using type = Srgb;
 };
 
 }  // namespace psm

@@ -3,7 +3,7 @@
 #include <ranges>
 #include <span>
 
-#include "color_space_traits.hpp"
+#include "color_space_concept.hpp"
 #include "detail/adjust_channels.hpp"
 #include "orgb.hpp"
 #include "percent.hpp"
@@ -12,12 +12,15 @@
 namespace psm {
 
 namespace detail {
-template <typename SrcFormat, typename DstFormat, typename T>
+template <ColorSpaceType SrcTag, ColorSpaceType DstTag, typename T>
 void ConvertImpl(std::span<T> src, std::span<T> dst) {
   const std::span<T> intermediate{src.data(), src.size()};
 
-  ColorSpace_t<SrcFormat>::toSRGB(src, intermediate);
-  ColorSpace_t<DstFormat>::fromSRGB(intermediate, dst);
+  using SrcColorSpace = detail::ColorSpaceImpl<SrcTag>;
+  using DstColorSpace = detail::ColorSpaceImpl<DstTag>;
+
+  SrcColorSpace::toSRGB(src, intermediate);
+  DstColorSpace::fromSRGB(intermediate, dst);
 }
 
 template <typename T>
