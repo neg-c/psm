@@ -4,7 +4,6 @@
 
 namespace psm::detail {
 
-// Concept that defines requirements for color space types
 template <typename Tag>
 concept ColorSpaceType = requires {
   typename Tag::type;  // Must have an implementation type
@@ -14,7 +13,6 @@ concept ColorSpaceType = requires {
   { Tag::type::fromSRGB(src, dst) } -> std::same_as<void>;
 };
 
-// Helper to get implementation from tag
 template <typename Tag>
   requires ColorSpaceType<Tag>
 using ColorSpaceImpl = typename Tag::type;
