@@ -13,7 +13,7 @@ target_sources(
          ${CMAKE_BINARY_DIR}/include/
          FILES
          include/psm/psm.hpp
-         include/psm/color_space_traits.hpp
+         include/psm/color_space_concept.hpp
          include/psm/percent.hpp
          ${CMAKE_BINARY_DIR}/include/psm/version.hpp)
 

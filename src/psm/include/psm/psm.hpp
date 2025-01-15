@@ -3,7 +3,7 @@
 #include <ranges>
 #include <span>
 
-#include "color_space_traits.hpp"
+#include "color_space_concept.hpp"
 #include "detail/adjust_channels.hpp"
 #include "orgb.hpp"
 #include "percent.hpp"
