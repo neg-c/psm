@@ -3,10 +3,6 @@
 
 namespace psm {
 
-struct sRGB {
-  using type = class Srgb;
-};
-
 class Srgb {
  public:
   Srgb() = delete;
@@ -20,6 +16,10 @@ class Srgb {
   static void toSRGB(const std::span<T>& src, std::span<T> dst) {
     dst = src;
   }
+};
+
+struct sRGB {
+  using type = Srgb;
 };
 
 }  // namespace psm
