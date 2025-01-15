@@ -17,9 +17,6 @@ class Orgb {
   static void fromSRGB(const std::span<T>& src, std::span<T> dst);
   template <typename T>
   static void toSRGB(const std::span<T>& src, std::span<T> dst);
-  template <typename T>
-  static void adjustChannels(std::span<T> buffer,
-                             const Percent& adjust_percentage);
 };
 
 template <>
