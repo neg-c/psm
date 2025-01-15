@@ -4,6 +4,7 @@
 #include <span>
 
 #include "color_space_traits.hpp"
+#include "detail/adjust_channels.hpp"
 #include "orgb.hpp"
 #include "percent.hpp"
 #include "srgb.hpp"
@@ -19,9 +20,9 @@ void ConvertImpl(std::span<T> src, std::span<T> dst) {
   ColorSpace_t<DstFormat>::fromSRGB(intermediate, dst);
 }
 
-template <typename Format, typename T>
+template <typename T>
 void AdjustChannelsImpl(std::span<T> buffer, const Percent& adjust_percentage) {
-  ColorSpace_t<Format>::adjustChannels(buffer, adjust_percentage);
+  detail::adjustChannels(buffer, adjust_percentage);
 }
 }  // namespace detail
 
@@ -34,9 +35,9 @@ void Convert(SrcRange& src, DstRange& dst) {
       std::span<std::ranges::range_value_t<DstRange>>{dst.data(), dst.size()});
 }
 
-template <typename Format, std::ranges::contiguous_range Range>
+template <std::ranges::contiguous_range Range>
 void AdjustChannels(Range& buffer, const Percent& adjust_percentage) {
-  detail::AdjustChannelsImpl<Format>(std::span{buffer}, adjust_percentage);
+  detail::AdjustChannelsImpl(std::span{buffer}, adjust_percentage);
 }
 
 }  // namespace psm

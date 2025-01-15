@@ -4,8 +4,6 @@
 #include <cmath>
 #include <numbers>
 
-#include "psm/detail/adjust_channels.hpp"
-
 namespace {
 
 using Mat3f = Eigen::Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor>;
@@ -168,17 +166,8 @@ void Orgb::toSRGB(const std::span<T>& src, std::span<T> dst) {
       (result * 255.0f).cwiseMin(255.0f).cwiseMax(0.0f).template cast<T>();
 }
 
-template <typename T>
-void Orgb::adjustChannels(std::span<T> buffer,
-                          const Percent& adjust_percentage) {
-  detail::adjustChannels(buffer, adjust_percentage);
-}
-
 template void Orgb::fromSRGB<unsigned char>(const std::span<unsigned char>&,
                                             std::span<unsigned char>);
 template void Orgb::toSRGB<unsigned char>(const std::span<unsigned char>&,
                                           std::span<unsigned char>);
-
-template void Orgb::adjustChannels<unsigned char>(std::span<unsigned char>,
-                                                  const Percent&);
 }  // namespace psm
