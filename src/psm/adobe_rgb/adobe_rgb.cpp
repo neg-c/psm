@@ -115,8 +115,9 @@ void AdobeRgb::toSRGB(const std::span<T>& src, std::span<T> dst) {
   RowXf norm_src = linearize(map_src);  // Linearize Adobe RGB values
 
   // Assuming BGR as input
-  const Mat3fView norm_rgb(norm_src.data(), norm_src.cols() / 3, 3);
-  const Mat3f xyz = adobe_rgb2xyz(norm_rgb);
+  const Mat3fView norm_bgr(norm_src.data(), norm_src.cols() / 3, 3);
+  const Mat3f adobe_rgb = switch_rb(norm_bgr);
+  const Mat3f xyz = adobe_rgb2xyz(adobe_rgb);
   const Mat3f srgb = xyz2rgb(xyz);
   const Mat3f srgb_bgr = switch_rb(srgb);
 
