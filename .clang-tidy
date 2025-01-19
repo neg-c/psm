@@ -33,7 +33,7 @@ Checks: '
   -cppcoreguidelines-pro-type-union-access,
   -bugprone-easily-swappable-parameters,
   -readability-uppercase-literal-suffix,
-  modernize-use-std-numbers,
+  -modernize-use-std-numbers,
   modernize-use-constraints,
   performance-no-automatic-move,
   cppcoreguidelines-prefer-member-initializer,
