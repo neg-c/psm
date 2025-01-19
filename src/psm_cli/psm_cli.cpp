@@ -4,7 +4,9 @@
 #include <ranges>
 #include <vector>
 
+#include "psm/adobe_rgb.hpp"
 #include "psm/psm.hpp"
+#include "psm/srgb.hpp"
 
 template <std::ranges::contiguous_range Buffer>
 void print_buffer(const Buffer& buffer) {
@@ -27,9 +29,8 @@ int main() {
   std::cout << "Input Image (BGR):\n";
   print_buffer(input_image);
 
-  psm::Convert<psm::sRGB, psm::oRGB>(input_image, output_image);
-  psm::AdjustChannels(output_image, {0, 20, 20});
-  psm::Convert<psm::oRGB, psm::sRGB>(output_image, output_image);
+  psm::Convert<psm::sRGB, psm::AdobeRGB>(input_image, output_image);
+  psm::Convert<psm::AdobeRGB, psm::sRGB>(output_image, output_image);
 
   std::cout << "Output Image (BGR):\n";
   print_buffer(output_image);
