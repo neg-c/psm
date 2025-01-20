@@ -17,4 +17,5 @@ target_sources(
          include/psm/detail/color_space_concept.hpp
          ${CMAKE_BINARY_DIR}/include/psm/version.hpp)
 
-target_link_libraries(psm INTERFACE psm_adjust_channels psm_orgb psm_srgb psm_adobe_rgb)
+target_link_libraries(psm INTERFACE psm_adjust_channels psm_orgb psm_srgb
+                                    psm_adobe_rgb)
