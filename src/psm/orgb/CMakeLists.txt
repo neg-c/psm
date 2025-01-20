@@ -4,7 +4,7 @@ target_sources(
   psm_orgb
   PRIVATE orgb.cpp
   PUBLIC FILE_SET HEADERS BASE_DIRS ${CMAKE_SOURCE_DIR}/src/psm/include FILES
-         ${CMAKE_SOURCE_DIR}/src/psm/include/psm/orgb.hpp)
+         ${CMAKE_SOURCE_DIR}/src/psm/include/psm/detail/orgb.hpp)
 
 find_package(Eigen3 REQUIRED)
 

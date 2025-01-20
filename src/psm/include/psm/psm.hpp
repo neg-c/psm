@@ -3,12 +3,10 @@
 #include <ranges>
 #include <span>
 
-#include "detail/adjust_channels.hpp"
 #include "detail/adobe_rgb.hpp"
 #include "detail/color_space_concept.hpp"
 #include "detail/orgb.hpp"
 #include "detail/srgb.hpp"
-#include "percent.hpp"
 
 namespace psm {
 
@@ -23,11 +21,6 @@ void ConvertImpl(std::span<T> src, std::span<T> dst) {
   SrcColorSpace::toSRGB(src, intermediate);
   DstColorSpace::fromSRGB(intermediate, dst);
 }
-
-template <typename T>
-void AdjustChannelsImpl(std::span<T> buffer, const Percent& adjust_percentage) {
-  detail::adjustChannels(buffer, adjust_percentage);
-}
 }  // namespace detail
 
 template <typename SrcFormat, typename DstFormat,
@@ -38,10 +31,4 @@ void Convert(SrcRange& src, DstRange& dst) {
       std::span<std::ranges::range_value_t<SrcRange>>{src.data(), src.size()},
       std::span<std::ranges::range_value_t<DstRange>>{dst.data(), dst.size()});
 }
-
-template <std::ranges::contiguous_range Range>
-void AdjustChannels(Range& buffer, const Percent& adjust_percentage) {
-  detail::AdjustChannelsImpl(std::span{buffer}, adjust_percentage);
-}
-
 }  // namespace psm
