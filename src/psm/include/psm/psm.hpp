@@ -3,6 +3,7 @@
 #include <ranges>
 #include <span>
 
+#include "adobe_rgb.hpp"
 #include "color_space_concept.hpp"
 #include "detail/adjust_channels.hpp"
 #include "orgb.hpp"

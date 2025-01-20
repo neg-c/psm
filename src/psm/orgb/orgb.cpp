@@ -168,4 +168,4 @@ template void Orgb::fromSRGB<unsigned char>(const std::span<unsigned char>&,
                                             std::span<unsigned char>);
 template void Orgb::toSRGB<unsigned char>(const std::span<unsigned char>&,
                                           std::span<unsigned char>);
-}  // namespace psm
+}  // namespace psm::detail

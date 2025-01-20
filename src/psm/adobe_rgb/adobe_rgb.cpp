@@ -12,7 +12,6 @@ using Mat4fView = Eigen::Map<Mat4f>;
 using RowXf = Eigen::RowVectorXf;
 using RowXfView = Eigen::Map<RowXf>;
 
-
 Mat3f switch_rb(Mat3f src) {
   Mat3f bgr(src.rows(), 3);
   bgr.col(0) = src.col(2);
