@@ -3,12 +3,12 @@
 #include <ranges>
 #include <span>
 
-#include "adobe_rgb.hpp"
-#include "detail/color_space_concept.hpp"
 #include "detail/adjust_channels.hpp"
-#include "orgb.hpp"
+#include "detail/adobe_rgb.hpp"
+#include "detail/color_space_concept.hpp"
+#include "detail/orgb.hpp"
+#include "detail/srgb.hpp"
 #include "percent.hpp"
-#include "srgb.hpp"
 
 namespace psm {
 

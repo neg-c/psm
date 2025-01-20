@@ -1,4 +1,4 @@
-#include "psm/adobe_rgb.hpp"
+#include "psm/detail/adobe_rgb.hpp"
 
 #include <Eigen/Dense>
 #include <cmath>

@@ -1,4 +1,4 @@
-#include "psm/orgb.hpp"
+#include "psm/detail/orgb.hpp"
 
 #include <Eigen/Dense>
 #include <cmath>

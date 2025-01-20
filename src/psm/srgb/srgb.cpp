@@ -1,4 +1,4 @@
-#include "psm/srgb.hpp"
+#include "psm/detail/srgb.hpp"
 
 namespace psm::detail {
 
