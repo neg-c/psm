@@ -12,7 +12,6 @@ using Mat4fView = Eigen::Map<Mat4f>;
 using RowXf = Eigen::RowVectorXf;
 using RowXfView = Eigen::Map<RowXf>;
 
-}  // namespace
 
 Mat3f switch_rb(Mat3f src) {
   Mat3f bgr(src.rows(), 3);
@@ -80,6 +79,7 @@ Mat3f adobe_rgb2xyz(const Mat3f& src) {
   // clang-format on
   return src * transform_mat.transpose();
 }
+}  // namespace
 
 namespace psm::detail {
 
