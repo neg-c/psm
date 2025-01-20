@@ -4,9 +4,7 @@
 #include <ranges>
 #include <vector>
 
-#include "psm/adobe_rgb.hpp"
 #include "psm/psm.hpp"
-#include "psm/srgb.hpp"
 
 template <std::ranges::contiguous_range Buffer>
 void print_buffer(const Buffer& buffer) {
