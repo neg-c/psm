@@ -1,4 +1,4 @@
-#include "psm/detail/adjust_channels.hpp"
+#include "psm/adjust_channels.hpp"
 
 #include <Eigen/Dense>
 

@@ -4,9 +4,9 @@
 #include <ranges>
 #include <vector>
 
-#include "psm/adobe_rgb.hpp"
+#include "psm/adjust_channels.hpp"
+#include "psm/percent.hpp"
 #include "psm/psm.hpp"
-#include "psm/srgb.hpp"
 
 template <std::ranges::contiguous_range Buffer>
 void print_buffer(const Buffer& buffer) {
@@ -30,6 +30,7 @@ int main() {
   print_buffer(input_image);
 
   psm::Convert<psm::sRGB, psm::AdobeRGB>(input_image, output_image);
+  psm::AdjustChannels(output_image, psm::Percent(20.0f, 0.0f, 10.0f));
   psm::Convert<psm::AdobeRGB, psm::sRGB>(output_image, output_image);
 
   std::cout << "Output Image (BGR):\n";

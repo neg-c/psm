@@ -1,11 +1,14 @@
 #pragma once
+
 #include <span>
 
 namespace psm {
 
-class Orgb {
+namespace detail {
+
+class AdobeRgb {
  public:
-  Orgb() = delete;
+  AdobeRgb() = delete;
 
   template <typename T>
   static void fromSRGB(const std::span<T>& src, std::span<T> dst);
@@ -13,8 +16,10 @@ class Orgb {
   static void toSRGB(const std::span<T>& src, std::span<T> dst);
 };
 
-struct oRGB {
-  using type = Orgb;
+}  // namespace detail
+
+struct AdobeRGB {
+  using type = detail::AdobeRgb;
 };
 
 }  // namespace psm

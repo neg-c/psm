@@ -1,4 +1,4 @@
-#include "psm/orgb.hpp"
+#include "psm/detail/orgb.hpp"
 
 #include <Eigen/Dense>
 #include <cmath>
@@ -119,11 +119,9 @@ Mat3f orgb2lcc(const Mat3f& orgb) {
   }
   return lcc;
 }
-
 }  // namespace
 
-namespace psm {
-
+namespace psm::detail {
 template <typename T>
 void Orgb::fromSRGB(const std::span<T>& src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
@@ -170,4 +168,4 @@ template void Orgb::fromSRGB<unsigned char>(const std::span<unsigned char>&,
                                             std::span<unsigned char>);
 template void Orgb::toSRGB<unsigned char>(const std::span<unsigned char>&,
                                           std::span<unsigned char>);
-}  // namespace psm
+}  // namespace psm::detail

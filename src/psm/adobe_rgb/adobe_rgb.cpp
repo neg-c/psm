@@ -1,4 +1,4 @@
-#include "psm/adobe_rgb.hpp"
+#include "psm/detail/adobe_rgb.hpp"
 
 #include <Eigen/Dense>
 #include <cmath>
@@ -11,8 +11,6 @@ using Mat3fView = Eigen::Map<Mat3f>;
 using Mat4fView = Eigen::Map<Mat4f>;
 using RowXf = Eigen::RowVectorXf;
 using RowXfView = Eigen::Map<RowXf>;
-
-}  // namespace
 
 Mat3f switch_rb(Mat3f src) {
   Mat3f bgr(src.rows(), 3);
@@ -80,8 +78,9 @@ Mat3f adobe_rgb2xyz(const Mat3f& src) {
   // clang-format on
   return src * transform_mat.transpose();
 }
+}  // namespace
 
-namespace psm {
+namespace psm::detail {
 
 template <typename T>
 void AdobeRgb::fromSRGB(const std::span<T>& src, std::span<T> dst) {
@@ -138,4 +137,4 @@ template void AdobeRgb::fromSRGB<unsigned char>(const std::span<unsigned char>&,
                                                 std::span<unsigned char>);
 template void AdobeRgb::toSRGB<unsigned char>(const std::span<unsigned char>&,
                                               std::span<unsigned char>);
-}  // namespace psm
+}  // namespace psm::detail
