@@ -1,6 +1,6 @@
 add_executable(psm_cli psm_cli.cpp)
 
-target_link_libraries(psm_cli PRIVATE psm)
+target_link_libraries(psm_cli PRIVATE psm::psm psm::adjust_channels)
 
 if(MSVC)
   add_custom_command(
