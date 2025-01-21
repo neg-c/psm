@@ -12,6 +12,11 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 include(NoInSourceBuilds)
 
+# Module options
+option(PSM_BUILD_ADJUST_CHANNELS "Build the adjust_channels module" ON)
+option(PSM_BUILD_ORGB "Build the oRGB module" ON)
+option(PSM_BUILD_ADOBE_RGB "Build the AdobeRGB module" ON)
+
 add_subdirectory(src bin)
 
 include(Package)
