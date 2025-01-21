@@ -1,4 +1,5 @@
 add_library(psm_orgb SHARED)
+add_library(psm::orgb ALIAS psm_orgb)
 
 target_sources(
   psm_orgb
@@ -8,5 +9,5 @@ target_sources(
 
 find_package(Eigen3 REQUIRED)
 
-target_link_libraries(psm_orgb PRIVATE Eigen3::Eigen)
+target_link_libraries(psm_orgb PRIVATE Eigen3::Eigen psm_srgb)
 target_compile_features(psm_orgb PUBLIC cxx_std_20)

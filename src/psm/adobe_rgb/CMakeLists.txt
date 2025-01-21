@@ -1,4 +1,5 @@
 add_library(psm_adobe_rgb SHARED)
+add_library(psm::adobe_rgb ALIAS psm_adobe_rgb)
 
 target_sources(
   psm_adobe_rgb
@@ -8,5 +9,5 @@ target_sources(
 
 find_package(Eigen3 REQUIRED)
 
-target_link_libraries(psm_adobe_rgb PRIVATE Eigen3::Eigen)
+target_link_libraries(psm_adobe_rgb PRIVATE Eigen3::Eigen psm_srgb)
 target_compile_features(psm_adobe_rgb PUBLIC cxx_std_20)
