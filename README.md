@@ -69,11 +69,22 @@ int main() {
 Add Prisma (`psm`) to your CMake project:
 
 ```cmake
-...
 find_package(psm REQUIRED)
+
+# Link core functionality (includes oRGB,AdobeRGB, and AdjustChannels utility)
 target_link_libraries(<your_target> PRIVATE psm::psm)
-...
+
+# Optionally link specific color space modules
+target_link_libraries(<your_target> PRIVATE
+    psm::orgb      # Link oRGB support
+    psm::adobe_rgb     # Link Adobe RGB support
+)
 ```
+
+Each color space and utility is provided as a separate module that can be linked independently. Available modules:
+- `psm::orgb` - Support for oRGB color space
+- `psm::adobe_rgb` - Support for Adobe RGB color space
+- `psm::adjust_channels` - Support for channel adjustment utilities
 
 # License
 
