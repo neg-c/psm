@@ -1,5 +1,4 @@
 add_library(psm_adobe_rgb SHARED)
-add_library(psm::adobe_rgb ALIAS psm_adobe_rgb)
 
 target_sources(
   psm_adobe_rgb

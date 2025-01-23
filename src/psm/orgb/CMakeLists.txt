@@ -1,5 +1,4 @@
 add_library(psm_orgb SHARED)
-add_library(psm::orgb ALIAS psm_orgb)
 
 target_sources(
   psm_orgb
