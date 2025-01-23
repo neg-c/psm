@@ -3,9 +3,14 @@
 #include <ranges>
 #include <span>
 
+#if __has_include("detail/adobe_rgb.hpp")
 #include "detail/adobe_rgb.hpp"
-#include "detail/color_space_concept.hpp"
+#endif
+#if __has_include("detail/orgb.hpp")
 #include "detail/orgb.hpp"
+#endif
+
+#include "detail/color_space_concept.hpp"
 #include "detail/srgb.hpp"
 
 namespace psm {

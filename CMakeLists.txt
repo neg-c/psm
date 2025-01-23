@@ -11,6 +11,7 @@ set(PROJECT_VERSION_SUFFIX "alpha")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 include(NoInSourceBuilds)
+include(Options)
 
 add_subdirectory(src bin)
 

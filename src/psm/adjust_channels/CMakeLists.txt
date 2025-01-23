@@ -1,4 +1,5 @@
 add_library(psm_adjust_channels SHARED)
+add_library(psm::adjust_channels ALIAS psm_adjust_channels)
 
 target_sources(
   psm_adjust_channels

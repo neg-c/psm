@@ -1,9 +1,5 @@
-add_subdirectory(adjust_channels)
-add_subdirectory(srgb)
-add_subdirectory(orgb)
-add_subdirectory(adobe_rgb)
-
 add_library(psm INTERFACE)
+add_library(psm::psm ALIAS psm)
 
 target_sources(
   psm
@@ -17,5 +13,16 @@ target_sources(
          include/psm/detail/color_space_concept.hpp
          ${CMAKE_BINARY_DIR}/include/psm/version.hpp)
 
-target_link_libraries(psm INTERFACE psm_adjust_channels psm_orgb psm_srgb
-                                    psm_adobe_rgb)
+# Always include the default srgb module
+add_subdirectory(srgb)
+target_link_libraries(psm INTERFACE psm_srgb)
+
+# Conditionally add other modules based on WITH_<module> flags
+foreach(module ${PSM_MODULES})
+  string(TOUPPER "${module}" MODULE_UPPER)
+  if(WITH_${MODULE_UPPER})
+    add_subdirectory(${module})
+    target_link_libraries(psm INTERFACE psm_${module})
+    set_target_properties(psm_${module} PROPERTIES EXPORT_NAME ${module})
+  endif()
+endforeach()

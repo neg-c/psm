@@ -1,8 +1,17 @@
 include(GNUInstallDirs)
 
+set(INSTALL_TARGETS psm psm_srgb) # Always include core psm and psm_srgb
+
+foreach(module ${PSM_MODULES})
+  string(TOUPPER "${module}" MODULE_UPPER)
+  if(WITH_${MODULE_UPPER})
+    list(APPEND INSTALL_TARGETS psm_${module})
+  endif()
+endforeach()
+
 # Install libraries and headers with components
 install(
-  TARGETS psm psm_adjust_channels psm_orgb psm_srgb psm_adobe_rgb
+  TARGETS ${INSTALL_TARGETS}
   EXPORT psmLibrary
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
