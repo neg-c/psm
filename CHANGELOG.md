@@ -6,6 +6,91 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0-alpha] - 2025-01-23
+
+### Breaking Changes
+- Modularized the library into separate components with optional builds:
+  - `psm::psm`: Includes all modules (default build).
+  - `psm::orgb`: Handles sRGB <-> oRGB conversions.
+  - `psm::adobe_rgb`: Handles sRGB <-> Adobe RGB conversions.
+- Introduced optional linking for `psma::adjust_channels`. It is no longer
+  included in `psm::psm` by default and must be explicitly linked.
+- Refactored internal implementation:
+  - Moved color space classes (`oRGB`, `sRGB`, `AdobeRGB`) to the `psm::detail`
+    namespace to hide implementation details from library users.
+  - Reorganized headers to separate public and private interfaces.
+  - Channel adjustment logic centralized under `AdjustChannels` in a dedicated
+    public header.
+
+### Added
+- **Adobe RGB Support**:
+  - Implemented bidirectional sRGB <-> Adobe RGB conversion.
+- **Modular Builds**:
+  - Introduced CMake options for selective module builds:
+    - `WITH_ORGB`
+    - `WITH_ADOBE_RGB`
+    - `WITH_ADJUST_CHANNELS`
+  - Dynamic module handling in build system for better configurability.
+- Improved documentation:
+  - Added guidance for linking individual modules.
+  - Updated README with modular build instructions and examples.
+- Expanded example usage in the CLI to demonstrate the `AdjustChannels`
+  functionality.
+
+### Changed
+- Modernized type system:
+  - Replaced the trait-based color space type system with a concept-based design
+    using C++20 concepts.
+  - Introduced `ColorSpaceType` concepts and tag-based lookups for cleaner and
+    more idiomatic template constraints.
+- Optimized color space pipeline:
+  - Simplified color space conversion logic using tag-based design.
+  - Removed redundant type checks and streamlined the conversion process.
+- Improved encapsulation:
+  - Implementation headers moved to the `detail/` directory to clearly separate
+    internal logic from the public API.
+  - Reduced the public API surface to minimize misuse by library clients.
+
+### Infrastructure
+- Improved build system:
+  - Added `Options.cmake` to simplify module build configuration.
+  - Made module installation configurable based on enabled modules.
+- Integrated `clang-tidy` for C++20 best practices:
+  - Enabled checks for template metaprogramming, range safety, and modern
+    idioms.
+- Added `.gitattributes` for consistent line endings across platforms.
+
+### Migration Guide
+
+#### Modular Linking
+
+- To link only the required modules:
+  ```cmake
+  target_link_libraries(my_project PRIVATE psm::orgb)
+  ```
+- To include all modules:
+  ```cmake
+  target_link_libraries(my_project PRIVATE psm::psm)
+  ```
+
+#### AdjustChannels Usage
+##### Example: Channel Adjusting for AdobeRGB
+
+```cpp
+#include <psm/psm.hpp>
+#include <psm/adjust_channels.hpp>
+...
+std::vector<unsigned char> input_image = load_image();
+std::vector<unsigned char> output_image(input_image.size());
+
+// Convert from sRGB to Adobe RGB
+psm::Convert<psm::sRGB, psm::AdobeRGB>(input_image, output_image);
+// Channel 0 increase by 20%, Channel 1 leave as is, Channel 2 decrease by 10%
+psm::AdjustChannels(output_image, psm::Percent(20.0f, 0.0f, -10.0f));
+// Convert back to sRGB
+psm::Convert<psm::AdobeRGB, psm::sRGB>(output_image, input_image);
+```
+
 ## [0.1.0-alpha] - 2024-01-05
 
 ### Breaking Changes
@@ -79,5 +164,6 @@ psm::Convert<psm::sRGB, psm::oRGB>(input_image, output_image);
   - Code formatting checks
   - Release automation
 
+[0.2.0-alpha]: https://github.com/neg-c/psm/releases/tag/v0.2.0-alpha
 [0.1.0-alpha]: https://github.com/neg-c/psm/releases/tag/v0.1.0-alpha
 [0.0.1-alpha]: https://github.com/neg-c/psm/releases/tag/v0.0.1-alpha
