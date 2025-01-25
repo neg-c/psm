@@ -14,6 +14,7 @@ include(NoInSourceBuilds)
 include(Options)
 
 add_subdirectory(src bin)
+add_subdirectory(test)
 
 include(Package)
 include(Version)
