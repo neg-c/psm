@@ -6,9 +6,77 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0-alpha] - 2025-01-26
+
+### Breaking Changes
+
+- **Refactored `Percent` Type**:
+  - The `Percent` struct now uses `int` instead of `float` for channel values.
+  - Updated `AdjustChannels` to handle `int`-based percentages with explicit
+    casting.
+  - **Migration Note**: Since percentages were already treated as whole numbers,
+    this change should have minimal functional impact.
+
+### Added
+
+- **Enhanced CI/CD Workflow**:
+  - Automated `CHANGELOG.md` validation and version entry checks.
+  - Automatically includes version-specific changelogs in release drafts.
+  - Simplified manual steps in creating release notes for smoother release
+    management.
+- **Unit Testing System**:
+  - Integrated GTest as the unit testing framework.
+  - Added a `Testing.cmake` module to configure GTest via vcpkg.
+  - Introduced the `AddTests` macro for easy test configuration and discovery
+    using the GoogleTest module.
+
+### Changed
+
+- **CMake Enhancements**:
+  - Introduced `psm_add_module()` function for standardized module registration.
+  - Automatically creates `psm::` namespace aliases for all modules.
+  - Updated module `CMakeLists.txt` to use `psm_add_module()` for consistency.
+  - Fixed issues where modules weren't exported in default builds.
+  - Installed the `psm_add_module()` CMake script for developer use.
+
+### Migration Guide
+
+#### AdjustChannels Percent Type
+
+- Previous versions used `float` for the `Percent` struct. Update your code to
+  use `int` for channel adjustment percentages.
+- Example:
+
+  ```cpp
+  // Old (v0.2.0-alpha)
+  psm::Percent<float> percent = {100.0f, 75.0f, 50.0f};
+  psm::AdjustChannels<psm::sRGB>(image, percent);
+
+  // New (v0.3.0-alpha)
+  psm::Percent<int> percent = {100, 75, 50};
+  psm::AdjustChannels<psm::sRGB>(image, percent);
+  ```
+
+#### Adding Unit Test
+
+- Example:
+  ```cmake
+  AddTests(orgb_test)
+  ```
+
+#### Optional Module setup
+
+- Should me used instead of `add_library` for optional modules(build using
+  WITH\_ flag) to properly handle aliasing.
+- Example:
+  ```cmake
+  psm_add_module(psm_new_module SHARED)
+  ```
+
 ## [0.2.0-alpha] - 2025-01-23
 
 ### Breaking Changes
+
 - Modularized the library into separate components with optional builds:
   - `psm::psm`: Includes all modules (default build).
   - `psm::orgb`: Handles sRGB <-> oRGB conversions.
@@ -23,6 +91,7 @@ and this project adheres to
     public header.
 
 ### Added
+
 - **Adobe RGB Support**:
   - Implemented bidirectional sRGB <-> Adobe RGB conversion.
 - **Modular Builds**:
@@ -38,6 +107,7 @@ and this project adheres to
   functionality.
 
 ### Changed
+
 - Modernized type system:
   - Replaced the trait-based color space type system with a concept-based design
     using C++20 concepts.
@@ -52,6 +122,7 @@ and this project adheres to
   - Reduced the public API surface to minimize misuse by library clients.
 
 ### Infrastructure
+
 - Improved build system:
   - Added `Options.cmake` to simplify module build configuration.
   - Made module installation configurable based on enabled modules.
@@ -74,6 +145,7 @@ and this project adheres to
   ```
 
 #### AdjustChannels Usage
+
 ##### Example: Channel Adjusting for AdobeRGB
 
 ```cpp
@@ -94,19 +166,23 @@ psm::Convert<psm::AdobeRGB, psm::sRGB>(output_image, input_image);
 ## [0.1.0-alpha] - 2024-01-05
 
 ### Breaking Changes
+
 - Renamed `Color()` to `Convert()` for better API clarity
 - Changed from runtime format enums to compile-time template parameters
 - Changed color conversion pipeline to use float-point precision internally
-- Reverted to `unsigned char` with **[0,1]** float range mapping for better data preservation
+- Reverted to `unsigned char` with **[0,1]** float range mapping for better data
+  preservation
 - Input data is now expected in **BGR** format
 
 ### Added
+
 - Direct container support in conversion functions
 - Improved color space conversion accuracy
 - Type-trait based compile-time color space validation
 - Static utility functions for color space operations
 
 ### Changed
+
 - Restructured ORGB into a separate module
 - Optimized color conversion pipeline
   - Direct sRGB-oRGB conversion
@@ -117,6 +193,7 @@ psm::Convert<psm::AdobeRGB, psm::sRGB>(output_image, input_image);
   - Converted color space classes to static utilities
 
 ### Infrastructure
+
 - Improved public interface installation
 - Replaced header guards with `#pragma once`
 - Cleaned up includes based on IWYU analysis
@@ -125,6 +202,7 @@ psm::Convert<psm::AdobeRGB, psm::sRGB>(output_image, input_image);
 ### Migration Guide
 
 #### Basic Usage
+
 ```cpp
 // Old (v0.0.1-alpha)
 std::vector<unsigned char> input_image = load_image();
@@ -145,6 +223,7 @@ psm::Convert<psm::sRGB, psm::oRGB>(input_image, output_image);
 ## [0.0.1-alpha] - 2024-12-09
 
 ### Added
+
 - Initial release of the Prisma (PSM) color space conversion library
 - Core color space conversion functionality
   - RGB color space support
@@ -164,6 +243,7 @@ psm::Convert<psm::sRGB, psm::oRGB>(input_image, output_image);
   - Code formatting checks
   - Release automation
 
+[0.3.0-alpha]: https://github.com/neg-c/psm/releases/tag/v0.3.0-alpha
 [0.2.0-alpha]: https://github.com/neg-c/psm/releases/tag/v0.2.0-alpha
 [0.1.0-alpha]: https://github.com/neg-c/psm/releases/tag/v0.1.0-alpha
 [0.0.1-alpha]: https://github.com/neg-c/psm/releases/tag/v0.0.1-alpha

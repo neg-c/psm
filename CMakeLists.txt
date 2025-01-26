@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.27)
 project(
   psm
-  VERSION 0.2.0
+  VERSION 0.3.0
   DESCRIPTION "Color Space conversion library"
   HOMEPAGE_URL "https://github.com/neg-c/psm"
   LANGUAGES CXX)
