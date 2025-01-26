@@ -89,10 +89,11 @@ jobs:
         run: |
           VERSION="${{ steps.validate_version.outputs.version }}"
           # Extract content between current version header and next header
-          CONTENT=$(awk -v ver="## [$VERSION]" '
-            $0 ~ ver {p=1;next}
-            /^## \[/ {p=0}
-            p' CHANGELOG.md)
+          CONTENT=$(awk -v version="$VERSION" '
+            $0 ~ "## \\[" version "\\]" {flag=1}
+            /^## \[/ && $0 !~ "## \\[" version "\\]" && flag {flag=0}
+            flag {print}
+          ' CHANGELOG.md)
           
           # Ensure we found some content
           if [ -z "$CONTENT" ]; then
@@ -111,7 +112,7 @@ jobs:
         run: |
           VERSION="${{ steps.validate_version.outputs.version }}"
           # Extract the hyperlink line for the current version
-          HYPERLINK=$(grep -A1 "^\[$VERSION\]:" CHANGELOG.md | tail -n 1)
+          HYPERLINK=$(awk -v version="$VERSION" '$0 ~ "\\[" version "\\]:" {print}' CHANGELOG.md | tail -n 1)
           
           # Ensure we found the hyperlink
           if [ -z "$HYPERLINK" ]; then
