@@ -1,3 +1,4 @@
+include(PsmModule)
 add_library(psm INTERFACE)
 add_library(psm::psm ALIAS psm)
 
