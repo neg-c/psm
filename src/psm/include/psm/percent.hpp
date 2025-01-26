@@ -3,9 +3,9 @@
 namespace psm {
 
 struct Percent {
-  float channel0_;
-  float channel1_;
-  float channel2_;
+  int channel0_;
+  int channel1_;
+  int channel2_;
 };
 
 }  // namespace psm
