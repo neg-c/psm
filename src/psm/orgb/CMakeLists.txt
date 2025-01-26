@@ -1,4 +1,4 @@
-add_library(psm_orgb SHARED)
+psm_add_module(psm_orgb SHARED)
 
 target_sources(
   psm_orgb

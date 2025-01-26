@@ -1,4 +1,4 @@
-add_library(psm_adobe_rgb SHARED)
+psm_add_module(psm_adobe_rgb SHARED)
 
 target_sources(
   psm_adobe_rgb
