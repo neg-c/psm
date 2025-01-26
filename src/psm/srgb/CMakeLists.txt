@@ -1,5 +1,6 @@
 add_library(psm_srgb SHARED)
-# This module is not going be exposed to the client so an add_library will suffice
+# This module is not going be exposed to the client so an add_library will
+# suffice
 
 target_sources(
   psm_srgb
