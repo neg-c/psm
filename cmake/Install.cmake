@@ -50,3 +50,9 @@ install(
         "${CMAKE_SOURCE_DIR}/AUTHORS.md"
   DESTINATION ${CMAKE_INSTALL_DOCDIR}
   COMPONENT documentation)
+
+# Install CMake module files helper
+install(
+  FILES "${CMAKE_SOURCE_DIR}/cmake/PsmModule.cmake"
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/psm
+  COMPONENT development)
