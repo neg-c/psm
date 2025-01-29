@@ -12,9 +12,9 @@ void adjustChannels(std::span<T> buffer, const Percent& adjust_percentage) {
       map_src.data(), buffer.size() / 3, 3);
 
   Eigen::Array<float, 1, 3> adjustments;
-  adjustments << static_cast<float>(adjust_percentage.channel0_) / 100.0f,
-      static_cast<float>(adjust_percentage.channel1_) / 100.0f,
-      static_cast<float>(adjust_percentage.channel2_) / 100.0f;
+  adjustments << static_cast<float>(adjust_percentage.channel(0)) / 100.0f,
+      static_cast<float>(adjust_percentage.channel(1)) / 100.0f,
+      static_cast<float>(adjust_percentage.channel(2)) / 100.0f;
 
   split_src = (split_src.template cast<float>().array() *
                (1.0f + adjustments.replicate(split_src.rows(), 1)))
