@@ -64,7 +64,7 @@ TEST(PercentTest, BoundaryChecks) {
 }
 
 TEST(PercentTest, OutOfBoundsAccess) {
-  psm::Percent p(10, 20, 30);
+  const psm::Percent p(10, 20, 30);
   EXPECT_THROW(p.channel(3), std::out_of_range);
   EXPECT_THROW(p.channel(100), std::out_of_range);
 }
@@ -73,15 +73,15 @@ TEST(PercentTest, ExtremeValues) {
   constexpr int max = std::numeric_limits<int>::max();
   constexpr int min = std::numeric_limits<int>::min();
 
-  psm::Percent p1(max, max, max);
+  const psm::Percent p1(max, max, max);
   EXPECT_EQ(p1 + 0, psm::Percent(max, max, max));
 
-  psm::Percent p2(min, min, min);
+  const psm::Percent p2(min, min, min);
   EXPECT_EQ(p2 - 0, psm::Percent(min, min, min));
 }
 
 TEST(PercentTest, NegativeValues) {
-  psm::Percent p(-10, -20, -30);
+  const psm::Percent p(-10, -20, -30);
   EXPECT_EQ(p.channel(0), -10);
   EXPECT_EQ(p.channel(1), -20);
   EXPECT_EQ(p.channel(2), -30);
