@@ -43,6 +43,14 @@ class Percent {
     return channels_[0] == channels_[1] && channels_[1] == channels_[2];
   }
 
+  constexpr bool operator==(const Percent& other) const {
+    return channels_ == other.channels_;
+  }
+
+  constexpr bool operator!=(const Percent& other) const {
+    return !(*this == other);
+  }
+
  private:
   std::array<int, 3> channels_;
 };
