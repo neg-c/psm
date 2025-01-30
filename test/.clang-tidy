@@ -35,6 +35,7 @@ Checks: '
   -bugprone-easily-swappable-parameters,
   -readability-uppercase-literal-suffix,
   -modernize-use-std-numbers,
+  -cppcoreguidelines-avoid-const-or-ref-data-members,
   modernize-use-constraints,
   performance-no-automatic-move,
   cppcoreguidelines-prefer-member-initializer,
