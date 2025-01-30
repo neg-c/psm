@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 
-#include <array>
 #include <chrono>
 #include <vector>
 
@@ -21,8 +20,8 @@ class AdobeRgbTest : public ::testing::Test {
 
   // Known Adobe RGB values
   std::vector<unsigned char> adobe_red{0, 0, 218};
-  std::vector<unsigned char> adobe_green{0, 235, 0};
-  std::vector<unsigned char> adobe_blue{237, 0, 0};
+  std::vector<unsigned char> adobe_green{60, 255, 144};
+  std::vector<unsigned char> adobe_blue{250, 0, 0};
   std::vector<unsigned char> adobe_black{0, 0, 0};
 
   // Result buffer
