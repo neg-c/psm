@@ -122,7 +122,7 @@ TEST_F(AdobeRgbTest, HandlesAllPrimaryColors) {
   std::vector<unsigned char> adobe_red{0, 0, 218};
   std::vector<unsigned char> adobe_green{0, 235, 0};
   std::vector<unsigned char> adobe_blue{237, 0, 0};
-  std::vector<unsigned char> adobe_black{0, 0, 0};
+  const std::vector<unsigned char> adobe_black{0, 0, 0};
 
   // Test black
   psm::Convert<psm::sRGB, psm::AdobeRGB>(black, result);
