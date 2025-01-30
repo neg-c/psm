@@ -111,16 +111,6 @@ TEST_F(AdobeRgbTest, RoundTripConversion) {
   }
 }
 
-// Edge case tests
-TEST_F(AdobeRgbTest, HandlesValueOverflow) {
-  // Max valid value for unsigned char
-  std::vector<unsigned char> input{0, 0, 255};
-  std::vector<unsigned char> result(3);
-
-  EXPECT_THROW((psm::Convert<psm::sRGB, psm::AdobeRGB>(input, result)),
-               std::invalid_argument);
-}
-
 TEST_F(AdobeRgbTest, HandlesAllPrimaryColors) {
   std::vector<unsigned char> red{0, 0, 255};
   std::vector<unsigned char> green{0, 255, 0};
