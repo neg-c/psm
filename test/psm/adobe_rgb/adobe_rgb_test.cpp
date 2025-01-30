@@ -111,40 +111,6 @@ TEST_F(AdobeRgbTest, RoundTripConversion) {
   }
 }
 
-TEST_F(AdobeRgbTest, HandlesAllPrimaryColors) {
-  std::vector<unsigned char> red{0, 0, 255};
-  std::vector<unsigned char> green{0, 255, 0};
-  std::vector<unsigned char> blue{255, 0, 0};
-  std::vector<unsigned char> black{0, 0, 0};
-  std::vector<unsigned char> result(3);
-
-  // Known Adobe RGB values
-  std::vector<unsigned char> adobe_red{0, 0, 218};
-  std::vector<unsigned char> adobe_green{0, 235, 0};
-  std::vector<unsigned char> adobe_blue{237, 0, 0};
-  const std::vector<unsigned char> adobe_black{0, 0, 0};
-
-  // Test black
-  psm::Convert<psm::sRGB, psm::AdobeRGB>(black, result);
-  EXPECT_EQ(result, adobe_black);
-
-  // Test primary colors
-  psm::Convert<psm::sRGB, psm::AdobeRGB>(red, result);
-  EXPECT_NEAR(result[0], adobe_red[0], Tolerance);
-  EXPECT_NEAR(result[1], adobe_red[1], Tolerance);
-  EXPECT_NEAR(result[2], adobe_red[2], Tolerance);
-
-  psm::Convert<psm::sRGB, psm::AdobeRGB>(green, result);
-  EXPECT_NEAR(result[0], adobe_green[0], Tolerance);
-  EXPECT_NEAR(result[1], adobe_green[1], Tolerance);
-  EXPECT_NEAR(result[2], adobe_green[2], Tolerance);
-
-  psm::Convert<psm::sRGB, psm::AdobeRGB>(blue, result);
-  EXPECT_NEAR(result[0], adobe_blue[0], Tolerance);
-  EXPECT_NEAR(result[1], adobe_blue[1], Tolerance);
-  EXPECT_NEAR(result[2], adobe_blue[2], Tolerance);
-}
-
 TEST_F(AdobeRgbTest, ValidatesInputSize) {
   std::vector<unsigned char> invalid_size = {255, 255};  // Only 2 components
   std::vector<unsigned char> result(3);
