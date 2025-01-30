@@ -1,3 +1,4 @@
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 #include <chrono>
@@ -6,6 +7,28 @@
 #include "psm/psm.hpp"
 
 namespace psm_test::adobe_rgb {
+
+MATCHER_P(IsNearVector, expected, "") {
+  const auto& actual = arg;
+  if (actual.size() != expected.size()) {
+    *result_listener << "Vector sizes differ. Expected: " << expected.size()
+                     << " Actual: " << actual.size();
+    return false;
+  }
+
+  static constexpr int Tolerance = 1;
+  for (size_t i = 0; i < actual.size(); ++i) {
+    if (std::abs(static_cast<int>(actual[i]) - static_cast<int>(expected[i])) >
+        Tolerance) {
+      *result_listener << "Vectors differ at index " << i
+                       << ". Expected: " << static_cast<int>(expected[i])
+                       << " Actual: " << static_cast<int>(actual[i])
+                       << " (tolerance: " << Tolerance << ")";
+      return false;
+    }
+  }
+  return true;
+}
 
 class AdobeRgbTest : public ::testing::Test {
  protected:
@@ -33,19 +56,13 @@ class AdobeRgbTest : public ::testing::Test {
 // Primary Colors Group
 TEST_F(AdobeRgbTest, HandlesPrimaryColors) {
   psm::Convert<psm::sRGB, psm::AdobeRGB>(red, result);
-  EXPECT_NEAR(result[0], adobe_red[0], Tolerance);
-  EXPECT_NEAR(result[1], adobe_red[1], Tolerance);
-  EXPECT_NEAR(result[2], adobe_red[2], Tolerance);
+  EXPECT_THAT(result, IsNearVector(adobe_red));
 
   psm::Convert<psm::sRGB, psm::AdobeRGB>(green, result);
-  EXPECT_NEAR(result[0], adobe_green[0], Tolerance);
-  EXPECT_NEAR(result[1], adobe_green[1], Tolerance);
-  EXPECT_NEAR(result[2], adobe_green[2], Tolerance);
+  EXPECT_THAT(result, IsNearVector(adobe_green));
 
   psm::Convert<psm::sRGB, psm::AdobeRGB>(blue, result);
-  EXPECT_NEAR(result[0], adobe_blue[0], Tolerance);
-  EXPECT_NEAR(result[1], adobe_blue[1], Tolerance);
-  EXPECT_NEAR(result[2], adobe_blue[2], Tolerance);
+  EXPECT_THAT(result, IsNearVector(adobe_blue));
 }
 
 // Black and White Group
@@ -71,30 +88,17 @@ TEST_F(AdobeRgbTest, HandlesBlackAndWhite) {
 
 // Gray Values Group
 TEST_F(AdobeRgbTest, HandlesGrayValues) {
-  // Test mid-gray
   std::vector<unsigned char> mid_gray{128, 128, 128};
   psm::Convert<psm::sRGB, psm::AdobeRGB>(mid_gray, result);
-  const int expected_mid =
-      127;  // Expected linearized value (Adobe RGB gamma 2.2)
-  EXPECT_NEAR(result[0], expected_mid, Tolerance);
-  EXPECT_NEAR(result[1], expected_mid, Tolerance);
-  EXPECT_NEAR(result[2], expected_mid, Tolerance);
+  EXPECT_THAT(result, IsNearVector(std::vector<unsigned char>{127, 127, 127}));
 
-  // Test quarter gray
   std::vector<unsigned char> quarter_gray{64, 64, 64};
   psm::Convert<psm::sRGB, psm::AdobeRGB>(quarter_gray, result);
-  const int expected_quarter = 64;
-  EXPECT_NEAR(result[0], expected_quarter, Tolerance);
-  EXPECT_NEAR(result[1], expected_quarter, Tolerance);
-  EXPECT_NEAR(result[2], expected_quarter, Tolerance);
+  EXPECT_THAT(result, IsNearVector(std::vector<unsigned char>{64, 64, 64}));
 
-  // Test three-quarter gray
   std::vector<unsigned char> three_quarter_gray{192, 192, 192};
   psm::Convert<psm::sRGB, psm::AdobeRGB>(three_quarter_gray, result);
-  const int expected_three_quarter = 191;
-  EXPECT_NEAR(result[0], expected_three_quarter, Tolerance);
-  EXPECT_NEAR(result[1], expected_three_quarter, Tolerance);
-  EXPECT_NEAR(result[2], expected_three_quarter, Tolerance);
+  EXPECT_THAT(result, IsNearVector(std::vector<unsigned char>{191, 191, 191}));
 }
 
 // Round-trip fidelity
@@ -106,9 +110,7 @@ TEST_F(AdobeRgbTest, RoundTripConversion) {
   psm::Convert<psm::sRGB, psm::AdobeRGB>(original, intermediate);
   psm::Convert<psm::AdobeRGB, psm::sRGB>(intermediate, result);
 
-  for (size_t i = 0; i < original.size(); ++i) {
-    EXPECT_NEAR(original[i], result[i], Tolerance);
-  }
+  EXPECT_THAT(result, IsNearVector(original));
 }
 
 TEST_F(AdobeRgbTest, ValidatesInputSize) {
