@@ -11,12 +11,14 @@ class Srgb {
 
   template <typename T>
   static void fromSRGB(const std::span<T>& src, std::span<T> dst) {
-    dst = src;  // passthrough because we are already in sRGB
+    // passthrough because we are already in sRGB
+    std::copy(src.begin(), src.end(), dst.begin());
   }
 
   template <typename T>
   static void toSRGB(const std::span<T>& src, std::span<T> dst) {
-    dst = src;  // passthrough because we are already in sRGB
+    // passthrough because we are already in sRGB
+    std::copy(src.begin(), src.end(), dst.begin());
   }
 };
 
