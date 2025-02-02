@@ -22,7 +22,7 @@ void ConvertImpl(std::span<const T> src, std::span<T> dst) {
   using DstColorSpace = detail::ColorSpaceImpl<DstTag>;
 
   SrcColorSpace::toSRGB(src, dst);
-  std::span<const T> dst_view{dst.data(), dst.size()};
+  const std::span<const T> dst_view{dst.data(), dst.size()};
   DstColorSpace::fromSRGB(dst_view, dst);
 }
 }  // namespace detail
