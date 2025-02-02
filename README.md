@@ -38,7 +38,7 @@ channel adjustments, and conversion through oRGB back to sRGB for display:
 
 int main() {
     // Input data in BGR format
-    std::vector<unsigned char> input_image = {
+    const std::vector<unsigned char> input_image = {
         0,   0,   255,  // Red pixel (B=0, G=0, R=255)
         0,   255, 0,    // Green pixel (B=0, G=255, R=0)
         255, 0,   0     // Blue pixel (B=255, G=0, R=0)
@@ -50,13 +50,10 @@ int main() {
     // Convert between any supported color spaces
     psm::Convert<psm::sRGB, psm::AdobeRGB>(input_image, output_image);
 
-    //  adjust channels in any color space(AdobeRGB in this case)
-    psm::Percent adjustments{
-        .channel0_ = 20.0f,  // Increase first channel by 20%
-        .channel1_ = -10.0f, // Decrease second channel by 10%
-        .channel2_ = 0.0f    // Leave third channel unchanged
-    };
-    psm::adjustChannels(output_image, adjustments);
+    // Adjust channels in any color space (AdobeRGB in this case)
+    // Create Percent object with channel adjustments
+    psm::Percent adjustments{20, -10, 0};  // +20% blue, -10% green, 0% red
+    psm::AdjustChannels(output_image, adjustments);
 
     psm::Convert<psm::AdobeRGB, psm::oRGB>(output_image, output_image);
     // Convert back to sRGB
