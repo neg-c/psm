@@ -17,7 +17,7 @@ void print_buffer(const Buffer& buffer) {
 }
 
 int main() {
-  std::vector<unsigned char> input_image = {
+  const std::vector<unsigned char> input_image = {
       0,   0,   255,  // Blue pixel (B=0, G=0, R=255)
       0,   255, 0,    // Green pixel (B=0, G=255, R=0)
       255, 0,   0,    // Red pixel (B=255, G=0, R=0)
