@@ -28,12 +28,17 @@ void ConvertImpl(std::span<const T> src, std::span<T> dst) {
 }  // namespace detail
 
 template <typename SrcFormat, typename DstFormat,
-          std::ranges::contiguous_range SrcRange,
-          std::ranges::contiguous_range DstRange>
-void Convert(const SrcRange& src, DstRange& dst) {
+          std::ranges::contiguous_range SrcRange>
+auto Convert(const SrcRange& src) {
+  // Create output container of the same type as input
+  std::remove_cvref_t<SrcRange> dst;
+  dst.resize(std::ranges::size(src));
+
   detail::ConvertImpl<SrcFormat, DstFormat>(
       std::span<const std::ranges::range_value_t<SrcRange>>{src.data(),
                                                             src.size()},
-      std::span<std::ranges::range_value_t<DstRange>>{dst.data(), dst.size()});
+      std::span<std::ranges::range_value_t<SrcRange>>{dst.data(), dst.size()});
+
+  return dst;
 }
 }  // namespace psm
