@@ -31,7 +31,7 @@ Prisma into your project.
 ## Usage Example
 
 Here's a simple example showing color space conversion from sRGB to Adobe RGB,
-channel adjustments, and conversion through oRGB back to sRGB for display:
+channel adjustments, and conversion back to sRGB for display:
 
 ```cpp
 #include "psm/psm.hpp"
@@ -44,20 +44,17 @@ int main() {
         255, 0,   0     // Blue pixel (B=255, G=0, R=0)
     };
 
-    // Allocate output buffer
-    std::vector<unsigned char> output_image(input_image.size());
-
     // Convert between any supported color spaces
-    psm::Convert<psm::sRGB, psm::AdobeRGB>(input_image, output_image);
+    auto output_image = psm::Convert<psm::sRGB, psm::AdobeRGB>(input_image);
 
     // Adjust channels in any color space (AdobeRGB in this case)
     // Create Percent object with channel adjustments
     psm::Percent adjustments{20, -10, 0};  // +20% blue, -10% green, 0% red
     psm::AdjustChannels(output_image, adjustments);
 
-    psm::Convert<psm::AdobeRGB, psm::oRGB>(output_image, output_image);
-    // Convert back to sRGB
-    psm::Convert<psm::oRGB, psm::sRGB>(output_image, output_image);
+    // Convert through oRGB and back to sRGB
+    output_image = psm::Convert<psm::AdobeRGB, psm::oRGB>(output_image);
+    output_image = psm::Convert<psm::oRGB, psm::sRGB>(output_image);
 }
 ```
 
