@@ -24,14 +24,15 @@ int main() {
       0,   255, 255   // Yellow pixel (B=0, G=255, R=255)
   };
 
-  std::vector<unsigned char> output_image(input_image.size());
-
   std::cout << "Input Image (BGR):\n";
   print_buffer(input_image);
 
-  psm::Convert<psm::sRGB, psm::AdobeRGB>(input_image, output_image);
-  psm::AdjustChannels(output_image, psm::Percent(20, 0, 10));
-  psm::Convert<psm::AdobeRGB, psm::sRGB>(output_image, output_image);
+  std::vector<unsigned char> output_image =
+      psm::Convert<psm::sRGB, psm::AdobeRGB>(input_image);
+
+  psm::AdjustChannels(output_image, psm::Percent(10, -10, 10));
+
+  output_image = psm::Convert<psm::AdobeRGB, psm::sRGB>(output_image);
 
   std::cout << "Output Image (BGR):\n";
   print_buffer(output_image);
