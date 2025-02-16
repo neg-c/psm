@@ -30,6 +30,10 @@ void ConvertImpl(std::span<const T> src, std::span<T> dst) {
 template <typename SrcFormat, typename DstFormat,
           std::ranges::contiguous_range SrcRange>
 auto Convert(const SrcRange& src) {
+  if (std::ranges::size(src) % 3 != 0) {
+    throw std::invalid_argument("Input buffer size must be a multiple of 3");
+  }
+
   // Create output container of the same type as input
   std::remove_cvref_t<SrcRange> dst;
   dst.resize(std::ranges::size(src));
