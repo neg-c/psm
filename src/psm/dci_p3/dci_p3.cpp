@@ -1,7 +1,5 @@
 #include "psm/detail/dci_p3.hpp"
 
-#include <Eigen/src/Core/Matrix.h>
-
 #include <Eigen/Dense>
 #include <cmath>
 
@@ -86,6 +84,32 @@ Mat3f dci_p3_2xyz(const Mat3f& src) {
 namespace psm::detail {
 
 template <typename T>
+void DciP3::fromSRGB(const std::span<const T>& src, std::span<T> dst) {
+  const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
+  RowXf norm_src = linearize(map_src);
+
+  // Assuming BGR as input
+  const Mat3fView norm_bgr(norm_src.data(), norm_src.cols() / 3, 3);
+  const Mat3f norm_rgb = switch_rb(norm_bgr);
+  const Mat3f xyz = rgb2xyz(norm_rgb);
+  const Mat3f dci_p3 = xyz2dci_p3(xyz);
+  const Mat3f dci_p3_final = switch_rb(dci_p3);
+
+  const Eigen::Map<const RowXf> dci_p3_row(
+      dci_p3_final.data(), dci_p3_final.rows() * dci_p3_final.cols());
+
+  RowXf encoded_dci_p3 = delinearize(dci_p3_row);
+
+  const Mat3fView result(encoded_dci_p3.data(), encoded_dci_p3.size() / 3, 3);
+
+  Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
+  dst_map = (result.reshaped<Eigen::RowMajor>() * 255.0f)
+                .cwiseMin(255.0f)
+                .cwiseMax(0.0f)
+                .template cast<T>();
+}
+
+template <typename T>
 void DciP3::toSRGB(const std::span<const T>& src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
   RowXf norm_src = linearize(map_src);
@@ -102,32 +126,6 @@ void DciP3::toSRGB(const std::span<const T>& src, std::span<T> dst) {
   RowXf encoded_srgb = delinearize(srgb_row);
 
   const Mat3fView result(encoded_srgb.data(), encoded_srgb.size() / 3, 3);
-
-  Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
-  dst_map = (result.reshaped<Eigen::RowMajor>() * 255.0f)
-                .cwiseMin(255.0f)
-                .cwiseMax(0.0f)
-                .template cast<T>();
-}
-
-template <typename T>
-void DciP3::fromSRGB(const std::span<const T> src&, std::span<T> dst) {
-  const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
-  RowXf norm_src = linearize(map_src);
-
-  // Assuming BGR as input
-  const Mat3fView norm_bgr(norm_src.data(), norm_src.cols() / 3, 3);
-  const Mat3f norm_rgb = switch_rb(norm_bgr);
-  const Mat3f xyz = rgb2xyz(norm_rgb);
-  const Mat3f dci_p3 = xyz2dci_p3(xyz);
-  const Mat3f dci_p3_final = switch_rb(dci_p3);
-
-  const Eigen::Map<const RowXf> dci_p3_row(
-      dci_p3_final.data(), dci_p3_final.rows() * dci_p3_final.cols());
-
-  RowXf encoded_dci_p3 = delinearize(dci_p3_final);
-
-  const Mat3fView result(encoded_dci_p3.data(), encoded_dci_p3.size() / 3, 3);
 
   Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
   dst_map = (result.reshaped<Eigen::RowMajor>() * 255.0f)

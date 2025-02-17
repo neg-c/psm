@@ -10,13 +10,12 @@ class DciP3 {
   DciP3() = delete;
 
   template <typename T>
-  void toSRGB(const std::span<const T>& src, std::span<T> dst);
-
+  static void fromSRGB(const std::span<const T>& src, std::span<T> dst);
   template <typename T>
-  void fromSRGB(const std::span<const T>& src, std::span<T> dst);
+  static void toSRGB(const std::span<const T>& src, std::span<T> dst);
 };
 }  // namespace detail
-//
+
 struct DciP3 {
   using type = detail::DciP3;
 };
