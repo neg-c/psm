@@ -123,7 +123,7 @@ Mat3f orgb2lcc(const Mat3f& orgb) {
 
 namespace psm::detail {
 template <typename T>
-void Orgb::fromSRGB(const std::span<T>& src, std::span<T> dst) {
+void Orgb::fromSRGB(const std::span<const T>& src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
   RowXf norm_src = normalize(map_src);
 
@@ -143,7 +143,7 @@ void Orgb::fromSRGB(const std::span<T>& src, std::span<T> dst) {
 }
 
 template <typename T>
-void Orgb::toSRGB(const std::span<T>& src, std::span<T> dst) {
+void Orgb::toSRGB(const std::span<const T>& src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
   RowXf norm_src = map_src.template cast<float>() / 255.0f;
 
@@ -164,8 +164,8 @@ void Orgb::toSRGB(const std::span<T>& src, std::span<T> dst) {
       (result * 255.0f).cwiseMin(255.0f).cwiseMax(0.0f).template cast<T>();
 }
 
-template void Orgb::fromSRGB<unsigned char>(const std::span<unsigned char>&,
-                                            std::span<unsigned char>);
-template void Orgb::toSRGB<unsigned char>(const std::span<unsigned char>&,
+template void Orgb::fromSRGB<unsigned char>(
+    const std::span<const unsigned char>&, std::span<unsigned char>);
+template void Orgb::toSRGB<unsigned char>(const std::span<const unsigned char>&,
                                           std::span<unsigned char>);
 }  // namespace psm::detail

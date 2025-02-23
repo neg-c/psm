@@ -10,9 +10,9 @@ class Orgb {
   Orgb() = delete;
 
   template <typename T>
-  static void fromSRGB(const std::span<T>& src, std::span<T> dst);
+  static void fromSRGB(const std::span<const T>& src, std::span<T> dst);
   template <typename T>
-  static void toSRGB(const std::span<T>& src, std::span<T> dst);
+  static void toSRGB(const std::span<const T>& src, std::span<T> dst);
 };
 
 }  // namespace detail
