@@ -9,8 +9,8 @@
 #if __has_include("detail/orgb.hpp")
 #include "detail/orgb.hpp"
 #endif
-#if __has_include("detail/dci_p3.hpp")
-#include "detail/dci_p3.hpp"
+#if __has_include("detail/display_p3.hpp")
+#include "detail/display_p3.hpp"
 #endif
 
 #include "detail/color_space_concept.hpp"

@@ -3,13 +3,13 @@
 ## Description
 
 **Prisma (`psm`)** is a modern C++20 library for color space conversions. It
-currently supports converting colors between **sRGB**, **Adobe RGB**, **DCI-P3**,
+currently supports converting colors between **sRGB**, **Adobe RGB**, **DISPLAY-P3**,
 and **oRGB** color spaces.
 
 ## Features
 
 - **Flexible Color Space Conversion**:
-  - Convert between any supported color spaces (sRGB, Adobe RGB, oRGB, DCI-P3)
+  - Convert between any supported color spaces (sRGB, Adobe RGB, oRGB, Display P3)
   - All conversions maintain color accuracy through proper intermediate
     transformations
 - **Channel Adjustment**: Allows percentage-based adjustment of individual color
@@ -79,7 +79,7 @@ Each color space and utility is provided as a separate module that can be linked
 - `psm::orgb` - Support for oRGB color space
 - `psm::adobe_rgb` - Support for Adobe RGB color space
 - `psm::adjust_channels` - Support for channel adjustment utilities
-- `psm::dci_p3` - Support for DCI-P3 color space
+- `psm::display_p3` - Support for Display P3 color space
 # License
 
 Prisma is licensed under [LICENSE](LICENSE)

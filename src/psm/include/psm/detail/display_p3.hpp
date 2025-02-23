@@ -5,9 +5,9 @@
 namespace psm {
 namespace detail {
 
-class DciP3 {
+class DisplayP3 {
  public:
-  DciP3() = delete;
+  DisplayP3() = delete;
 
   template <typename T>
   static void fromSRGB(const std::span<const T>& src, std::span<T> dst);
@@ -16,8 +16,8 @@ class DciP3 {
 };
 }  // namespace detail
 
-struct DciP3 {
-  using type = detail::DciP3;
+struct DisplayP3 {
+  using type = detail::DisplayP3;
 };
 
 }  // namespace psm

@@ -1,4 +1,4 @@
-#include "psm/detail/dci_p3.hpp"
+#include "psm/detail/display_p3.hpp"
 
 #include <Eigen/Dense>
 #include <cmath>
@@ -59,7 +59,7 @@ Mat3f xyz2rgb(const Mat3f& src) {
   return src * transform_mat.transpose();
 }
 
-Mat3f xyz2dci_p3(const Mat3f& src) {
+Mat3f xyz2display_p3(const Mat3f& src) {
   Eigen::Matrix3f transform_mat;
   // clang-format off
   transform_mat << 2.4934969, -0.9313836, -0.4027107,
@@ -69,7 +69,7 @@ Mat3f xyz2dci_p3(const Mat3f& src) {
   return src * transform_mat.transpose();
 }
 
-Mat3f dci_p3_2xyz(const Mat3f& src) {
+Mat3f display_p3_2xyz(const Mat3f& src) {
   Eigen::Matrix3f transform_mat;
   // clang-format off
   transform_mat << 0.4865709, 0.2656677, 0.1982173,
@@ -84,7 +84,7 @@ Mat3f dci_p3_2xyz(const Mat3f& src) {
 namespace psm::detail {
 
 template <typename T>
-void DciP3::fromSRGB(const std::span<const T>& src, std::span<T> dst) {
+void DisplayP3::fromSRGB(const std::span<const T>& src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
   RowXf norm_src = linearize(map_src);
 
@@ -92,15 +92,17 @@ void DciP3::fromSRGB(const std::span<const T>& src, std::span<T> dst) {
   const Mat3fView norm_bgr(norm_src.data(), norm_src.cols() / 3, 3);
   const Mat3f norm_rgb = switch_rb(norm_bgr);
   const Mat3f xyz = rgb2xyz(norm_rgb);
-  const Mat3f dci_p3 = xyz2dci_p3(xyz);
-  const Mat3f dci_p3_final = switch_rb(dci_p3);
+  const Mat3f display_p3 = xyz2display_p3(xyz);
+  const Mat3f display_p3_final = switch_rb(display_p3);
 
-  const Eigen::Map<const RowXf> dci_p3_row(
-      dci_p3_final.data(), dci_p3_final.rows() * dci_p3_final.cols());
+  const Eigen::Map<const RowXf> display_p3_row(
+      display_p3_final.data(),
+      display_p3_final.rows() * display_p3_final.cols());
 
-  RowXf encoded_dci_p3 = delinearize(dci_p3_row);
+  RowXf encoded_display_p3 = delinearize(display_p3_row);
 
-  const Mat3fView result(encoded_dci_p3.data(), encoded_dci_p3.size() / 3, 3);
+  const Mat3fView result(encoded_display_p3.data(),
+                         encoded_display_p3.size() / 3, 3);
 
   Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
   dst_map = (result.reshaped<Eigen::RowMajor>() * 255.0f)
@@ -110,14 +112,14 @@ void DciP3::fromSRGB(const std::span<const T>& src, std::span<T> dst) {
 }
 
 template <typename T>
-void DciP3::toSRGB(const std::span<const T>& src, std::span<T> dst) {
+void DisplayP3::toSRGB(const std::span<const T>& src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
   RowXf norm_src = linearize(map_src);
 
   // Assuming BGR as input
   const Mat3fView norm_bgr(norm_src.data(), norm_src.cols() / 3, 3);
-  const Mat3f dci_p3_final = switch_rb(norm_bgr);
-  const Mat3f xyz = dci_p3_2xyz(dci_p3_final);
+  const Mat3f display_p3_final = switch_rb(norm_bgr);
+  const Mat3f xyz = display_p3_2xyz(display_p3_final);
   const Mat3f srgb = xyz2rgb(xyz);
   const Mat3f srgb_bgr = switch_rb(srgb);
 
@@ -134,8 +136,8 @@ void DciP3::toSRGB(const std::span<const T>& src, std::span<T> dst) {
                 .template cast<T>();
 }
 
-template void DciP3::fromSRGB<unsigned char>(
+template void DisplayP3::fromSRGB<unsigned char>(
     const std::span<const unsigned char>&, std::span<unsigned char>);
-template void DciP3::toSRGB<unsigned char>(
+template void DisplayP3::toSRGB<unsigned char>(
     const std::span<const unsigned char>&, std::span<unsigned char>);
 }  // namespace psm::detail
