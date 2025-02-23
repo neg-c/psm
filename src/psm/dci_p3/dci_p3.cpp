@@ -62,9 +62,9 @@ Mat3f xyz2rgb(const Mat3f& src) {
 Mat3f xyz2dci_p3(const Mat3f& src) {
   Eigen::Matrix3f transform_mat;
   // clang-format off
-  transform_mat << 0.4865709, 0.2656677, 0.1982173,
-                   0.2289746, 0.6917385, 0.0792869,
-                   0.0000000, 0.0451134, 1.0439444;
+  transform_mat << 2.4934969, -0.9313836, -0.4027107,
+                  -0.8294889,  1.7626640,  0.0236247,
+                   0.0358458, -0.0761724,  0.9568845;
   // clang-format on
   return src * transform_mat.transpose();
 }
@@ -72,9 +72,9 @@ Mat3f xyz2dci_p3(const Mat3f& src) {
 Mat3f dci_p3_2xyz(const Mat3f& src) {
   Eigen::Matrix3f transform_mat;
   // clang-format off
-  transform_mat << 2.4934969, -0.9313836, -0.4027107,
-                  -0.8294889,  1.7626640,  0.0236247,
-                   0.0358458, -0.0761724,  0.9568845;
+  transform_mat << 0.4865709, 0.2656677, 0.1982173,
+                   0.2289746, 0.6917385, 0.0792869,
+                   0.0000000, 0.0451134, 1.0439444;
   // clang-format on
   return src * transform_mat.transpose();
 }
