@@ -13,14 +13,6 @@ using Mat4fView = Eigen::Map<Mat4f>;
 using RowXf = Eigen::RowVectorXf;
 using RowXfView = Eigen::Map<RowXf>;
 
-Mat3f switch_rb(Mat3f src) {
-  Mat3f bgr(src.rows(), 3);
-  bgr.col(0) = src.col(2);
-  bgr.col(1) = src.col(1);
-  bgr.col(2) = src.col(0);
-  return bgr;
-}
-
 template <typename T>
 RowXf normalize(const Eigen::Map<const Eigen::RowVectorX<T>>& src) {
   return src.template cast<float>() / 255.0f;
@@ -127,9 +119,8 @@ void Orgb::fromSRGB(const std::span<const T>& src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
   RowXf norm_src = normalize(map_src);
 
-  // Assuming BGR as input
-  const Mat3fView norm_bgr(norm_src.data(), norm_src.cols() / 3, 3);
-  const Mat3f norm_rgb = switch_rb(norm_bgr);
+  // Assuming RGB as input
+  const Mat3fView norm_rgb(norm_src.data(), norm_src.cols() / 3, 3);
   const Mat3f lcc = rgb2lcc(norm_rgb);
   Mat3f orgb = lcc2orgb(lcc);
   // map [-1, 2] to [0, 1] to preserve data when converting back to sRGB
@@ -147,18 +138,17 @@ void Orgb::toSRGB(const std::span<const T>& src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
   RowXf norm_src = map_src.template cast<float>() / 255.0f;
 
-  // Assuming ORGB as input
-  Mat3fView norm_obgr(norm_src.data(), norm_src.cols() / 3, 3);
+  // Assuming RGB as input for oRGB
+  Mat3fView norm_orgb(norm_src.data(), norm_src.cols() / 3, 3);
 
   // remap [0, 1] back to [-1, 2] to preserve data
-  const Mat3f unshifted_orgb =
-      ((norm_obgr.array() * 3.0f) - 1.0f).min(2.0f).max(-1.0f);
+  Mat3f unshifted_orgb =
+      ((norm_orgb.array() * 3.0f) - 1.0f).min(2.0f).max(-1.0f);
 
   const Mat3f lcc = orgb2lcc(unshifted_orgb);
-  const Mat3f rgb = lcc2rgb(lcc);
-  Mat3f bgr = switch_rb(rgb);
+  Mat3f rgb = lcc2rgb(lcc);
 
-  const RowXfView result(bgr.data(), bgr.cols() * bgr.rows());
+  const RowXfView result(rgb.data(), rgb.cols() * rgb.rows());
   Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
   dst_map =
       (result * 255.0f).cwiseMin(255.0f).cwiseMax(0.0f).template cast<T>();

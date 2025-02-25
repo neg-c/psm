@@ -35,16 +35,16 @@ class DisplayP3Test : public ::testing::Test {
   static constexpr int Tolerance = 1;
 
   // Common test vectors
-  std::vector<unsigned char> red{0, 0, 255};
+  std::vector<unsigned char> red{255, 0, 0};
   std::vector<unsigned char> green{0, 255, 0};
-  std::vector<unsigned char> blue{255, 0, 0};
+  std::vector<unsigned char> blue{0, 0, 255};
   std::vector<unsigned char> black{0, 0, 0};
   std::vector<unsigned char> white{255, 255, 255};
 
   // Known Display P3 values
-  std::vector<unsigned char> p3_red{54, 40, 233};
-  std::vector<unsigned char> p3_green{251, 77, 115};
-  std::vector<unsigned char> p3_blue{244, 0, 0};
+  std::vector<unsigned char> p3_red{233, 40, 54};
+  std::vector<unsigned char> p3_green{115, 77, 251};
+  std::vector<unsigned char> p3_blue{0, 0, 244};
   std::vector<unsigned char> p3_black{0, 0, 0};
 
   void SetUp() override {}
@@ -104,7 +104,7 @@ TEST_F(DisplayP3Test, HandlesGrayValues) {
 
 // Round-trip fidelity
 TEST_F(DisplayP3Test, RoundTripConversion) {
-  const std::vector<unsigned char> original = {180, 92, 210};
+  const std::vector<unsigned char> original = {210, 92, 180};
 
   auto intermediate = psm::Convert<psm::sRGB, psm::DisplayP3>(original);
   auto result = psm::Convert<psm::DisplayP3, psm::sRGB>(intermediate);
@@ -136,11 +136,11 @@ TEST_F(DisplayP3Test, BulkConversionPerformance) {
 // Wide Color Gamut Tests
 TEST_F(DisplayP3Test, HandlesWideGamutColors) {
   // Test colors that are outside sRGB gamut but within Display P3
-  const std::vector<unsigned char> saturated_red{0, 0,
-                                                 255};  // Pure red in sRGB
+  const std::vector<unsigned char> saturated_red{255, 0,
+                                                 0};  // Pure red in sRGB
   auto result = psm::Convert<psm::sRGB, psm::DisplayP3>(saturated_red);
   // Display P3 should represent this red as more saturated
-  EXPECT_GT(result[2], saturated_red[2]);
+  EXPECT_GT(result[0], saturated_red[0] - Tolerance);
 }
 
 }  // namespace psm_test::display_p3

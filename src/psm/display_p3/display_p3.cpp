@@ -12,14 +12,6 @@ using Mat4fView = Eigen::Map<Mat4f>;
 using RowXf = Eigen::RowVectorXf;
 using RowXfView = Eigen::Map<RowXf>;
 
-Mat3f switch_rb(Mat3f src) {
-  Mat3f bgr(src.rows(), 3);
-  bgr.col(0) = src.col(2);
-  bgr.col(1) = src.col(1);
-  bgr.col(2) = src.col(0);
-  return bgr;
-}
-
 template <typename T>
 RowXf linearize(const Eigen::Map<const Eigen::RowVectorX<T>>& src) {
   const RowXf normalized = src.template cast<float>() / 255.0f;
@@ -88,16 +80,13 @@ void DisplayP3::fromSRGB(const std::span<const T>& src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
   RowXf norm_src = linearize(map_src);
 
-  // Assuming BGR as input
-  const Mat3fView norm_bgr(norm_src.data(), norm_src.cols() / 3, 3);
-  const Mat3f norm_rgb = switch_rb(norm_bgr);
+  // Assuming RGB as input
+  const Mat3fView norm_rgb(norm_src.data(), norm_src.cols() / 3, 3);
   const Mat3f xyz = rgb2xyz(norm_rgb);
   const Mat3f display_p3 = xyz2display_p3(xyz);
-  const Mat3f display_p3_final = switch_rb(display_p3);
 
   const Eigen::Map<const RowXf> display_p3_row(
-      display_p3_final.data(),
-      display_p3_final.rows() * display_p3_final.cols());
+      display_p3.data(), display_p3.rows() * display_p3.cols());
 
   RowXf encoded_display_p3 = delinearize(display_p3_row);
 
@@ -116,15 +105,13 @@ void DisplayP3::toSRGB(const std::span<const T>& src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
   RowXf norm_src = linearize(map_src);
 
-  // Assuming BGR as input
-  const Mat3fView norm_bgr(norm_src.data(), norm_src.cols() / 3, 3);
-  const Mat3f display_p3_final = switch_rb(norm_bgr);
-  const Mat3f xyz = display_p3_2xyz(display_p3_final);
+  // Assuming RGB as input
+  const Mat3fView display_p3(norm_src.data(), norm_src.cols() / 3, 3);
+  const Mat3f xyz = display_p3_2xyz(display_p3);
   const Mat3f srgb = xyz2rgb(xyz);
-  const Mat3f srgb_bgr = switch_rb(srgb);
 
-  const Eigen::Map<const RowXf> srgb_row(srgb_bgr.data(),
-                                         srgb_bgr.rows() * srgb_bgr.cols());
+  const Eigen::Map<const RowXf> srgb_row(srgb.data(),
+                                         srgb.rows() * srgb.cols());
   RowXf encoded_srgb = delinearize(srgb_row);
 
   const Mat3fView result(encoded_srgb.data(), encoded_srgb.size() / 3, 3);

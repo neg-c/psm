@@ -35,16 +35,16 @@ class AdobeRgbTest : public ::testing::Test {
   static constexpr int Tolerance = 1;
 
   // Common test vectors
-  std::vector<unsigned char> red{0, 0, 255};
+  std::vector<unsigned char> red{255, 0, 0};
   std::vector<unsigned char> green{0, 255, 0};
-  std::vector<unsigned char> blue{255, 0, 0};
+  std::vector<unsigned char> blue{0, 0, 255};
   std::vector<unsigned char> black{0, 0, 0};
   std::vector<unsigned char> white{255, 255, 255};
 
   // Known Adobe RGB values
-  std::vector<unsigned char> adobe_red{0, 0, 218};
-  std::vector<unsigned char> adobe_green{60, 255, 144};
-  std::vector<unsigned char> adobe_blue{250, 0, 0};
+  std::vector<unsigned char> adobe_red{218, 0, 0};
+  std::vector<unsigned char> adobe_green{144, 255, 60};
+  std::vector<unsigned char> adobe_blue{0, 0, 250};
   std::vector<unsigned char> adobe_black{0, 0, 0};
 
   void SetUp() override {}
@@ -100,7 +100,7 @@ TEST_F(AdobeRgbTest, HandlesGrayValues) {
 
 // Round-trip fidelity
 TEST_F(AdobeRgbTest, RoundTripConversion) {
-  const std::vector<unsigned char> original = {180, 92, 210};
+  const std::vector<unsigned char> original = {210, 92, 180};
 
   auto intermediate = psm::Convert<psm::sRGB, psm::AdobeRGB>(original);
   auto result = psm::Convert<psm::AdobeRGB, psm::sRGB>(intermediate);
