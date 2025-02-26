@@ -26,6 +26,7 @@ jobs:
         with:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.event.pull_request.head.ref }}
+
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v42
@@ -34,19 +35,23 @@ jobs:
             test/**
             src/**
 
-      - name: Run clang-tidy for test directory
-        if: contains(steps.changed-files.outputs.all_changed_files, 'test/')
-        uses: ZehMatt/clang-tidy-annotations@v1.1.1
-        with:
-          build_dir: 'build/unixlike-gcc-debug'
-          cmake_args: '--preset unixlike-gcc-debug'
-          clang_tidy_file: 'test/.clang-tidy'
+      - name: Set up build environment
+        run: |
+          cmake --preset unixlike-gcc-debug
 
       - name: Run clang-tidy for src directory
         if: contains(steps.changed-files.outputs.all_changed_files, 'src/')
         uses: ZehMatt/clang-tidy-annotations@v1.1.1
         with:
           build_dir: 'build/unixlike-gcc-debug'
-          cmake_args: '--preset unixlike-gcc-debug'
+          source_dir: 'src'
           clang_tidy_file: '.clang-tidy'
+
+      - name: Run clang-tidy for test directory
+        if: contains(steps.changed-files.outputs.all_changed_files, 'test/')
+        uses: ZehMatt/clang-tidy-annotations@v1.1.1
+        with:
+          build_dir: 'build/unixlike-gcc-debug'
+          source_dir: 'test'
+          clang_tidy_file: 'test/.clang-tidy'
 
