@@ -142,7 +142,7 @@ void Orgb::toSRGB(const std::span<const T>& src, std::span<T> dst) {
   Mat3fView norm_orgb(norm_src.data(), norm_src.cols() / 3, 3);
 
   // remap [0, 1] back to [-1, 2] to preserve data
-  Mat3f unshifted_orgb =
+  const Mat3f unshifted_orgb =
       ((norm_orgb.array() * 3.0f) - 1.0f).min(2.0f).max(-1.0f);
 
   const Mat3f lcc = orgb2lcc(unshifted_orgb);
