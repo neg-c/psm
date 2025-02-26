@@ -119,7 +119,7 @@ void Orgb::fromSRGB(const std::span<const T>& src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
   RowXf norm_src = normalize(map_src);
 
-  // Assuming RGB as input
+  // Assuming RGB/BGR as input
   const Mat3fView norm_rgb(norm_src.data(), norm_src.cols() / 3, 3);
   const Mat3f lcc = rgb2lcc(norm_rgb);
   Mat3f orgb = lcc2orgb(lcc);
@@ -138,7 +138,7 @@ void Orgb::toSRGB(const std::span<const T>& src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
   RowXf norm_src = map_src.template cast<float>() / 255.0f;
 
-  // Assuming RGB as input for oRGB
+  // Assuming RGB/BGR as input for oRGB
   Mat3fView norm_orgb(norm_src.data(), norm_src.cols() / 3, 3);
 
   // remap [0, 1] back to [-1, 2] to preserve data

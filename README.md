@@ -20,7 +20,6 @@ and **oRGB** color spaces.
 
 ## Limitations
 
-- Currently only processes input data as BGR format
 - Additional channels (like alpha) are ignored during conversion
 
 ## Getting Started

@@ -79,7 +79,7 @@ void AdobeRgb::fromSRGB(const std::span<const T>& src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
   RowXf norm_src = linearize(map_src);
 
-  // Assuming RGB as input
+  // Assuming RGB/BGR as input
   const Mat3fView norm_rgb(norm_src.data(), norm_src.cols() / 3, 3);
   const Mat3f xyz = rgb2xyz(norm_rgb);
   const Mat3f adobe_rgb = xyz2adobe_rgb(xyz);
@@ -103,7 +103,7 @@ void AdobeRgb::toSRGB(const std::span<const T>& src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
   RowXf norm_src = linearize(map_src);
 
-  // Assuming RGB as input
+  // Assuming RGB/BGR as input
   const Mat3fView adobe_rgb(norm_src.data(), norm_src.cols() / 3, 3);
   const Mat3f xyz = adobe_rgb2xyz(adobe_rgb);
   const Mat3f srgb = xyz2rgb(xyz);
