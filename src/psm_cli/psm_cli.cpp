@@ -18,23 +18,27 @@ void print_buffer(const Buffer& buffer) {
 
 int main() {
   const std::vector<unsigned char> input_image = {
-      0,   0,   255,  // Blue pixel (B=0, G=0, R=255)
-      0,   255, 0,    // Green pixel (B=0, G=255, R=0)
-      255, 0,   0,    // Red pixel (B=255, G=0, R=0)
-      0,   255, 255   // Yellow pixel (B=0, G=255, R=255)
+      255, 0,   0,    // Red pixel (R=255, G=0, B=0)
+      0,   255, 0,    // Green pixel (R=0, G=255, B=0)
+      0,   0,   255,  // Blue pixel (R=0, G=0, B=255)
+      255, 255, 0     // Yellow pixel (R=255, G=255, B=0)
   };
 
-  std::cout << "Input Image (BGR):\n";
+  std::cout << "Input Image (RGB):\n";
   print_buffer(input_image);
 
   std::vector<unsigned char> output_image =
       psm::Convert<psm::sRGB, psm::AdobeRGB>(input_image);
 
-  psm::AdjustChannels(output_image, psm::Percent(10, -10, 10));
-
   output_image = psm::Convert<psm::AdobeRGB, psm::sRGB>(output_image);
 
-  std::cout << "Output Image (BGR):\n";
+  output_image = psm::Convert<psm::sRGB, psm::oRGB>(output_image);
+  output_image = psm::Convert<psm::oRGB, psm::sRGB>(output_image);
+
+  output_image = psm::Convert<psm::sRGB, psm::DisplayP3>(output_image);
+  output_image = psm::Convert<psm::DisplayP3, psm::sRGB>(output_image);
+
+  std::cout << "Output Image (RGB):\n";
   print_buffer(output_image);
 
   return 0;
