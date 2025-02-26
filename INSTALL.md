@@ -58,6 +58,15 @@ Assuming that the VCPKG_ROOT is set:
    $ cmake --preset <preset-name> -DWITH_ORGB=ON -DWITH_ADOBE_RGB=ON
    ```
 
+   You can also control whether tests are built:
+   ```bash
+   # Disable building tests
+   $ cmake --preset <preset-name> -DPSM_BUILD_TESTS=OFF
+
+   # Enable building tests (default)
+   $ cmake --preset <preset-name> -DPSM_BUILD_TESTS=ON
+   ```
+
 3. Build the project
    ```bash
    $ cmake --build build/<preset-name>
@@ -70,3 +79,14 @@ To install Prisma system-wide, run:
 ```bash
 cmake --install <build-directory>/<preset-name>
 ```
+
+## Testing
+
+When tests are enabled (which is the default), you can run them after building:
+
+```bash
+$ cd build/<preset-name>
+$ ctest
+```
+
+Note that tests are only built for modules that are being built. For example, if you only build the Adobe RGB module with `-DWITH_ADOBE_RGB=ON`, only the Adobe RGB tests will be available.
