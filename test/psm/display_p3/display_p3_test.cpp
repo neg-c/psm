@@ -118,7 +118,8 @@ TEST_F(DisplayP3Test, RoundTripConversion) {
 }
 
 TEST_F(DisplayP3Test, ValidatesInputSize) {
-  const std::vector<unsigned char> invalid_size = {255, 255};  // Only 2 components
+  const std::vector<unsigned char> invalid_size = {255,
+                                                   255};  // Only 2 components
   std::vector<unsigned char> result(3);
 
   EXPECT_THROW((psm::Convert<psm::sRGB, psm::DisplayP3>(invalid_size, result)),
@@ -150,7 +151,8 @@ TEST_F(DisplayP3Test, BulkConversionPerformance) {
 // Wide Color Gamut Tests
 TEST_F(DisplayP3Test, HandlesWideGamutColors) {
   // Test colors that are outside sRGB gamut but within Display P3
-  const std::vector<unsigned char> saturated_red{255, 0, 0};  // Pure red in sRGB
+  const std::vector<unsigned char> saturated_red{255, 0,
+                                                 0};  // Pure red in sRGB
   psm::Convert<psm::sRGB, psm::DisplayP3>(saturated_red, result);
   // Display P3 should represent this red as more saturated
   EXPECT_GT(result[0], saturated_red[0] - Tolerance);
