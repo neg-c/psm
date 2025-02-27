@@ -1,3 +1,5 @@
+add_subdirectory(container_compat)
+
 if(TARGET psm_adjust_channels)
   add_subdirectory(adjust_channels)
 endif()
