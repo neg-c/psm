@@ -43,15 +43,20 @@ jobs:
         if: contains(steps.changed-files.outputs.all_changed_files, 'src/')
         uses: ZehMatt/clang-tidy-annotations@v1.1.1
         with:
-          build_dir: 'build/unixlike-gcc-debug'
-          source_dir: 'src'
-          clang_tidy_file: '.clang-tidy'
+          build_dir: build/unixlike-gcc-debug
+          source_dir: .
+          clang_tidy_file: .clang-tidy
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          file_filter: cpp,h,hpp,c,cc,cxx,hxx
+          only_affected_lines: true
+          warnings_as_errors: true
+          fail_on_problems: true
 
       - name: Run clang-tidy for test directory
         if: contains(steps.changed-files.outputs.all_changed_files, 'test/')
         uses: ZehMatt/clang-tidy-annotations@v1.1.1
         with:
-          build_dir: 'build/unixlike-gcc-debug'
+          build_dir: build/unixlike-gcc-debug
           source_dir: 'test'
           clang_tidy_file: 'test/.clang-tidy'
 
