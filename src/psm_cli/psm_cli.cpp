@@ -24,19 +24,20 @@ int main() {
       255, 255, 0     // Yellow pixel (R=255, G=255, B=0)
   };
 
-  std::cout << "Input Image (RGB):\n";
+  std::vector<unsigned char> output_image(input_image.size());
+
+  std::cout << "Input Image (BGR):\n";
   print_buffer(input_image);
 
-  std::vector<unsigned char> output_image =
-      psm::Convert<psm::sRGB, psm::AdobeRGB>(input_image);
+  psm::Convert<psm::sRGB, psm::AdobeRGB>(input_image, output_image);
+  psm::AdjustChannels(output_image, psm::Percent(20, 0, 10));
+  psm::Convert<psm::AdobeRGB, psm::sRGB>(output_image, output_image);
 
-  output_image = psm::Convert<psm::AdobeRGB, psm::sRGB>(output_image);
+  psm::Convert<psm::sRGB, psm::oRGB>(output_image, output_image);
+  psm::Convert<psm::oRGB, psm::sRGB>(output_image, output_image);
 
-  output_image = psm::Convert<psm::sRGB, psm::oRGB>(output_image);
-  output_image = psm::Convert<psm::oRGB, psm::sRGB>(output_image);
-
-  output_image = psm::Convert<psm::sRGB, psm::DisplayP3>(output_image);
-  output_image = psm::Convert<psm::DisplayP3, psm::sRGB>(output_image);
+  psm::Convert<psm::sRGB, psm::DisplayP3>(output_image, output_image);
+  psm::Convert<psm::DisplayP3, psm::sRGB>(output_image, output_image);
 
   std::cout << "Output Image (RGB):\n";
   print_buffer(output_image);

@@ -47,41 +47,44 @@ class DisplayP3Test : public ::testing::Test {
   std::vector<unsigned char> p3_blue{0, 0, 244};
   std::vector<unsigned char> p3_black{0, 0, 0};
 
+  // Result buffer
+  std::vector<unsigned char> result{0, 0, 0};
+
   void SetUp() override {}
 };
 
 // Primary Colors Group
 TEST_F(DisplayP3Test, HandlesPrimaryColors) {
-  auto result = psm::Convert<psm::sRGB, psm::DisplayP3>(red);
+  psm::Convert<psm::sRGB, psm::DisplayP3>(red, result);
   EXPECT_THAT(result, IsNearVector(p3_red));
 
-  result = psm::Convert<psm::sRGB, psm::DisplayP3>(green);
+  psm::Convert<psm::sRGB, psm::DisplayP3>(green, result);
   EXPECT_THAT(result, IsNearVector(p3_green));
 
-  result = psm::Convert<psm::sRGB, psm::DisplayP3>(blue);
+  psm::Convert<psm::sRGB, psm::DisplayP3>(blue, result);
   EXPECT_THAT(result, IsNearVector(p3_blue));
 }
 
 // Black and White Group
 TEST_F(DisplayP3Test, HandlesBlackAndWhite) {
   // Test pure black
-  auto result = psm::Convert<psm::sRGB, psm::DisplayP3>(black);
+  psm::Convert<psm::sRGB, psm::DisplayP3>(black, result);
   EXPECT_EQ(result, p3_black);
 
   // Test pure white
-  result = psm::Convert<psm::sRGB, psm::DisplayP3>(white);
+  psm::Convert<psm::sRGB, psm::DisplayP3>(white, result);
   EXPECT_THAT(result, IsNearVector(white));
 
   // Test near black
   const std::vector<unsigned char> near_black{1, 1, 1};
-  result = psm::Convert<psm::sRGB, psm::DisplayP3>(near_black);
+  psm::Convert<psm::sRGB, psm::DisplayP3>(near_black, result);
   EXPECT_GT(result[0], 0);
   EXPECT_GT(result[1], 0);
   EXPECT_GT(result[2], 0);
 
   // Test near white
   const std::vector<unsigned char> near_white{254, 254, 254};
-  result = psm::Convert<psm::sRGB, psm::DisplayP3>(near_white);
+  psm::Convert<psm::sRGB, psm::DisplayP3>(near_white, result);
   EXPECT_LT(result[0], 255);
   EXPECT_LT(result[1], 255);
   EXPECT_LT(result[2], 255);
@@ -90,24 +93,26 @@ TEST_F(DisplayP3Test, HandlesBlackAndWhite) {
 // Gray Values Group
 TEST_F(DisplayP3Test, HandlesGrayValues) {
   const std::vector<unsigned char> mid_gray{128, 128, 128};
-  auto result = psm::Convert<psm::sRGB, psm::DisplayP3>(mid_gray);
+  psm::Convert<psm::sRGB, psm::DisplayP3>(mid_gray, result);
   EXPECT_THAT(result, IsNearVector(std::vector<unsigned char>{128, 128, 128}));
 
   const std::vector<unsigned char> quarter_gray{64, 64, 64};
-  result = psm::Convert<psm::sRGB, psm::DisplayP3>(quarter_gray);
+  psm::Convert<psm::sRGB, psm::DisplayP3>(quarter_gray, result);
   EXPECT_THAT(result, IsNearVector(std::vector<unsigned char>{64, 64, 64}));
 
   const std::vector<unsigned char> three_quarter_gray{192, 192, 192};
-  result = psm::Convert<psm::sRGB, psm::DisplayP3>(three_quarter_gray);
+  psm::Convert<psm::sRGB, psm::DisplayP3>(three_quarter_gray, result);
   EXPECT_THAT(result, IsNearVector(std::vector<unsigned char>{192, 192, 192}));
 }
 
 // Round-trip fidelity
 TEST_F(DisplayP3Test, RoundTripConversion) {
   const std::vector<unsigned char> original = {210, 92, 180};
+  std::vector<unsigned char> intermediate(3);
+  std::vector<unsigned char> result(3);
 
-  auto intermediate = psm::Convert<psm::sRGB, psm::DisplayP3>(original);
-  auto result = psm::Convert<psm::DisplayP3, psm::sRGB>(intermediate);
+  psm::Convert<psm::sRGB, psm::DisplayP3>(original, intermediate);
+  psm::Convert<psm::DisplayP3, psm::sRGB>(intermediate, result);
 
   EXPECT_THAT(result, IsNearVector(original));
 }
@@ -115,17 +120,27 @@ TEST_F(DisplayP3Test, RoundTripConversion) {
 TEST_F(DisplayP3Test, ValidatesInputSize) {
   const std::vector<unsigned char> invalid_size = {255,
                                                    255};  // Only 2 components
+  std::vector<unsigned char> result(3);
 
-  EXPECT_THROW((psm::Convert<psm::sRGB, psm::DisplayP3>(invalid_size)),
+  EXPECT_THROW((psm::Convert<psm::sRGB, psm::DisplayP3>(invalid_size, result)),
+               std::invalid_argument);
+}
+
+TEST_F(DisplayP3Test, ValidatesOutputBuffer) {
+  const std::vector<unsigned char> input = {255, 255, 255};
+  std::vector<unsigned char> small_output(2);
+
+  EXPECT_THROW((psm::Convert<psm::sRGB, psm::DisplayP3>(input, small_output)),
                std::invalid_argument);
 }
 
 TEST_F(DisplayP3Test, BulkConversionPerformance) {
   constexpr size_t num_pixels = 1000000;
   const std::vector<unsigned char> large_input(num_pixels * 3, 128);
+  std::vector<unsigned char> large_output(num_pixels * 3);
 
   auto start = std::chrono::high_resolution_clock::now();
-  auto large_output = psm::Convert<psm::sRGB, psm::DisplayP3>(large_input);
+  psm::Convert<psm::sRGB, psm::DisplayP3>(large_input, large_output);
   auto end = std::chrono::high_resolution_clock::now();
 
   auto duration =
@@ -138,7 +153,7 @@ TEST_F(DisplayP3Test, HandlesWideGamutColors) {
   // Test colors that are outside sRGB gamut but within Display P3
   const std::vector<unsigned char> saturated_red{255, 0,
                                                  0};  // Pure red in sRGB
-  auto result = psm::Convert<psm::sRGB, psm::DisplayP3>(saturated_red);
+  psm::Convert<psm::sRGB, psm::DisplayP3>(saturated_red, result);
   // Display P3 should represent this red as more saturated
   EXPECT_GT(result[0], saturated_red[0] - Tolerance);
 }
