@@ -47,37 +47,40 @@ class AdobeRgbTest : public ::testing::Test {
   std::vector<unsigned char> adobe_blue{0, 0, 250};
   std::vector<unsigned char> adobe_black{0, 0, 0};
 
+  // Result buffer
+  std::vector<unsigned char> result{0, 0, 0};
+
   void SetUp() override {}
 };
 
 // Primary Colors Group
 TEST_F(AdobeRgbTest, HandlesPrimaryColors) {
-  auto result = psm::Convert<psm::sRGB, psm::AdobeRGB>(red);
+  psm::Convert<psm::sRGB, psm::AdobeRGB>(red, result);
   EXPECT_THAT(result, IsNearVector(adobe_red));
 
-  result = psm::Convert<psm::sRGB, psm::AdobeRGB>(green);
+  psm::Convert<psm::sRGB, psm::AdobeRGB>(green, result);
   EXPECT_THAT(result, IsNearVector(adobe_green));
 
-  result = psm::Convert<psm::sRGB, psm::AdobeRGB>(blue);
+  psm::Convert<psm::sRGB, psm::AdobeRGB>(blue, result);
   EXPECT_THAT(result, IsNearVector(adobe_blue));
 }
 
 // Black and White Group
 TEST_F(AdobeRgbTest, HandlesBlackAndWhite) {
   // Test pure black
-  auto result = psm::Convert<psm::sRGB, psm::AdobeRGB>(black);
+  psm::Convert<psm::sRGB, psm::AdobeRGB>(black, result);
   EXPECT_EQ(result, adobe_black);
 
   // Test near black
   const std::vector<unsigned char> near_black{1, 1, 1};
-  result = psm::Convert<psm::sRGB, psm::AdobeRGB>(near_black);
+  psm::Convert<psm::sRGB, psm::AdobeRGB>(near_black, result);
   EXPECT_GT(result[0], 0);
   EXPECT_GT(result[1], 0);
   EXPECT_GT(result[2], 0);
 
   // Test near white
   const std::vector<unsigned char> near_white{254, 254, 254};
-  result = psm::Convert<psm::sRGB, psm::AdobeRGB>(near_white);
+  psm::Convert<psm::sRGB, psm::AdobeRGB>(near_white, result);
   EXPECT_LT(result[0], 255);
   EXPECT_LT(result[1], 255);
   EXPECT_LT(result[2], 255);
@@ -86,42 +89,53 @@ TEST_F(AdobeRgbTest, HandlesBlackAndWhite) {
 // Gray Values Group
 TEST_F(AdobeRgbTest, HandlesGrayValues) {
   const std::vector<unsigned char> mid_gray{128, 128, 128};
-  auto result = psm::Convert<psm::sRGB, psm::AdobeRGB>(mid_gray);
+  psm::Convert<psm::sRGB, psm::AdobeRGB>(mid_gray, result);
   EXPECT_THAT(result, IsNearVector(std::vector<unsigned char>{127, 127, 127}));
 
   const std::vector<unsigned char> quarter_gray{64, 64, 64};
-  result = psm::Convert<psm::sRGB, psm::AdobeRGB>(quarter_gray);
+  psm::Convert<psm::sRGB, psm::AdobeRGB>(quarter_gray, result);
   EXPECT_THAT(result, IsNearVector(std::vector<unsigned char>{64, 64, 64}));
 
   const std::vector<unsigned char> three_quarter_gray{192, 192, 192};
-  result = psm::Convert<psm::sRGB, psm::AdobeRGB>(three_quarter_gray);
+  psm::Convert<psm::sRGB, psm::AdobeRGB>(three_quarter_gray, result);
   EXPECT_THAT(result, IsNearVector(std::vector<unsigned char>{191, 191, 191}));
 }
 
 // Round-trip fidelity
 TEST_F(AdobeRgbTest, RoundTripConversion) {
   const std::vector<unsigned char> original = {210, 92, 180};
+  std::vector<unsigned char> intermediate(3);
+  std::vector<unsigned char> result(3);
 
-  auto intermediate = psm::Convert<psm::sRGB, psm::AdobeRGB>(original);
-  auto result = psm::Convert<psm::AdobeRGB, psm::sRGB>(intermediate);
+  psm::Convert<psm::sRGB, psm::AdobeRGB>(original, intermediate);
+  psm::Convert<psm::AdobeRGB, psm::sRGB>(intermediate, result);
 
   EXPECT_THAT(result, IsNearVector(original));
 }
 
 TEST_F(AdobeRgbTest, ValidatesInputSize) {
-  const std::vector<unsigned char> invalid_size = {255,
-                                                   255};  // Only 2 components
+  const std::vector<unsigned char> invalid_size = {255, 255};  // Only 2 components
+  std::vector<unsigned char> result(3);
 
-  EXPECT_THROW((psm::Convert<psm::sRGB, psm::AdobeRGB>(invalid_size)),
+  EXPECT_THROW((psm::Convert<psm::sRGB, psm::AdobeRGB>(invalid_size, result)),
+               std::invalid_argument);
+}
+
+TEST_F(AdobeRgbTest, ValidatesOutputBuffer) {
+  const std::vector<unsigned char> input = {255, 255, 255};
+  std::vector<unsigned char> small_output(2);
+
+  EXPECT_THROW((psm::Convert<psm::sRGB, psm::AdobeRGB>(input, small_output)),
                std::invalid_argument);
 }
 
 TEST_F(AdobeRgbTest, BulkConversionPerformance) {
   constexpr size_t num_pixels = 1000000;
   const std::vector<unsigned char> large_input(num_pixels * 3, 128);
+  std::vector<unsigned char> large_output(num_pixels * 3);
 
   auto start = std::chrono::high_resolution_clock::now();
-  auto large_output = psm::Convert<psm::sRGB, psm::AdobeRGB>(large_input);
+  psm::Convert<psm::sRGB, psm::AdobeRGB>(large_input, large_output);
   auto end = std::chrono::high_resolution_clock::now();
 
   auto duration =

@@ -43,17 +43,22 @@ int main() {
         255, 0,   0     // Blue pixel (B=255, G=0, R=0)
     };
 
+    // Create output buffer
+    std::vector<unsigned char> adobe_rgb_image(input_image.size());
+    std::vector<unsigned char> orgb_image(input_image.size());
+    std::vector<unsigned char> output_image(input_image.size());
+
     // Convert between any supported color spaces
-    auto output_image = psm::Convert<psm::sRGB, psm::AdobeRGB>(input_image);
+    psm::Convert<psm::sRGB, psm::AdobeRGB>(input_image, adobe_rgb_image);
 
     // Adjust channels in any color space (AdobeRGB in this case)
-    // Create Percent object with channel adjustments
+    // Adjust the individual channels
     psm::Percent adjustments{20, -10, 0};  // +20% blue, -10% green, 0% red
-    psm::AdjustChannels(output_image, adjustments);
+    psm::AdjustChannels(adobe_rgb_image, adjustments);
 
     // Convert through oRGB and back to sRGB
-    output_image = psm::Convert<psm::AdobeRGB, psm::oRGB>(output_image);
-    output_image = psm::Convert<psm::oRGB, psm::sRGB>(output_image);
+    psm::Convert<psm::AdobeRGB, psm::oRGB>(adobe_rgb_image, orgb_image);
+    psm::Convert<psm::oRGB, psm::sRGB>(orgb_image, output_image);
 }
 ```
 
