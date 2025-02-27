@@ -114,7 +114,8 @@ TEST_F(AdobeRgbTest, RoundTripConversion) {
 }
 
 TEST_F(AdobeRgbTest, ValidatesInputSize) {
-  const std::vector<unsigned char> invalid_size = {255, 255};  // Only 2 components
+  const std::vector<unsigned char> invalid_size = {255,
+                                                   255};  // Only 2 components
   std::vector<unsigned char> result(3);
 
   EXPECT_THROW((psm::Convert<psm::sRGB, psm::AdobeRGB>(invalid_size, result)),
