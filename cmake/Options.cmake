@@ -1,8 +1,5 @@
 set(PSM_MODULES adjust_channels orgb adobe_rgb display_p3)
 
-# Option to control building tests
-option(PSM_BUILD_TESTS "Build tests for PSM modules" ON)
-
 # Dynamically create WITH_<module> options
 foreach(module ${PSM_MODULES})
   string(TOUPPER "${module}" MODULE_UPPER) # Convert to uppercase for

@@ -1,2 +1,5 @@
 include(Testing)
-add_subdirectory(psm)
+
+if(BUILD_TESTING)
+  add_subdirectory(psm)
+endif()

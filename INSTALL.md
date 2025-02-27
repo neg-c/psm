@@ -61,10 +61,10 @@ Assuming that the VCPKG_ROOT is set:
    You can also control whether tests are built:
    ```bash
    # Disable building tests
-   $ cmake --preset <preset-name> -DPSM_BUILD_TESTS=OFF
+   $ cmake --preset <preset-name> -DBUILD_TESTING=OFF
 
    # Enable building tests (default)
-   $ cmake --preset <preset-name> -DPSM_BUILD_TESTS=ON
+   $ cmake --preset <preset-name> -DBUILD_TESTING=ON
    ```
 
 3. Build the project
