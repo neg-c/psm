@@ -3,6 +3,7 @@
 #include <Eigen/Dense>
 #include <cmath>
 
+#include "psm/detail/colorspace.hpp"
 #include "psm/detail/types.hpp"
 
 namespace {
@@ -26,26 +27,6 @@ psm::detail::RowXf delinearize(
                ? (12.92f * value)
                : (1.055f * std::pow(value, 1.0f / 2.4f) - 0.055f);
   });
-}
-
-psm::detail::Mat3f rgb2xyz(const psm::detail::Mat3f& src) {
-  Eigen::Matrix3f transform_mat;
-  // clang-format off
-  transform_mat << 0.4124564f, 0.3575761f, 0.1804375f,
-                   0.2126729f, 0.7151522f, 0.0721750f,
-                   0.0193339f, 0.1191920f, 0.9503041f;
-  // clang-format on
-  return src * transform_mat.transpose();
-}
-
-psm::detail::Mat3f xyz2rgb(const psm::detail::Mat3f& src) {
-  Eigen::Matrix3f transform_mat;
-  // clang-format off
-  transform_mat << 3.2404542f, -1.5371385f, -0.4985314f,
-                  -0.9692660f,  1.8760108f,  0.0415560f,
-                   0.0556434f, -0.2040259f,  1.0572252f;
-  // clang-format on
-  return src * transform_mat.transpose();
 }
 
 psm::detail::Mat3f xyz2display_p3(const psm::detail::Mat3f& src) {
@@ -80,7 +61,7 @@ void DisplayP3::fromSRGB(const std::span<const T>& src, std::span<T> dst) {
   // Assuming RGB/BGR as input
   const psm::detail::Mat3fView norm_rgb(norm_src.data(), norm_src.cols() / 3,
                                         3);
-  const psm::detail::Mat3f xyz = rgb2xyz(norm_rgb);
+  const psm::detail::Mat3f xyz = psm::detail::srgbToXyz(norm_rgb);
   const psm::detail::Mat3f display_p3 = xyz2display_p3(xyz);
 
   const Eigen::Map<const psm::detail::RowXf> display_p3_row(
@@ -107,7 +88,7 @@ void DisplayP3::toSRGB(const std::span<const T>& src, std::span<T> dst) {
   const psm::detail::Mat3fView display_p3(norm_src.data(), norm_src.cols() / 3,
                                           3);
   const psm::detail::Mat3f xyz = display_p3_2xyz(display_p3);
-  const psm::detail::Mat3f srgb = xyz2rgb(xyz);
+  const psm::detail::Mat3f srgb = psm::detail::xyzToSrgb(xyz);
 
   const Eigen::Map<const psm::detail::RowXf> srgb_row(
       srgb.data(), srgb.rows() * srgb.cols());

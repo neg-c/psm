@@ -3,6 +3,7 @@
 #include <Eigen/Dense>
 #include <cmath>
 
+#include "psm/detail/colorspace.hpp"
 #include "psm/detail/types.hpp"
 
 namespace {
@@ -28,32 +29,12 @@ psm::detail::RowXf delinearize(
   });
 }
 
-psm::detail::Mat3f rgb2xyz(const psm::detail::Mat3f& src) {
-  Eigen::Matrix3f transform_mat;
-  // clang-format off
-  transform_mat << 0.4124564f, 0.3575761f, 0.1804375f,
-                   0.2126729f, 0.7151522f, 0.0721750f,
-                   0.0193339f, 0.1191920f, 0.9503041f;
-  // clang-format on
-  return src * transform_mat.transpose();
-}
-
 psm::detail::Mat3f xyz2adobe_rgb(const psm::detail::Mat3f& src) {
   Eigen::Matrix3f transform_mat;
   // clang-format off
   transform_mat << 2.0413690f, -0.5649464f, -0.3446944f,
                    -0.9692660f, 1.8760108f, 0.0415560f,
                    0.0134474f, -0.1183897f, 1.0154096f;
-  // clang-format on
-  return src * transform_mat.transpose();
-}
-
-psm::detail::Mat3f xyz2rgb(const psm::detail::Mat3f& src) {
-  Eigen::Matrix3f transform_mat;
-  // clang-format off
-  transform_mat << 3.2404542f, -1.5371385f, -0.4985314f,
-                  -0.9692660f,  1.8760108f,  0.0415560f,
-                   0.0556434f, -0.2040259f,  1.0572252f;
   // clang-format on
   return src * transform_mat.transpose();
 }
@@ -79,7 +60,7 @@ void AdobeRgb::fromSRGB(const std::span<const T>& src, std::span<T> dst) {
   // Assuming RGB/BGR as input
   const psm::detail::Mat3fView norm_rgb(norm_src.data(), norm_src.cols() / 3,
                                         3);
-  const psm::detail::Mat3f xyz = rgb2xyz(norm_rgb);
+  const psm::detail::Mat3f xyz = psm::detail::srgbToXyz(norm_rgb);
   const psm::detail::Mat3f adobe_rgb = xyz2adobe_rgb(xyz);
 
   const Eigen::Map<const psm::detail::RowXf> adobe_rgb_row(
@@ -105,7 +86,7 @@ void AdobeRgb::toSRGB(const std::span<const T>& src, std::span<T> dst) {
   const psm::detail::Mat3fView adobe_rgb(norm_src.data(), norm_src.cols() / 3,
                                          3);
   const psm::detail::Mat3f xyz = adobe_rgb2xyz(adobe_rgb);
-  const psm::detail::Mat3f srgb = xyz2rgb(xyz);
+  const psm::detail::Mat3f srgb = psm::detail::xyzToSrgb(xyz);
 
   const Eigen::Map<const psm::detail::RowXf> srgb_row(
       srgb.data(), srgb.rows() * srgb.cols());
