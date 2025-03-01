@@ -3,18 +3,14 @@
 #include <Eigen/Dense>
 #include <cmath>
 
+#include "psm/detail/types.hpp"
+
 namespace {
 
-using Mat3f = Eigen::Matrix<float, Eigen::Dynamic, 3, Eigen::RowMajor>;
-using Mat4f = Eigen::Matrix<float, Eigen::Dynamic, 4, Eigen::RowMajor>;
-using Mat3fView = Eigen::Map<Mat3f>;
-using Mat4fView = Eigen::Map<Mat4f>;
-using RowXf = Eigen::RowVectorXf;
-using RowXfView = Eigen::Map<RowXf>;
-
 template <typename T>
-RowXf linearize(const Eigen::Map<const Eigen::RowVectorX<T>>& src) {
-  const RowXf normalized = src.template cast<float>() / 255.0f;
+psm::detail::RowXf linearize(
+    const Eigen::Map<const Eigen::RowVectorX<T>>& src) {
+  const psm::detail::RowXf normalized = src.template cast<float>() / 255.0f;
   return normalized.unaryExpr([](float value) {
     return (value <= 0.04045f) ? (value / 12.92f)
                                : std::pow((value + 0.055f) / 1.055f, 2.4f);
@@ -22,8 +18,9 @@ RowXf linearize(const Eigen::Map<const Eigen::RowVectorX<T>>& src) {
 }
 
 template <typename T>
-RowXf delinearize(const Eigen::Map<const Eigen::RowVectorX<T>>& src) {
-  const RowXf normalized = src.template cast<float>();
+psm::detail::RowXf delinearize(
+    const Eigen::Map<const Eigen::RowVectorX<T>>& src) {
+  const psm::detail::RowXf normalized = src.template cast<float>();
   return normalized.unaryExpr([](float value) {
     return (value <= 0.0031308f)
                ? (12.92f * value)
@@ -31,7 +28,7 @@ RowXf delinearize(const Eigen::Map<const Eigen::RowVectorX<T>>& src) {
   });
 }
 
-Mat3f rgb2xyz(const Mat3f& src) {
+psm::detail::Mat3f rgb2xyz(const psm::detail::Mat3f& src) {
   Eigen::Matrix3f transform_mat;
   // clang-format off
   transform_mat << 0.4124564f, 0.3575761f, 0.1804375f,
@@ -41,7 +38,7 @@ Mat3f rgb2xyz(const Mat3f& src) {
   return src * transform_mat.transpose();
 }
 
-Mat3f xyz2adobe_rgb(const Mat3f& src) {
+psm::detail::Mat3f xyz2adobe_rgb(const psm::detail::Mat3f& src) {
   Eigen::Matrix3f transform_mat;
   // clang-format off
   transform_mat << 2.0413690f, -0.5649464f, -0.3446944f,
@@ -51,7 +48,7 @@ Mat3f xyz2adobe_rgb(const Mat3f& src) {
   return src * transform_mat.transpose();
 }
 
-Mat3f xyz2rgb(const Mat3f& src) {
+psm::detail::Mat3f xyz2rgb(const psm::detail::Mat3f& src) {
   Eigen::Matrix3f transform_mat;
   // clang-format off
   transform_mat << 3.2404542f, -1.5371385f, -0.4985314f,
@@ -61,7 +58,7 @@ Mat3f xyz2rgb(const Mat3f& src) {
   return src * transform_mat.transpose();
 }
 
-Mat3f adobe_rgb2xyz(const Mat3f& src) {
+psm::detail::Mat3f adobe_rgb2xyz(const psm::detail::Mat3f& src) {
   Eigen::Matrix3f transform_mat;
   // clang-format off
   transform_mat << 0.5767309f,  0.1855540f,  0.1881852f,
@@ -77,19 +74,20 @@ namespace psm::detail {
 template <typename T>
 void AdobeRgb::fromSRGB(const std::span<const T>& src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
-  RowXf norm_src = linearize(map_src);
+  psm::detail::RowXf norm_src = linearize(map_src);
 
   // Assuming RGB/BGR as input
-  const Mat3fView norm_rgb(norm_src.data(), norm_src.cols() / 3, 3);
-  const Mat3f xyz = rgb2xyz(norm_rgb);
-  const Mat3f adobe_rgb = xyz2adobe_rgb(xyz);
+  const psm::detail::Mat3fView norm_rgb(norm_src.data(), norm_src.cols() / 3,
+                                        3);
+  const psm::detail::Mat3f xyz = rgb2xyz(norm_rgb);
+  const psm::detail::Mat3f adobe_rgb = xyz2adobe_rgb(xyz);
 
-  const Eigen::Map<const RowXf> adobe_rgb_row(
+  const Eigen::Map<const psm::detail::RowXf> adobe_rgb_row(
       adobe_rgb.data(), adobe_rgb.rows() * adobe_rgb.cols());
-  RowXf encoded_adobe_rgb = delinearize(adobe_rgb_row);
+  psm::detail::RowXf encoded_adobe_rgb = delinearize(adobe_rgb_row);
 
-  const Mat3fView result(encoded_adobe_rgb.data(), encoded_adobe_rgb.size() / 3,
-                         3);
+  const psm::detail::Mat3fView result(encoded_adobe_rgb.data(),
+                                      encoded_adobe_rgb.size() / 3, 3);
 
   Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
   dst_map = (result.reshaped<Eigen::RowMajor>() * 255.0f)
@@ -101,18 +99,20 @@ void AdobeRgb::fromSRGB(const std::span<const T>& src, std::span<T> dst) {
 template <typename T>
 void AdobeRgb::toSRGB(const std::span<const T>& src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
-  RowXf norm_src = linearize(map_src);
+  psm::detail::RowXf norm_src = linearize(map_src);
 
   // Assuming RGB/BGR as input
-  const Mat3fView adobe_rgb(norm_src.data(), norm_src.cols() / 3, 3);
-  const Mat3f xyz = adobe_rgb2xyz(adobe_rgb);
-  const Mat3f srgb = xyz2rgb(xyz);
+  const psm::detail::Mat3fView adobe_rgb(norm_src.data(), norm_src.cols() / 3,
+                                         3);
+  const psm::detail::Mat3f xyz = adobe_rgb2xyz(adobe_rgb);
+  const psm::detail::Mat3f srgb = xyz2rgb(xyz);
 
-  const Eigen::Map<const RowXf> srgb_row(srgb.data(),
-                                         srgb.rows() * srgb.cols());
-  RowXf encoded_srgb = delinearize(srgb_row);
+  const Eigen::Map<const psm::detail::RowXf> srgb_row(
+      srgb.data(), srgb.rows() * srgb.cols());
+  psm::detail::RowXf encoded_srgb = delinearize(srgb_row);
 
-  const Mat3fView result(encoded_srgb.data(), encoded_srgb.size() / 3, 3);
+  const psm::detail::Mat3fView result(encoded_srgb.data(),
+                                      encoded_srgb.size() / 3, 3);
 
   Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
   dst_map = (result.reshaped<Eigen::RowMajor>() * 255.0f)
