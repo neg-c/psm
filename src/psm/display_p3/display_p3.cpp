@@ -4,30 +4,10 @@
 #include <cmath>
 
 #include "psm/detail/colorspace.hpp"
+#include "psm/detail/pixel_transformation.hpp"
 #include "psm/detail/types.hpp"
 
 namespace {
-
-template <typename T>
-psm::detail::RowXf linearize(
-    const Eigen::Map<const Eigen::RowVectorX<T>>& src) {
-  const psm::detail::RowXf normalized = src.template cast<float>() / 255.0f;
-  return normalized.unaryExpr([](float value) {
-    return (value <= 0.04045f) ? (value / 12.92f)
-                               : std::pow((value + 0.055f) / 1.055f, 2.4f);
-  });
-}
-
-template <typename T>
-psm::detail::RowXf delinearize(
-    const Eigen::Map<const Eigen::RowVectorX<T>>& src) {
-  const psm::detail::RowXf normalized = src.template cast<float>();
-  return normalized.unaryExpr([](float value) {
-    return (value <= 0.0031308f)
-               ? (12.92f * value)
-               : (1.055f * std::pow(value, 1.0f / 2.4f) - 0.055f);
-  });
-}
 
 psm::detail::Mat3f xyz2display_p3(const psm::detail::Mat3f& src) {
   Eigen::Matrix3f transform_mat;
@@ -56,7 +36,7 @@ namespace psm::detail {
 template <typename T>
 void DisplayP3::fromSRGB(const std::span<const T>& src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
-  psm::detail::RowXf norm_src = linearize(map_src);
+  psm::detail::RowXf norm_src = transform::srgb::decode(map_src);
 
   // Assuming RGB/BGR as input
   const psm::detail::Mat3fView norm_rgb(norm_src.data(), norm_src.cols() / 3,
@@ -67,22 +47,20 @@ void DisplayP3::fromSRGB(const std::span<const T>& src, std::span<T> dst) {
   const Eigen::Map<const psm::detail::RowXf> display_p3_row(
       display_p3.data(), display_p3.rows() * display_p3.cols());
 
-  psm::detail::RowXf encoded_display_p3 = delinearize(display_p3_row);
+  psm::detail::RowXf encoded_display_p3 =
+      transform::srgb::encode(display_p3_row);
 
   const psm::detail::Mat3fView result(encoded_display_p3.data(),
                                       encoded_display_p3.size() / 3, 3);
 
   Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
-  dst_map = (result.reshaped<Eigen::RowMajor>() * 255.0f)
-                .cwiseMin(255.0f)
-                .cwiseMax(0.0f)
-                .template cast<T>();
+  dst_map = psm::detail::denormalize_as<T>(result);
 }
 
 template <typename T>
 void DisplayP3::toSRGB(const std::span<const T>& src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
-  psm::detail::RowXf norm_src = linearize(map_src);
+  psm::detail::RowXf norm_src = transform::srgb::decode(map_src);
 
   // Assuming RGB/BGR as input
   const psm::detail::Mat3fView display_p3(norm_src.data(), norm_src.cols() / 3,
@@ -92,16 +70,13 @@ void DisplayP3::toSRGB(const std::span<const T>& src, std::span<T> dst) {
 
   const Eigen::Map<const psm::detail::RowXf> srgb_row(
       srgb.data(), srgb.rows() * srgb.cols());
-  psm::detail::RowXf encoded_srgb = delinearize(srgb_row);
+  psm::detail::RowXf encoded_srgb = transform::srgb::encode(srgb_row);
 
   const psm::detail::Mat3fView result(encoded_srgb.data(),
                                       encoded_srgb.size() / 3, 3);
 
   Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
-  dst_map = (result.reshaped<Eigen::RowMajor>() * 255.0f)
-                .cwiseMin(255.0f)
-                .cwiseMax(0.0f)
-                .template cast<T>();
+  dst_map = psm::detail::denormalize_as<T>(result);
 }
 
 template void DisplayP3::fromSRGB<unsigned char>(

@@ -4,23 +4,18 @@
 #include <cmath>
 #include <numbers>
 
+#include "psm/detail/pixel_transformation.hpp"
 #include "psm/detail/types.hpp"
 
 namespace {
-
-template <typename T>
-psm::detail::RowXf normalize(
-    const Eigen::Map<const Eigen::RowVectorX<T>>& src) {
-  return src.template cast<float>() / 255.0f;
-}
 
 float convertToRGBangle(float theta) {
   theta = std::clamp(theta, 0.0f, std::numbers::pi_v<float>);
   if (theta < std::numbers::pi_v<float> / 3.0f) {
     return (3.0f / 2.0f) * theta;
   }
-  return std::numbers::pi_v<float> / 2.0f +
-         (3.0f / 4.0f) * (theta - std::numbers::pi_v<float> / 3.0f);
+  return (std::numbers::pi_v<float> / 2.0f) +
+         ((3.0f / 4.0f) * (theta - std::numbers::pi_v<float> / 3.0f));
 }
 
 float convertToOrgbangle(float theta) {
@@ -29,8 +24,8 @@ float convertToOrgbangle(float theta) {
     return (2.0f / 3.0f) * theta;
   }
 
-  return std::numbers::pi_v<float> / 3 +
-         (4.0f / 3.0f) * (theta - std::numbers::pi_v<float> / 2);
+  return (std::numbers::pi_v<float> / 3) +
+         ((4.0f / 3.0f) * (theta - std::numbers::pi_v<float> / 2));
 }
 
 psm::detail::Mat3f rgb2lcc(const psm::detail::Mat3f& src) {
@@ -113,7 +108,7 @@ namespace psm::detail {
 template <typename T>
 void Orgb::fromSRGB(const std::span<const T>& src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
-  psm::detail::RowXf norm_src = normalize(map_src);
+  psm::detail::RowXf norm_src = psm::detail::normalize(map_src);
 
   // Assuming RGB/BGR as input
   const psm::detail::Mat3fView norm_rgb(norm_src.data(), norm_src.cols() / 3,
@@ -127,14 +122,13 @@ void Orgb::fromSRGB(const std::span<const T>& src, std::span<T> dst) {
   const psm::detail::RowXfView result(
       shifted_orgb.data(), shifted_orgb.cols() * shifted_orgb.rows());
   Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
-  dst_map =
-      (result * 255.0f).cwiseMin(255.0f).cwiseMax(0.0f).template cast<T>();
+  dst_map = psm::detail::denormalize_as<T>(result);
 }
 
 template <typename T>
 void Orgb::toSRGB(const std::span<const T>& src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
-  psm::detail::RowXf norm_src = map_src.template cast<float>() / 255.0f;
+  psm::detail::RowXf norm_src = psm::detail::normalize(map_src);
 
   // Assuming RGB/BGR as input for oRGB
   psm::detail::Mat3fView norm_orgb(norm_src.data(), norm_src.cols() / 3, 3);
@@ -148,8 +142,7 @@ void Orgb::toSRGB(const std::span<const T>& src, std::span<T> dst) {
 
   const psm::detail::RowXfView result(rgb.data(), rgb.cols() * rgb.rows());
   Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
-  dst_map =
-      (result * 255.0f).cwiseMin(255.0f).cwiseMax(0.0f).template cast<T>();
+  dst_map = psm::detail::denormalize_as<T>(result);
 }
 
 template void Orgb::fromSRGB<unsigned char>(
