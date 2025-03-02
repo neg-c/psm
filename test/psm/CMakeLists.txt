@@ -15,3 +15,7 @@ endif()
 if(TARGET psm_display_p3)
   add_subdirectory(display_p3)
 endif()
+
+if(TARGET psm_orgb)
+  add_subdirectory(orgb)
+endif()
