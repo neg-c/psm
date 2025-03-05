@@ -1,3 +1,6 @@
+add_library(psm_test_utils INTERFACE)
+target_include_directories(psm_test_utils INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+
 add_subdirectory(container_compat)
 
 if(TARGET psm_adjust_channels)

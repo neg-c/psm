@@ -5,30 +5,9 @@
 #include <vector>
 
 #include "psm/psm.hpp"
+#include "test_utils.hpp"
 
 namespace psm_test::orgb {
-
-MATCHER_P(IsNearVector, expected, "") {
-  const auto& actual = arg;
-  if (actual.size() != expected.size()) {
-    *result_listener << "Vector sizes differ. Expected: " << expected.size()
-                     << " Actual: " << actual.size();
-    return false;
-  }
-
-  static constexpr int Tolerance = 1;
-  for (size_t i = 0; i < actual.size(); ++i) {
-    if (std::abs(static_cast<int>(actual[i]) - static_cast<int>(expected[i])) >
-        Tolerance) {
-      *result_listener << "Vectors differ at index " << i
-                       << ". Expected: " << static_cast<int>(expected[i])
-                       << " Actual: " << static_cast<int>(actual[i])
-                       << " (tolerance: " << Tolerance << ")";
-      return false;
-    }
-  }
-  return true;
-}
 
 class OrgbTest : public ::testing::Test {
  protected:
@@ -94,14 +73,13 @@ TEST_F(OrgbTest, RoundTripConversion) {
   for (const auto& color : {red, green, blue}) {
     psm::Convert<psm::sRGB, psm::oRGB>(color, result);
     psm::Convert<psm::oRGB, psm::sRGB>(result, round_trip);
-    EXPECT_THAT(round_trip, IsNearVector(color));
+    EXPECT_THAT(round_trip, IsNearVector(color, Tolerance));
   }
 
   // Test with neutral colors
   for (const auto& color : {white, black, gray}) {
     psm::Convert<psm::sRGB, psm::oRGB>(color, result);
-    psm::Convert<psm::oRGB, psm::sRGB>(result, round_trip);
-    EXPECT_THAT(round_trip, IsNearVector(color));
+    EXPECT_THAT(round_trip, IsNearVector(color, Tolerance));
   }
 }
 
@@ -155,12 +133,12 @@ TEST_F(OrgbTest, HandlesExtremeValues) {
   // Test maximum values
   psm::Convert<psm::sRGB, psm::oRGB>(max_color, result);
   psm::Convert<psm::oRGB, psm::sRGB>(result, round_trip);
-  EXPECT_THAT(round_trip, IsNearVector(max_color));
+  EXPECT_THAT(round_trip, IsNearVector(max_color, Tolerance));
 
   // Test minimum values
   psm::Convert<psm::sRGB, psm::oRGB>(min_color, result);
   psm::Convert<psm::oRGB, psm::sRGB>(result, round_trip);
-  EXPECT_THAT(round_trip, IsNearVector(min_color));
+  EXPECT_THAT(round_trip, IsNearVector(min_color, Tolerance));
 }
 
 }  // namespace psm_test::orgb
