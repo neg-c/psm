@@ -22,7 +22,6 @@ class AdobeRgbTest : public ::testing::Test {
   std::vector<unsigned char> adobe_green{144, 255, 59};
   std::vector<unsigned char> adobe_blue{0, 0, 250};
   std::vector<unsigned char> adobe_black{0, 0, 0};
-
   // Result buffer
   std::vector<unsigned char> result{0, 0, 0};
 
