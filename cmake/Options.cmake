@@ -1,4 +1,4 @@
-set(PSM_MODULES adjust_channels orgb adobe_rgb display_p3)
+set(PSM_MODULES adjust_channels orgb adobe_rgb display_p3 pro_photo_rgb)
 
 # Dynamically create WITH_<module> options
 foreach(module ${PSM_MODULES})
