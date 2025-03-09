@@ -16,9 +16,9 @@ as an independent module:
   displays
 - **oRGB** (`psm::orgb`) - Perceptually uniform color space with three channels:
   - L - Luminance
-  - Cyb - Chromatic Yellow-blue 
-  - Crg - Chromatic Red-Green
-  Adjusting these channels allows fine control over warm-cool tones in images
+  - Cyb - Chromatic Yellow-blue
+  - Crg - Chromatic Red-Green Adjusting these channels allows fine control over
+    warm-cool tones in images
 - **ProPhotoRGB** (`psm::pro_photo_rgb`) - Wide gamut color space for
   photography
 
@@ -106,9 +106,36 @@ int main() {
 }
 ```
 
+## Visual Examples
+
+### Color Space Conversions
+
+Below are visual examples of the same image converted to different color spaces.
+Note how each color space captures different color characteristics:
+
+![Color Space Comparison](docs/images/color_space_comparison.png) _Left to
+right: Original sRGB, Adobe RGB, Display-P3, and ProPhoto RGB conversions_
+
+The gamut differences are particularly noticeable in saturated colors, where
+wider gamut spaces like ProPhoto RGB preserve details in highly saturated
+regions.
+
+### Channel Adjustments
+
+The following GIF demonstrates the effect of adjusting different channels in the
+oRGB color space:
+
+![oRGB Channel Adjustments](docs/images/orgb_adjustments.gif) _Adjusting Cyb
+(yellow-blue) and Crg (red-green) channels in oRGB space_
+
+This visualization shows how oRGB's perceptually uniform channels allow for
+precise control over color temperature and tonal balance without affecting
+luminance.
+
 ## Command-line Tool
 
-Prisma includes a command-line tool (`psm_cli`) for image processing, color space conversion, and channel adjustment:
+Prisma includes a command-line tool (`psm_cli`) for image processing, color
+space conversion, and channel adjustment:
 
 ### Features
 
@@ -120,13 +147,17 @@ Prisma includes a command-line tool (`psm_cli`) for image processing, color spac
 
 When adjusting channels, the effect varies by color space:
 
-- In RGB-based spaces (sRGB, AdobeRGB, DisplayP3, ProPhotoRGB), values adjust the Red, Green, and Blue channels
+- In RGB-based spaces (sRGB, AdobeRGB, DisplayP3, ProPhotoRGB), values adjust
+  the Red, Green, and Blue channels
 - In oRGB space, channel adjustments work on:
   - Channel 0: Luminance - Overall brightness
-  - Channel 1: Cyb - Yellow-blue axis (positive values add yellow tones, negative values add blue tones)
-  - Channel 2: Crg - Red-green axis (positive values add red tones, negative values add green tones)
+  - Channel 1: Cyb - Yellow-blue axis (positive values add yellow tones,
+    negative values add blue tones)
+  - Channel 2: Crg - Red-green axis (positive values add red tones, negative
+    values add green tones)
 
-This makes oRGB particularly useful for adjusting the warm-cool balance of an image while preserving perceptual uniformity.
+This makes oRGB particularly useful for adjusting the warm-cool balance of an
+image while preserving perceptual uniformity.
 
 ### Usage
 
@@ -144,12 +175,12 @@ psm_cli --help
 ### Options
 
 ```
-  -i, --input FILE       Input image file
-  -o, --output FILE      Output image file
-  -f, --from COLORSPACE  Source color space (sRGB, AdobeRGB, DisplayP3, oRGB, ProPhotoRGB)
-  -t, --to COLORSPACE    Target color space (sRGB, AdobeRGB, DisplayP3, oRGB, ProPhotoRGB)
-  -a, --adjust R,G,B     Adjust channels by percent (e.g., 10,5,-5)
-  -h, --help             Show this help message
+-i, --input FILE       Input image file
+-o, --output FILE      Output image file
+-f, --from COLORSPACE  Source color space (sRGB, AdobeRGB, DisplayP3, oRGB, ProPhotoRGB)
+-t, --to COLORSPACE    Target color space (sRGB, AdobeRGB, DisplayP3, oRGB, ProPhotoRGB)
+-a, --adjust R,G,B     Adjust channels by percent (e.g., 10,5,-5)
+-h, --help             Show this help message
 ```
 
 ## Integration with CMake
