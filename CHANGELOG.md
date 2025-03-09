@@ -6,6 +6,153 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2025-03-10
+
+### Breaking Changes
+
+- **Standardized RGB/BGR Color Format Handling**:
+
+  - Changed the expected color format from BGR to RGB across the codebase.
+  - Updated color space implementations to work with RGB input directly.
+  - **Migration Note**: Code that previously relied on BGR format will need to
+    be updated.
+
+- **Const Correctness in Color Space Conversions**:
+
+  - Made source parameters const in color space conversion functions.
+  - Updated ColorSpaceType concept to require const source parameters.
+  - **Migration Note**: This should be transparent for most users but may affect
+    custom color space implementations.
+
+- **Refactored Percent Class**:
+  - Converted `Percent` struct to a class with proper encapsulation.
+  - Replaced direct member access with `channel(idx)` method.
+  - Added arithmetic operators (`+=`, `-=`, `+`, `-`) for easier manipulation.
+  - Introduced `neutral()` and `uniform(value)` factory methods.
+  - Added equality and inequality operators.
+  - **Migration Note**: Update code to use the new accessor methods instead of
+    direct member access.
+
+### Added
+
+- **New Color Spaces**:
+
+  - **Display P3**: Added support for Display P3 color space with D65 white
+    point and sRGB transfer function.
+  - **ProPhoto RGB**: Added support for ProPhoto RGB color space with D50 white
+    point and proper gamma encoding/decoding.
+
+- **Command-Line Interface**:
+
+  - Added a new CLI tool (`psm_cli`) for color space conversion and channel
+    adjustment.
+  - Supports all color spaces in the library (sRGB, AdobeRGB, DisplayP3, oRGB,
+    ProPhotoRGB).
+  - Uses STB image libraries for image I/O.
+
+- **Visual Documentation**:
+
+  - Added comprehensive visual examples showing color space conversions and
+    channel adjustments.
+  - Demonstrates practical benefits of different color spaces, particularly
+    highlighting oRGB's perceptually uniform channels.
+
+- **Input Validation**:
+
+  - Added validation check in `Convert` function to ensure input buffer size is
+    a multiple of 3.
+  - Throws `std::invalid_argument` if validation fails.
+
+- **Testing Improvements**:
+  - Added comprehensive test suites for Adobe RGB, Display P3, and oRGB color
+    spaces.
+  - Added unit tests for `psm::Percent` class.
+  - Added container compatibility test suite to verify compatibility with
+    various C++ container types.
+  - Improved color space conversion test utilities with standardized matchers.
+
+### Changed
+
+- **CMake Enhancements**:
+
+  - Replaced custom `PSM_BUILD_TESTS` option with standard `BUILD_TESTING` flag
+    from CTest module.
+  - Conditionally build tests based on module availability.
+  - Fixed span assignment with proper data copy in sRGB conversion functions.
+
+- **Code Organization**:
+  - Centralized common color space utilities into detail module.
+  - Grouped Eigen3 types used in the codebase for DRYer code.
+  - Grouped RGB2XYZ and XYZ2RGB conversions in a separate module.
+  - Grouped gamma correction, transfer function, and normalization of data in a
+    separate module.
+
+### Infrastructure
+
+- **CI/CD Improvements**:
+
+  - Added test status reporting workflow and badge.
+  - Configured clang-tidy to use separate configs for src and test directories.
+  - Added test-specific clang-tidy configuration to handle test-specific
+    patterns.
+
+- **Documentation**:
+  - Added CONTRIBUTE.md file with color space guide.
+  - Clarified RGB/BGR input format support in documentation.
+
+### Migration Guide
+
+#### RGB/BGR Format Change
+
+```cpp
+// Old (v0.3.0-alpha) - Expected BGR format
+std::vector<unsigned char> bgr_data = {0, 0, 255, 0, 255, 0, 255, 0, 0}; // BGR: Red, Green, Blue
+psm::Convert<psm::sRGB, psm::oRGB>(bgr_data, output);
+// New (v1.0.0) - Expects RGB format
+std::vector<unsigned char> rgb_data = {255, 0, 0, 0, 255, 0, 0, 0, 255}; // RGB: Red, Green, Blue
+psm::Convert<psm::sRGB, psm::oRGB>(rgb_data, output);
+```
+
+#### Percent Type Change
+
+```cpp
+// Old (v0.3.0-alpha)
+psm::Percent<int> percent;
+percent.channel0_ = 100;
+percent.channel1_ = 75;
+percent.channel2_ = 50;
+// New (v1.0.0)
+// Using constructor
+psm::Percent percent(10, 20, 30);
+// Or using factory methods
+auto neutral = psm::Percent::neutral();
+auto uniform = psm::Percent::uniform(15);
+// Accessing channels
+int channel0 = percent.channel(0);
+int channel1 = percent.channel(1);
+int channel2 = percent.channel(2);
+// Using arithmetic operators
+percent += 5;
+percent -= 3;
+auto result = percent + 10;
+auto result2 = result - 5;
+// Checking properties
+bool isNeutral = neutral.isNeutral();    // true
+bool isUniform = uniform.isUniform();    // true
+// Comparison operators
+bool equals = (psm::Percent(10, 20, 30) == psm::Percent(10, 20, 30));    // true
+bool notEquals = (psm::Percent(10, 20, 30) != psm::Percent(10, 20, 31)); // true
+```
+
+#### Using the CLI Tool
+
+```bash
+# Convert from sRGB to oRGB
+psm_cli --input input.png --output output.png --from srgb --to orgb
+# Adjust channels of oRGB image
+psm_cli --input input.jpg --output output.jpg --space ProPhotoRGB --adjust 110,90,95
+```
+
 ## [0.3.0-alpha] - 2025-01-26
 
 ### Breaking Changes
@@ -243,6 +390,7 @@ psm::Convert<psm::sRGB, psm::oRGB>(input_image, output_image);
   - Code formatting checks
   - Release automation
 
+[1.0.0]: https://github.com/neg-c/psm/releases/tag/v1.0.0
 [0.3.0-alpha]: https://github.com/neg-c/psm/releases/tag/v0.3.0-alpha
 [0.2.0-alpha]: https://github.com/neg-c/psm/releases/tag/v0.2.0-alpha
 [0.1.0-alpha]: https://github.com/neg-c/psm/releases/tag/v0.1.0-alpha
