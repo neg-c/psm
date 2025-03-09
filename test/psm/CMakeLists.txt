@@ -22,3 +22,7 @@ endif()
 if(TARGET psm_orgb)
   add_subdirectory(orgb)
 endif()
+
+if(TARGET psm_pro_photo_rgb)
+  add_subdirectory(pro_photo_rgb)
+endif()
