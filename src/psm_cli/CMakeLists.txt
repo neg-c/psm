@@ -1,5 +1,7 @@
-add_executable(psm_cli psm_cli.cpp)
+add_executable(psm_cli psm_cli.cpp cli_parser.cpp)
 
+find_package(Stb REQUIRED)
+target_include_directories(psm_cli PRIVATE ${Stb_INCLUDE_DIR})
 target_link_libraries(psm_cli PRIVATE psm::psm psm::adjust_channels)
 
 if(MSVC)
