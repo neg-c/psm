@@ -2,25 +2,60 @@
 
 ## Description
 
-**Prisma (`psm`)** is a modern C++20 library for color space conversions. It
-currently supports converting colors between **sRGB**, **Adobe RGB**, **DISPLAY-P3**,
-and **oRGB** color spaces.
+**Prisma (`psm`)** is a modern C++20 library for color space conversions with
+support for professional graphics and photography workflows.
+
+## Supported Color Spaces
+
+Prisma supports conversion between the following color spaces, each implemented
+as an independent module:
+
+- **sRGB** - Core reference color space
+- **Adobe RGB** (`psm::adobe_rgb`) - Professional print color space
+- **DISPLAY-P3** (`psm::display_p3`) - Wide gamut color space for modern
+  displays
+- **oRGB** (`psm::orgb`) - Perceptually uniform color space
+- **ProPhotoRGB** (`psm::pro_photo_rgb`) - Wide gamut color space for
+  photography
 
 ## Features
 
-- **Flexible Color Space Conversion**:
-  - Convert between any supported color spaces (sRGB, Adobe RGB, oRGB, Display P3)
-  - All conversions maintain color accuracy through proper intermediate
-    transformations
-- **Channel Adjustment**: Allows percentage-based adjustment of individual color
-  channels
+- **Accurate Color Space Conversion**: All conversions maintain color accuracy
+  through proper intermediate transformations
+- **Channel Adjustment** (`psm::adjust_channels`): Allows percentage-based
+  adjustment of individual color channels
 - **C++20 Compatibility**: Built with modern C++20 features
-- **Flexible Integration**: Can be built, installed, or directly included in
-  other projects
+- **Modular Architecture**: Each color space is implemented as a separate module
+  that can be included or excluded as needed
+- **Simple API**: Single header inclusion (`#include "psm/psm.hpp"`) provides
+  access to all available color spaces
+- **Container Flexibility**: Works with any container that satisfies
+  `std::ranges::contiguous_range`
+
+## Supported Containers
+
+The library is compatible with various container types including:
+
+- `std::vector`
+- `std::array`
+- `std::span`
+- Custom allocator containers
+- Const containers
+
+Any container that satisfies the `std::ranges::contiguous_range` concept is
+supported.
 
 ## Limitations
 
-- Additional channels (like alpha) are ignored during conversion
+- Additional channels (like alpha) are not supported during conversion
+
+## Error Handling
+
+The library uses exceptions for error handling:
+
+- `std::invalid_argument` is thrown if input buffer size is not a multiple of 3
+- `std::invalid_argument` is thrown if output buffer size doesn't match input
+  buffer size
 
 ## Getting Started
 
@@ -33,7 +68,7 @@ Here's a simple example showing color space conversion from sRGB to Adobe RGB,
 channel adjustments, and conversion back to sRGB for display:
 
 ```cpp
-#include "psm/psm.hpp"
+#include "psm/psm.hpp"  // Single header for all color space functionality
 
 int main() {
     // Input data in BGR format
@@ -69,21 +104,20 @@ Add Prisma (`psm`) to your CMake project:
 ```cmake
 find_package(psm REQUIRED)
 
-# Link core functionality (includes oRGB,AdobeRGB, and AdjustChannels utility)
+# Link core functionality
 target_link_libraries(<your_target> PRIVATE psm::psm)
 
-# Optionally link specific color space modules
+# Optionally link specific color space modules if you dont want the whole library
 target_link_libraries(<your_target> PRIVATE
-    psm::orgb      # Link oRGB support
+    psm::orgb          # Link oRGB support
     psm::adobe_rgb     # Link Adobe RGB support
 )
 ```
 
-Each color space and utility is provided as a separate module that can be linked independently. Available modules:
-- `psm::orgb` - Support for oRGB color space
-- `psm::adobe_rgb` - Support for Adobe RGB color space
-- `psm::adjust_channels` - Support for channel adjustment utilities
-- `psm::display_p3` - Support for Display P3 color space
-# License
+Note: Regardless of which modules you link against, you always include the same
+header (`psm/psm.hpp`). The library automatically enables/disables color spaces
+based on what modules were built and linked.
 
-Prisma is licensed under [LICENSE](LICENSE)
+## License
+
+Prisma is licensed under the MIT License. See [LICENSE](LICENSE) for details.
