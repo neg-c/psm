@@ -4,13 +4,12 @@
 #include <iostream>
 #include <optional>
 #include <ranges>
+#include <span>
 #include <stdexcept>
 #include <string>
 #include <string_view>
-#include <unordered_map>
 #include <vector>
 
-// Add image loading/saving library
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -20,13 +19,16 @@
 #include "psm/psm.hpp"
 #include "stb_image_write.h"
 
+namespace {
+constexpr int kJpegQuality = 95;
+}  // namespace
+
 namespace conversion {
 
-// Color space conversion function that handles runtime selection
 template <typename TargetColorSpace>
-void convert_from(const std::string& from_space,
-                  const std::vector<unsigned char>& input,
-                  std::vector<unsigned char>& output) {
+void convert_from(std::string_view from_space,
+                  std::span<const unsigned char> input,
+                  std::span<unsigned char> output) {
   if (from_space == "sRGB") {
     psm::Convert<psm::sRGB, TargetColorSpace>(input, output);
   } else if (from_space == "AdobeRGB") {
@@ -38,15 +40,14 @@ void convert_from(const std::string& from_space,
   } else if (from_space == "ProPhotoRGB") {
     psm::Convert<psm::ProPhotoRGB, TargetColorSpace>(input, output);
   } else {
-    throw std::invalid_argument("Unsupported source color space: " +
-                                from_space);
+    throw std::invalid_argument(
+        std::format("Unsupported source color space: {}", from_space));
   }
 }
 
-// Dispatcher for color space conversion
-void convert_between(const std::string& from_space, const std::string& to_space,
-                     const std::vector<unsigned char>& input,
-                     std::vector<unsigned char>& output) {
+void convert_between(std::string_view from_space, std::string_view to_space,
+                     std::span<const unsigned char> input,
+                     std::span<unsigned char> output) {
   if (to_space == "sRGB") {
     convert_from<psm::sRGB>(from_space, input, output);
   } else if (to_space == "AdobeRGB") {
@@ -58,7 +59,8 @@ void convert_between(const std::string& from_space, const std::string& to_space,
   } else if (to_space == "ProPhotoRGB") {
     convert_from<psm::ProPhotoRGB>(from_space, input, output);
   } else {
-    throw std::invalid_argument("Unsupported target color space: " + to_space);
+    throw std::invalid_argument(
+        std::format("Unsupported target color space: {}", to_space));
   }
 }
 
@@ -66,84 +68,87 @@ void convert_between(const std::string& from_space, const std::string& to_space,
 
 int main(int argc, char* argv[]) {
   try {
-    // Parse command line arguments
-    CLIOptions options = parse_args(argc, argv);
+    const CLIOptions options = parse_args(argc, argv);
 
-    // Load image
-    int width, height, channels;
-    unsigned char* image_data =
-        stbi_load(options.input_file.c_str(), &width, &height, &channels,
-                  3  // Force 3 channels (RGB)
-        );
+    int width = 0;
+    int height = 0;
+    int channels = 0;
 
-    if (!image_data) {
-      std::cerr << "Failed to load image: " << options.input_file << "\n";
+    // Force 3 channels (RGB)
+    constexpr int target_channels = 3;
+
+    unsigned char* image_data = stbi_load(options.input_file.c_str(), &width,
+                                          &height, &channels, target_channels);
+
+    if (image_data == nullptr) {
+      std::cerr << std::format("Failed to load image: {}\n",
+                               options.input_file);
       return 1;
     }
 
-    // Convert to vector
-    std::vector<unsigned char> input_image(image_data,
-                                           image_data + width * height * 3);
-    std::vector<unsigned char> output_image(input_image.size());
+    // Create a span directly over the loaded image data - no copy needed
+    const size_t image_size = width * height * target_channels;
+    std::span<const unsigned char> input_image{image_data, image_size};
 
-    // Free original image data
-    stbi_image_free(image_data);
+    // Create output storage and span
+    std::vector<unsigned char> output_image_storage(image_size);
+    std::span<unsigned char> output_image{output_image_storage};
 
-    std::cout << "Processing image: " << options.input_file << "\n";
-    std::cout << "Dimensions: " << width << "x" << height
-              << ", Channels: " << channels << "\n";
-    std::cout << "Converting from " << options.from_space << " to "
-              << options.to_space << "\n";
+    std::cout << std::format("Processing image: {}\n", options.input_file);
+    std::cout << std::format("Dimensions: {}x{}, Channels: {}\n", width, height,
+                             channels);
+    std::cout << std::format("Converting from {} to {}\n", options.from_space,
+                             options.to_space);
 
-    // Convert to target color space
     conversion::convert_between(options.from_space, options.to_space,
                                 input_image, output_image);
 
-    // Apply channel adjustments if provided
+    stbi_image_free(image_data);
+
     if (options.adjust_values) {
-      std::cout << "Adjusting channels by R:"
-                << options.adjust_values->channel(0)
-                << "%, G:" << options.adjust_values->channel(1)
-                << "%, B:" << options.adjust_values->channel(2) << "%\n";
+      std::cout << std::format("Adjusting channels by R:{}%, G:{}%, B:{}%\n",
+                               options.adjust_values->channel(0),
+                               options.adjust_values->channel(1),
+                               options.adjust_values->channel(2));
 
       psm::AdjustChannels(output_image, *options.adjust_values);
 
       // Convert back to original color space if needed
       if (options.from_space != options.to_space) {
-        std::vector<unsigned char> temp_image(output_image.size());
+        std::vector<unsigned char> temp_image_storage(output_image.size());
+        std::span<unsigned char> temp_image{temp_image_storage};
+
         conversion::convert_between(options.to_space, options.from_space,
                                     output_image, temp_image);
-        output_image = std::move(temp_image);
+        output_image_storage = std::move(temp_image_storage);
+        output_image = std::span<unsigned char>{output_image_storage};
       }
     }
 
-    // Ensure output path has .jpg extension
     std::string output_file = options.output_file;
-    std::filesystem::path output_path(output_file);
+    const std::filesystem::path output_path(output_file);
 
     if (output_path.extension() != ".jpg" &&
         output_path.extension() != ".jpeg") {
-      output_file = output_path.replace_extension(".jpg").string();
-      std::cout << "Output will be saved as JPEG: " << output_file << "\n";
+      std::filesystem::path new_path = output_path;
+      output_file = new_path.replace_extension(".jpg").string();
+      std::cout << std::format("Output will be saved as JPEG: {}\n",
+                               output_file);
     }
 
-    // Save as JPEG
-    bool save_success =
-        stbi_write_jpg(output_file.c_str(), width, height,
-                       3,  // Always RGB
-                       output_image.data(),
-                       95  // Quality - slightly higher than before
-        );
+    const bool save_success =
+        stbi_write_jpg(output_file.c_str(), width, height, target_channels,
+                       output_image_storage.data(), kJpegQuality);
 
     if (!save_success) {
-      std::cerr << "Failed to save JPEG image: " << output_file << "\n";
+      std::cerr << std::format("Failed to save JPEG image: {}\n", output_file);
       return 1;
     }
 
-    std::cout << "Successfully saved output to: " << output_file << "\n";
+    std::cout << std::format("Successfully saved output to: {}\n", output_file);
 
   } catch (const std::exception& e) {
-    std::cerr << "Error: " << e.what() << "\n";
+    std::cerr << std::format("Error: {}\n", e.what());
     return 1;
   }
 
