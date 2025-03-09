@@ -49,6 +49,10 @@ supported.
 
 - Additional channels (like alpha) are not supported during conversion
 
+## Test Status
+
+[![Test Status](https://github.com/neg-c/psm/actions/workflows/run-tests.yml/badge.svg)](https://github.com/neg-c/psm/actions/workflows/run-tests.yml)
+
 ## Error Handling
 
 The library uses exceptions for error handling:

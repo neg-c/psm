@@ -1,0 +1,88 @@
+name: run-tests
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main, master]
+
+jobs:
+  test-linux:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc]
+        include:
+          - compiler: gcc
+            version: 13
+
+    steps:
+      - name: Install basic dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git curl wget tar zip unzip cmake pkg-config
+
+      - name: Setup GCC
+        run: |
+          sudo apt-get install -y gcc-${{ matrix.version }} g++-${{ matrix.version }}
+          sudo ln -sf /usr/bin/gcc-${{ matrix.version }} /usr/bin/gcc
+          sudo ln -sf /usr/bin/g++-${{ matrix.version }} /usr/bin/g++
+
+      - name: Setup vcpkg
+        run: |
+          if [ ! -d ~/vcpkg ]; then
+            git clone https://github.com/microsoft/vcpkg.git ~/vcpkg
+            ~/vcpkg/bootstrap-vcpkg.sh
+          fi
+          ~/vcpkg/vcpkg integrate install
+          echo "VCPKG_ROOT=~/vcpkg" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Configure CMake
+        run: |
+          cmake --preset unixlike-${{ matrix.compiler }}-debug -DBUILD_TESTING=ON
+
+      - name: Build
+        run: |
+          cmake --build build/unixlike-${{ matrix.compiler }}-debug
+
+      - name: Run tests
+        id: run_tests
+        continue-on-error: true
+        run: |
+          cd build/unixlike-${{ matrix.compiler }}-debug
+          ctest --output-on-failure -V
+        
+      - name: Generate test report
+        if: always()
+        run: |
+          cd build/unixlike-${{ matrix.compiler }}-debug
+          
+          echo "# Test Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f "Testing/Temporary/LastTest.log" ]; then
+            # Count total tests
+            TOTAL_TESTS=$(grep -o "Test project.*" Testing/Temporary/LastTest.log | grep -o "[0-9]*" || echo "0")
+            PASSED_TESTS=$(grep "% tests passed" Testing/Temporary/LastTest.log | grep -o "[0-9]* tests passed" | grep -o "[0-9]*" || echo "0")
+            FAILED_TESTS=$((TOTAL_TESTS - PASSED_TESTS))
+            
+            echo "| Total | Passed | Failed |" >> $GITHUB_STEP_SUMMARY
+            echo "|-------|--------|--------|" >> $GITHUB_STEP_SUMMARY
+            echo "| ${TOTAL_TESTS} | ${PASSED_TESTS} | ${FAILED_TESTS} |" >> $GITHUB_STEP_SUMMARY
+            
+            # Create detailed failure report if there are failures
+            if [ $FAILED_TESTS -gt 0 ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "## Failed Tests" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              
+              grep -A 10 "The following tests FAILED:" Testing/Temporary/LastTest.log | head -n 20 >> $GITHUB_STEP_SUMMARY || echo "Could not extract test failures" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "No test results found" >> $GITHUB_STEP_SUMMARY
+          fi 
