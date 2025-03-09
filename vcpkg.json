@@ -1,7 +1,8 @@
 {
   "dependencies": [
     "eigen3",
-    "gtest"
+    "gtest",
+    "stb"
   ],
   "overrides": [
     {
@@ -11,6 +12,10 @@
     {
       "name": "gtest",
       "version": "1.15.2"
+    },
+    {
+      "name": "stb",
+      "version": "2024-07-29#1"
     }
   ]
 }

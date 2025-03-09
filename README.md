@@ -14,7 +14,11 @@ as an independent module:
 - **Adobe RGB** (`psm::adobe_rgb`) - Professional print color space
 - **DISPLAY-P3** (`psm::display_p3`) - Wide gamut color space for modern
   displays
-- **oRGB** (`psm::orgb`) - Perceptually uniform color space
+- **oRGB** (`psm::orgb`) - Perceptually uniform color space with three channels:
+  - L - Luminance
+  - Cyb - Chromatic Yellow-blue 
+  - Crg - Chromatic Red-Green
+  Adjusting these channels allows fine control over warm-cool tones in images
 - **ProPhotoRGB** (`psm::pro_photo_rgb`) - Wide gamut color space for
   photography
 
@@ -31,6 +35,7 @@ as an independent module:
   access to all available color spaces
 - **Container Flexibility**: Works with any container that satisfies
   `std::ranges::contiguous_range`
+- **Command-line Tool**: Includes a CLI utility for image processing
 
 ## Supported Containers
 
@@ -99,6 +104,52 @@ int main() {
     psm::Convert<psm::AdobeRGB, psm::oRGB>(adobe_rgb_image, orgb_image);
     psm::Convert<psm::oRGB, psm::sRGB>(orgb_image, output_image);
 }
+```
+
+## Command-line Tool
+
+Prisma includes a command-line tool (`psm_cli`) for image processing, color space conversion, and channel adjustment:
+
+### Features
+
+- Convert images between any supported color space
+- Adjust RGB channels by percentage values
+- Process and save images in JPEG format
+
+### Channel Adjustment Notes
+
+When adjusting channels, the effect varies by color space:
+
+- In RGB-based spaces (sRGB, AdobeRGB, DisplayP3, ProPhotoRGB), values adjust the Red, Green, and Blue channels
+- In oRGB space, channel adjustments work on:
+  - Channel 0: Luminance - Overall brightness
+  - Channel 1: Cyb - Yellow-blue axis (positive values add yellow tones, negative values add blue tones)
+  - Channel 2: Crg - Red-green axis (positive values add red tones, negative values add green tones)
+
+This makes oRGB particularly useful for adjusting the warm-cool balance of an image while preserving perceptual uniformity.
+
+### Usage
+
+```bash
+# Convert an image from sRGB to AdobeRGB
+psm_cli -i input.jpg -o output.jpg -f sRGB -t AdobeRGB
+
+# Convert an image and adjust channels (increase red by 10%, leave green unchanged, decrease blue by 5%)
+psm_cli -i input.jpg -o output.jpg -f sRGB -t DisplayP3 -a 10,0,-5
+
+# Help
+psm_cli --help
+```
+
+### Options
+
+```
+  -i, --input FILE       Input image file
+  -o, --output FILE      Output image file
+  -f, --from COLORSPACE  Source color space (sRGB, AdobeRGB, DisplayP3, oRGB, ProPhotoRGB)
+  -t, --to COLORSPACE    Target color space (sRGB, AdobeRGB, DisplayP3, oRGB, ProPhotoRGB)
+  -a, --adjust R,G,B     Adjust channels by percent (e.g., 10,5,-5)
+  -h, --help             Show this help message
 ```
 
 ## Integration with CMake
