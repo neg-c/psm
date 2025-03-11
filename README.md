@@ -71,6 +71,24 @@ The library uses exceptions for error handling:
 Follow the instructions in the [INSTALL](INSTALL.md) file to build and integrate
 Prisma into your project.
 
+## Dependencies
+
+Prisma has the following dependencies:
+
+- **Core Library Dependency**:
+
+  - [Eigen3](https://eigen.tuxfamily.org/) - Used for matrix operations in color
+    space conversions
+
+- **Optional Dependencies**:
+  - [GoogleTest](https://github.com/google/googletest) - Used for testing only
+  - [STB](https://github.com/nothings/stb) - Used for the CLI tool only
+
+When using vcpkg, these dependencies are automatically managed. The optional
+components (tests and CLI tool) can be disabled during the build process if you
+don't need them. See the [INSTALL](INSTALL.md) file for build configuration
+options.
+
 ## Usage Example
 
 Here's a simple example showing color space conversion from sRGB to Adobe RGB,
