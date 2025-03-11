@@ -79,8 +79,8 @@ void DisplayP3::toSRGB(std::span<const T> src, std::span<T> dst) {
   dst_map = psm::detail::denormalize_as<T>(result);
 }
 
-template void DisplayP3::fromSRGB<unsigned char>(
-    std::span<const unsigned char>, std::span<unsigned char>);
-template void DisplayP3::toSRGB<unsigned char>(
-    std::span<const unsigned char>, std::span<unsigned char>);
+template void DisplayP3::fromSRGB<unsigned char>(std::span<const unsigned char>,
+                                                 std::span<unsigned char>);
+template void DisplayP3::toSRGB<unsigned char>(std::span<const unsigned char>,
+                                               std::span<unsigned char>);
 }  // namespace psm::detail

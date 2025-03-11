@@ -145,8 +145,8 @@ void Orgb::toSRGB(std::span<const T> src, std::span<T> dst) {
   dst_map = psm::detail::denormalize_as<T>(result);
 }
 
-template void Orgb::fromSRGB<unsigned char>(
-    std::span<const unsigned char>, std::span<unsigned char>);
+template void Orgb::fromSRGB<unsigned char>(std::span<const unsigned char>,
+                                            std::span<unsigned char>);
 template void Orgb::toSRGB<unsigned char>(std::span<const unsigned char>,
                                           std::span<unsigned char>);
 }  // namespace psm::detail

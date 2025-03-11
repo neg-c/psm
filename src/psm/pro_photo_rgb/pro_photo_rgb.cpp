@@ -110,6 +110,6 @@ void ProPhotoRgb::toSRGB(std::span<const T> src, std::span<T> dst) {
 
 template void ProPhotoRgb::fromSRGB<unsigned char>(
     std::span<const unsigned char>, std::span<unsigned char>);
-template void ProPhotoRgb::toSRGB<unsigned char>(
-    std::span<const unsigned char>, std::span<unsigned char>);
+template void ProPhotoRgb::toSRGB<unsigned char>(std::span<const unsigned char>,
+                                                 std::span<unsigned char>);
 }  // namespace psm::detail

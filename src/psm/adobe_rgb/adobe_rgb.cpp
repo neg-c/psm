@@ -77,8 +77,8 @@ void AdobeRgb::toSRGB(std::span<const T> src, std::span<T> dst) {
   dst_map = psm::detail::denormalize_as<T>(result);
 }
 
-template void AdobeRgb::fromSRGB<unsigned char>(
-    std::span<const unsigned char>, std::span<unsigned char>);
-template void AdobeRgb::toSRGB<unsigned char>(
-    std::span<const unsigned char>, std::span<unsigned char>);
+template void AdobeRgb::fromSRGB<unsigned char>(std::span<const unsigned char>,
+                                                std::span<unsigned char>);
+template void AdobeRgb::toSRGB<unsigned char>(std::span<const unsigned char>,
+                                              std::span<unsigned char>);
 }  // namespace psm::detail
