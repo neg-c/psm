@@ -1,2 +1,5 @@
 add_subdirectory(psm)
-add_subdirectory(psm_cli)
+
+if(BUILD_PSM_CLI)
+  add_subdirectory(psm_cli)
+endif()

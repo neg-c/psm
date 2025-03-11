@@ -42,11 +42,14 @@ Assuming that the VCPKG_ROOT is set:
    $ cmake --list-presets
    ```
 2. Use a preset to configure
+
    ```bash
    $ cmake --preset <preset-name>
    ```
 
-   By default, this will build all available modules. To build only specific modules, use the WITH flags:
+   By default, this will build all available modules. To build only specific
+   modules, use the WITH flags:
+
    ```bash
    # Build with only oRGB support
    $ cmake --preset <preset-name> -DWITH_ORGB=ON
@@ -58,7 +61,18 @@ Assuming that the VCPKG_ROOT is set:
    $ cmake --preset <preset-name> -DWITH_ORGB=ON -DWITH_ADOBE_RGB=ON
    ```
 
+   You can control whether the PSM CLI tool is built:
+
+   ```bash
+   # Disable building PSM CLI (build only the library)
+   $ cmake --preset <preset-name> -DBUILD_PSM_CLI=OFF
+
+   # Enable building PSM CLI (default)
+   $ cmake --preset <preset-name> -DBUILD_PSM_CLI=ON
+   ```
+
    You can also control whether tests are built:
+
    ```bash
    # Disable building tests
    $ cmake --preset <preset-name> -DBUILD_TESTING=OFF
@@ -89,4 +103,6 @@ $ cd build/<preset-name>
 $ ctest
 ```
 
-Note that tests are only built for modules that are being built. For example, if you only build the Adobe RGB module with `-DWITH_ADOBE_RGB=ON`, only the Adobe RGB tests will be available.
+Note that tests are only built for modules that are being built. For example, if
+you only build the Adobe RGB module with `-DWITH_ADOBE_RGB=ON`, only the Adobe
+RGB tests will be available.
