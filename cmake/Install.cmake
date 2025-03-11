@@ -20,9 +20,10 @@ install(
           DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
           COMPONENT applications)
 
-# Install CLI tool
-install(TARGETS psm_cli RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                COMPONENT applications)
+if(BUILD_PSM_CLI)
+  install(TARGETS psm_cli RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                  COMPONENT applications)
+endif()
 
 # Run ldconfig on Unix systems
 if(UNIX)

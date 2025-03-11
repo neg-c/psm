@@ -1,5 +1,8 @@
 set(PSM_MODULES adjust_channels orgb adobe_rgb display_p3 pro_photo_rgb)
 
+# Option to control whether psm_cli is built
+option(BUILD_PSM_CLI "Build the PSM CLI tool" ON)
+
 # Dynamically create WITH_<module> options
 foreach(module ${PSM_MODULES})
   string(TOUPPER "${module}" MODULE_UPPER) # Convert to uppercase for
