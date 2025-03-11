@@ -10,13 +10,13 @@ class Srgb {
   Srgb() = delete;
 
   template <typename T>
-  static void fromSRGB(const std::span<const T>& src, std::span<T> dst) {
+  static void fromSRGB(std::span<const T> src, std::span<T> dst) {
     // passthrough because we are already in sRGB
     std::copy(src.begin(), src.end(), dst.begin());
   }
 
   template <typename T>
-  static void toSRGB(const std::span<const T>& src, std::span<T> dst) {
+  static void toSRGB(std::span<const T> src, std::span<T> dst) {
     // passthrough because we are already in sRGB
     std::copy(src.begin(), src.end(), dst.begin());
   }

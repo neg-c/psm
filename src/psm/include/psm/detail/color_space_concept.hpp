@@ -7,7 +7,7 @@ namespace psm::detail {
 template <typename Tag>
 concept ColorSpaceType = requires {
   typename Tag::type;  // Must have an implementation type
-} && requires(const std::span<const float>& src, std::span<float> dst) {
+} && requires(std::span<const float> src, std::span<float> dst) {
   // Implementation must have static toSRGB and fromSRGB methods
   // with const source parameter
   { Tag::type::toSRGB(src, dst) } -> std::same_as<void>;

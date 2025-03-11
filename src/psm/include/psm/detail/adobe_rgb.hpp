@@ -11,9 +11,9 @@ class AdobeRgb {
   AdobeRgb() = delete;
 
   template <typename T>
-  static void fromSRGB(const std::span<const T>& src, std::span<T> dst);
+  static void fromSRGB(std::span<const T> src, std::span<T> dst);
   template <typename T>
-  static void toSRGB(const std::span<const T>& src, std::span<T> dst);
+  static void toSRGB(std::span<const T> src, std::span<T> dst);
 };
 
 }  // namespace detail

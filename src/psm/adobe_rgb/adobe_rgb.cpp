@@ -33,7 +33,7 @@ psm::detail::Mat3f adobe_rgb2xyz(const psm::detail::Mat3f& src) {
 namespace psm::detail {
 
 template <typename T>
-void AdobeRgb::fromSRGB(const std::span<const T>& src, std::span<T> dst) {
+void AdobeRgb::fromSRGB(std::span<const T> src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
   psm::detail::RowXf norm_src = transform::srgb::decode(map_src);
 
@@ -56,7 +56,7 @@ void AdobeRgb::fromSRGB(const std::span<const T>& src, std::span<T> dst) {
 }
 
 template <typename T>
-void AdobeRgb::toSRGB(const std::span<const T>& src, std::span<T> dst) {
+void AdobeRgb::toSRGB(std::span<const T> src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
   psm::detail::RowXf norm_src = transform::srgb::decode(map_src);
 
@@ -78,7 +78,7 @@ void AdobeRgb::toSRGB(const std::span<const T>& src, std::span<T> dst) {
 }
 
 template void AdobeRgb::fromSRGB<unsigned char>(
-    const std::span<const unsigned char>&, std::span<unsigned char>);
+    std::span<const unsigned char>, std::span<unsigned char>);
 template void AdobeRgb::toSRGB<unsigned char>(
-    const std::span<const unsigned char>&, std::span<unsigned char>);
+    std::span<const unsigned char>, std::span<unsigned char>);
 }  // namespace psm::detail
