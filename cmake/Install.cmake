@@ -25,6 +25,11 @@ if(BUILD_PSM_CLI)
                                   COMPONENT applications)
 endif()
 
+if(BUILD_PSM_GUI)
+  install(TARGETS psm_gui RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                  COMPONENT applications)
+endif()
+
 # Run ldconfig on Unix systems
 if(UNIX)
   install(CODE "execute_process(COMMAND ldconfig)" COMPONENT applications)

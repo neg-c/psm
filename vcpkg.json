@@ -2,7 +2,8 @@
   "dependencies": [
     "eigen3",
     "gtest",
-    "stb"
+    "stb",
+    { "name": "imgui", "features": ["opengl3-binding", "glfw-binding"] }
   ],
   "overrides": [
     {
@@ -16,6 +17,10 @@
     {
       "name": "stb",
       "version": "2024-07-29#1"
+    },
+    {
+      "name": "imgui",
+      "version": "1.90#3"
     }
   ]
 }
