@@ -42,6 +42,7 @@ int main(int, char**) {
   ImGuiIO& io = ImGui::GetIO();
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+  io.IniFilename = nullptr;
 
   // Setup Dear ImGui style
   ImGui::StyleColorsDark();
