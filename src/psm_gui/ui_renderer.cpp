@@ -2,213 +2,287 @@
 
 #include "imgui.h"
 
-// Render the preview area with the image or placeholder
-void RenderPreviewArea(AppState& state, float width, float height) {
+namespace psm_gui {
+
+// UIStyleManager implementation
+UIStyleManager::UIStyleManager(ImGuiCol idx, const ImVec4& col)
+    : m_varIdx(ImGuiStyleVar_COUNT),
+      m_colIdx(idx),
+      m_isColor(true),
+      m_isVec2(false) {
+  ImGui::PushStyleColor(idx, col);
+}
+
+UIStyleManager::UIStyleManager(ImGuiStyleVar idx, float val)
+    : m_varIdx(idx),
+      m_colIdx(ImGuiCol_COUNT),
+      m_isColor(false),
+      m_isVec2(false) {
+  ImGui::PushStyleVar(idx, val);
+}
+
+UIStyleManager::UIStyleManager(ImGuiStyleVar idx, const ImVec2& val)
+    : m_varIdx(idx),
+      m_colIdx(ImGuiCol_COUNT),
+      m_isColor(false),
+      m_isVec2(true) {
+  ImGui::PushStyleVar(idx, val);
+}
+
+UIStyleManager::~UIStyleManager() {
+  if (m_isColor) {
+    ImGui::PopStyleColor();
+  } else {
+    ImGui::PopStyleVar();
+  }
+}
+
+// PreviewArea implementation
+PreviewArea::PreviewArea(AppState& state) : m_state(state) {}
+
+void PreviewArea::render(float width, float height) {
   // Style the preview area
-  ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.184f, 0.184f, 0.184f, 1.0f));
-  ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 15.0f);
+  UIStyleManager bgColor(ImGuiCol_ChildBg,
+                         ImVec4(0.184f, 0.184f, 0.184f, 1.0f));
+  UIStyleManager rounding(ImGuiStyleVar_ChildRounding, 15.0f);
 
   ImGui::BeginChild("Preview", ImVec2(width, height), true);
 
-  if (state.has_image && state.image_texture) {
-    // Calculate aspect ratio to maintain proportions
-    float image_aspect = (float)state.image_width / (float)state.image_height;
-    float preview_aspect = width / height;
-
-    float display_width, display_height;
-    if (image_aspect > preview_aspect) {
-      // Image is wider than preview area
-      display_width = width;
-      display_height = width / image_aspect;
-    } else {
-      // Image is taller than preview area
-      display_height = height;
-      display_width = height * image_aspect;
-    }
-
-    // Center the image
-    float pos_x = (width - display_width) * 0.5f;
-    float pos_y = (height - display_height) * 0.5f;
-
-    ImGui::SetCursorPos(ImVec2(pos_x, pos_y));
-    ImGui::Image((void*)(intptr_t)state.image_texture,
-                 ImVec2(display_width, display_height));
+  if (m_state.has_image && m_state.image_texture) {
+    renderImage(width, height);
   } else {
-    // Display placeholder text when no image is loaded
-    const float pos_x = width / 2 - 50;
-    const float pos_y = height / 2 - 10;
-    ImGui::SetCursorPos(ImVec2(pos_x, pos_y));
-    ImGui::Text("No image loaded");
+    renderPlaceholder(width, height);
   }
 
   ImGui::EndChild();
-  ImGui::PopStyleVar();    // ChildRounding
-  ImGui::PopStyleColor();  // ChildBg
 }
 
-// Render the buttons, dropdown and slider
-void RenderControlsArea(AppState& state, float window_width,
-                        float window_height) {
-  // Calculate button size based on window size
-  const float button_width = window_width * 0.15f;
-  const float button_height = window_height * 0.08f;
+void PreviewArea::renderImage(float width, float height) {
+  float displayWidth, displayHeight;
+  calculateImageDimensions(width, height, displayWidth, displayHeight);
 
-  // Use columns for layout with explicit widths
-  ImGui::Columns(2, "ControlsColumns", false);
-  ImGui::SetColumnWidth(0, window_width * 0.7f);  // Main controls column
+  // Center the image
+  float posX = (width - displayWidth) * 0.5f;
+  float posY = (height - displayHeight) * 0.5f;
+
+  ImGui::SetCursorPos(ImVec2(posX, posY));
+  ImGui::Image((void*)(intptr_t)m_state.image_texture,
+               ImVec2(displayWidth, displayHeight));
+}
+
+void PreviewArea::renderPlaceholder(float width, float height) {
+  const float posX = width / 2 - 50;
+  const float posY = height / 2 - 10;
+  ImGui::SetCursorPos(ImVec2(posX, posY));
+  ImGui::Text("No image loaded");
+}
+
+void PreviewArea::calculateImageDimensions(float containerWidth,
+                                           float containerHeight,
+                                           float& displayWidth,
+                                           float& displayHeight) {
+  // Calculate aspect ratio to maintain proportions
+  float imageAspect = static_cast<float>(m_state.image_width) /
+                      static_cast<float>(m_state.image_height);
+  float previewAspect = containerWidth / containerHeight;
+
+  if (imageAspect > previewAspect) {
+    // Image is wider than preview area
+    displayWidth = containerWidth;
+    displayHeight = containerWidth / imageAspect;
+  } else {
+    // Image is taller than preview area
+    displayHeight = containerHeight;
+    displayWidth = containerHeight * imageAspect;
+  }
+}
+
+// ControlsArea implementation
+ControlsArea::ControlsArea(AppState& state) : m_state(state) {}
+
+void ControlsArea::render(float windowWidth, float windowHeight) {
+  // Calculate button size based on window size
+  const float buttonWidth = windowWidth * 0.15f;
+  const float buttonHeight = windowHeight * 0.5f;  // Increase button height
+
+  setupColumns(windowWidth);
 
   // First column: Load/Convert buttons and combo box
   ImGui::BeginGroup();
 
-  ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing,
-                      ImVec2(button_width * 0.2f, button_height * 0.2f));
-  ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.5f, 0.5f));
+  {
+    UIStyleManager spacing(ImGuiStyleVar_ItemSpacing,
+                           ImVec2(buttonWidth * 0.2f, buttonHeight * 0.2f));
+    UIStyleManager align(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.5f, 0.5f));
 
-  // Load and Convert buttons
-  float text_width = ImGui::CalcTextSize("Load").x;
-  float load_button_width = text_width + button_width * 0.4f;
-
-  if (ImGui::Button("Load", ImVec2(load_button_width, button_height))) {
-    // Load button clicked
+    renderButtons(buttonWidth, buttonHeight);
+    renderConversionCombo(windowWidth * 0.2f);
   }
-
-  ImGui::SameLine();
-
-  text_width = ImGui::CalcTextSize("Convert").x;
-  float convert_button_width = text_width + button_width * 0.4f;
-
-  if (ImGui::Button("Convert", ImVec2(convert_button_width, button_height))) {
-    // Convert button clicked
-  }
-
-  // Put conversion type on the same line as the Convert button
-  ImGui::SameLine();
-
-  // Style the combo box
-  ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
-  ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));
-  ImGui::PushStyleColor(ImGuiCol_PopupBg, ImVec4(0.25f, 0.25f, 0.25f, 1.0f));
-  ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.3f, 0.3f, 0.7f, 0.8f));
-  ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.4f, 0.4f, 0.8f, 0.8f));
-  ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(0.5f, 0.5f, 0.9f, 0.8f));
-
-  ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 5.0f);
-  ImGui::PushStyleVar(ImGuiStyleVar_PopupRounding, 5.0f);
-  ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10, 8));
-  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10, 10));
-
-  ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.9f, 0.9f, 1.0f));
-
-  // Set a fixed width for combo box that's reasonable
-  float combo_width = window_width * 0.2f;
-  ImGui::PushItemWidth(combo_width);
-
-  if (ImGui::BeginCombo(
-          "##ConversionCombo",
-          state.conversion_options[state.current_conversion].c_str(),
-          ImGuiComboFlags_HeightLarge)) {
-    for (int i = 0; i < state.conversion_options.size(); i++) {
-      const bool is_selected = (state.current_conversion == i);
-      if (ImGui::Selectable(state.conversion_options[i].c_str(), is_selected, 0,
-                            ImVec2(0, 30))) {
-        state.current_conversion = i;
-      }
-      if (is_selected) {
-        ImGui::SetItemDefaultFocus();
-      }
-    }
-    ImGui::EndCombo();
-  }
-
-  // Pop all the styles
-  ImGui::PopStyleColor(7);
-  ImGui::PopStyleVar(4);
-  ImGui::PopItemWidth();
-  ImGui::PopStyleVar();  // ItemSpacing
 
   ImGui::EndGroup();
 
   ImGui::NextColumn();
 
   // Second column: Slider
-  ImGui::PushItemWidth(ImGui::GetColumnWidth() -
-                       ImGui::GetStyle().FramePadding.x * 2);
-
-  // Style the slider
-  ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.2f, 0.2f, 0.3f, 1.0f));
-  ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(0.4f, 0.4f, 0.8f, 0.8f));
-  ImGui::PushStyleColor(ImGuiCol_SliderGrabActive,
-                        ImVec4(0.5f, 0.5f, 0.9f, 0.8f));
-  ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, 10.0f);
-
-  ImGui::SliderInt("##Slider", &state.slider_value, 0, 100, "%d%%");
-
-  ImGui::PopStyleColor(3);
-  ImGui::PopStyleVar();
-  ImGui::PopItemWidth();
+  renderSlider(ImGui::GetColumnWidth() - ImGui::GetStyle().FramePadding.x * 2);
 
   ImGui::Columns(1);
 }
 
-// Main application function
-void RenderMainUI(AppState& state) {
+void ControlsArea::renderButtons(float buttonWidth, float buttonHeight) {
+  float textWidth = ImGui::CalcTextSize("Load").x;
+  float loadButtonWidth = textWidth + buttonWidth * 0.4f;
+
+  if (ImGui::Button("Load", ImVec2(loadButtonWidth, buttonHeight))) {
+    // Load button clicked
+  }
+
+  ImGui::SameLine();
+
+  textWidth = ImGui::CalcTextSize("Convert").x;
+  float convertButtonWidth = textWidth + buttonWidth * 0.4f;
+
+  if (ImGui::Button("Convert", ImVec2(convertButtonWidth, buttonHeight))) {
+    // Convert button clicked
+  }
+
+  // Put conversion type on the same line as the Convert button
+  ImGui::SameLine();
+}
+
+void ControlsArea::renderConversionCombo(float comboWidth) {
+  // Style the combo box
+  UIStyleManager frameBg(ImGuiCol_FrameBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
+  UIStyleManager button(ImGuiCol_Button, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));
+  UIStyleManager popupBg(ImGuiCol_PopupBg, ImVec4(0.25f, 0.25f, 0.25f, 1.0f));
+  UIStyleManager header(ImGuiCol_Header, ImVec4(0.3f, 0.3f, 0.7f, 0.8f));
+  UIStyleManager headerHovered(ImGuiCol_HeaderHovered,
+                               ImVec4(0.4f, 0.4f, 0.8f, 0.8f));
+  UIStyleManager headerActive(ImGuiCol_HeaderActive,
+                              ImVec4(0.5f, 0.5f, 0.9f, 0.8f));
+  UIStyleManager text(ImGuiCol_Text, ImVec4(0.9f, 0.9f, 0.9f, 1.0f));
+
+  UIStyleManager frameRounding(ImGuiStyleVar_FrameRounding, 5.0f);
+  UIStyleManager popupRounding(ImGuiStyleVar_PopupRounding, 5.0f);
+  UIStyleManager framePadding(ImGuiStyleVar_FramePadding, ImVec2(10, 8));
+  UIStyleManager windowPadding(ImGuiStyleVar_WindowPadding, ImVec2(10, 10));
+
+  ImGui::PushItemWidth(comboWidth);
+
+  if (ImGui::BeginCombo(
+          "##ConversionCombo",
+          m_state.conversion_options[m_state.current_conversion].c_str(),
+          ImGuiComboFlags_HeightLarge)) {
+    for (int i = 0; i < m_state.conversion_options.size(); i++) {
+      const bool isSelected = (m_state.current_conversion == i);
+      if (ImGui::Selectable(m_state.conversion_options[i].c_str(), isSelected,
+                            0, ImVec2(0, 30))) {
+        m_state.current_conversion = i;
+      }
+      if (isSelected) {
+        ImGui::SetItemDefaultFocus();
+      }
+    }
+    ImGui::EndCombo();
+  }
+
+  ImGui::PopItemWidth();
+}
+
+void ControlsArea::renderSlider(float columnWidth) {
+  ImGui::PushItemWidth(columnWidth);
+
+  // Style the slider
+  UIStyleManager frameBg(ImGuiCol_FrameBg, ImVec4(0.2f, 0.2f, 0.3f, 1.0f));
+  UIStyleManager sliderGrab(ImGuiCol_SliderGrab,
+                            ImVec4(0.4f, 0.4f, 0.8f, 0.8f));
+  UIStyleManager sliderGrabActive(ImGuiCol_SliderGrabActive,
+                                  ImVec4(0.5f, 0.5f, 0.9f, 0.8f));
+  UIStyleManager grabMinSize(ImGuiStyleVar_GrabMinSize, 10.0f);
+
+  ImGui::SliderInt("##Slider", &m_state.slider_value, 0, 100, "%d%%");
+
+  ImGui::PopItemWidth();
+}
+
+void ControlsArea::setupColumns(float windowWidth) {
+  ImGui::Columns(2, "ControlsColumns", false);
+  ImGui::SetColumnWidth(0, windowWidth * 0.7f);  // Main controls column
+}
+
+// UIRenderer implementation
+UIRenderer::UIRenderer(AppState& state)
+    : m_state(state),
+      m_previewArea(std::make_unique<PreviewArea>(state)),
+      m_controlsArea(std::make_unique<ControlsArea>(state)) {}
+
+UIRenderer::~UIRenderer() = default;
+
+void UIRenderer::render() {
+  setupMainWindow();
+
+  // Get the current window size for scaling calculations
+  const float windowWidth = ImGui::GetWindowWidth();
+  const float windowHeight = ImGui::GetWindowHeight();
+
+  // Calculate padding based on window size (responsive)
+  const float paddingX = windowWidth * 0.025f;
+  const float paddingY = windowHeight * 0.03f;
+
+  // Add padding for content
+  UIStyleManager framePadding(ImGuiStyleVar_FramePadding,
+                              ImVec2(paddingX, paddingY));
+
+  // Set content region with padding
+  ImGui::SetCursorPos(ImVec2(paddingX, paddingY));
+  const float contentWidth = windowWidth - (paddingX * 2);
+  const float contentHeight = windowHeight - (paddingY * 2);
+
+  renderContent(contentWidth, contentHeight);
+}
+
+void UIRenderer::setupMainWindow() {
   // Set window to be fullscreen with padding
   ImGui::SetNextWindowPos(ImVec2(0, 0));
   ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
 
-  const ImGuiWindowFlags window_flags =
+  const ImGuiWindowFlags windowFlags =
       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
       ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
       ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoScrollbar |
       ImGuiWindowFlags_NoScrollWithMouse;
 
   // Set padding to zero to avoid extra space
-  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+  UIStyleManager windowPadding(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
-  ImGui::Begin("PSM GUI", nullptr, window_flags);
+  ImGui::Begin("PSM GUI", nullptr, windowFlags);
+}
 
-  // Remove the previous padding style var
-  ImGui::PopStyleVar();
-
-  // Get the current window size for scaling calculations
-  const float window_width = ImGui::GetWindowWidth();
-  const float window_height = ImGui::GetWindowHeight();
-
-  // Calculate padding based on window size (responsive)
-  const float padding_x = window_width * 0.025f;
-  const float padding_y = window_height * 0.03f;
-
-  // Add padding for content
-  ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(padding_x, padding_y));
-
-  // Set content region with padding
-  ImGui::SetCursorPos(ImVec2(padding_x, padding_y));
-  const float content_width = window_width - (padding_x * 2);
-  const float content_height = window_height - (padding_y * 2);
-
+void UIRenderer::renderContent(float contentWidth, float contentHeight) {
   ImGui::BeginChild(
-      "Content", ImVec2(content_width, content_height), false,
+      "Content", ImVec2(contentWidth, contentHeight), false,
       ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 
   // Calculate sizes for preview and controls
-  const float controls_height = window_height * 0.15f;
-  const float spacing = window_height * 0.03f;
-  const float preview_height =
-      ImGui::GetContentRegionAvail().y - controls_height - spacing;
-  const float preview_width = ImGui::GetContentRegionAvail().x;
+  const float windowHeight = ImGui::GetWindowHeight();
+  const float controlsHeight = windowHeight * 0.15f;
+  const float spacing = windowHeight * 0.03f;
+  const float previewHeight =
+      ImGui::GetContentRegionAvail().y - controlsHeight - spacing;
+  const float previewWidth = ImGui::GetContentRegionAvail().x;
 
   // Render the preview area
-  RenderPreviewArea(state, preview_width, preview_height);
+  m_previewArea->render(previewWidth, previewHeight);
 
   // Vertical spacer
   ImGui::Dummy(ImVec2(0, spacing));
 
   // Render the controls area
-  RenderControlsArea(state, window_width, window_height);
+  m_controlsArea->render(contentWidth, controlsHeight);
 
   ImGui::EndChild();  // End Content child
 
-  ImGui::PopStyleVar();  // FramePadding
-
   ImGui::End();
 }
+
+}  // namespace psm_gui

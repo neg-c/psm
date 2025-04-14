@@ -54,6 +54,9 @@ int main(int, char**) {
   // Initialize application state
   AppState state;
 
+  // Create UI renderer
+  psm_gui::UIRenderer uiRenderer(state);
+
   // Main loop
   while (!glfwWindowShouldClose(window)) {
     // Poll and handle events
@@ -67,8 +70,8 @@ int main(int, char**) {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    // Render the main UI
-    RenderMainUI(state);
+    // Render the main UI using the UI renderer
+    uiRenderer.render();
 
     // Rendering
     ImGui::Render();
