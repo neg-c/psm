@@ -50,35 +50,39 @@ void RenderPreviewArea(AppState& state, float width, float height) {
 void RenderControlsArea(AppState& state, float window_width,
                         float window_height) {
   // Calculate button size based on window size
-  const float button_size = window_height * 0.08f;
+  const float button_width = window_width * 0.15f;
+  const float button_height = window_height * 0.08f;
 
-  // Use columns for layout
-  ImGui::Columns(3, "ControlsColumns", false);
+  // Use columns for layout with explicit widths
+  ImGui::Columns(2, "ControlsColumns", false);
+  ImGui::SetColumnWidth(0, window_width * 0.7f);  // Main controls column
 
   // First column: Load/Convert buttons and combo box
   ImGui::BeginGroup();
 
   ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing,
-                      ImVec2(button_size * 0.2f, button_size * 0.2f));
+                      ImVec2(button_width * 0.2f, button_height * 0.2f));
+  ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.5f, 0.5f));
 
   // Load and Convert buttons
-  if (ImGui::Button("Load", ImVec2(button_size, button_size))) {
+  float text_width = ImGui::CalcTextSize("Load").x;
+  float load_button_width = text_width + button_width * 0.4f;
+
+  if (ImGui::Button("Load", ImVec2(load_button_width, button_height))) {
     // Load button clicked
   }
 
   ImGui::SameLine();
 
-  if (ImGui::Button("Convert", ImVec2(button_size, button_size))) {
+  text_width = ImGui::CalcTextSize("Convert").x;
+  float convert_button_width = text_width + button_width * 0.4f;
+
+  if (ImGui::Button("Convert", ImVec2(convert_button_width, button_height))) {
     // Convert button clicked
   }
 
-  // Conversion combo box
-  const float combo_width =
-      ImGui::GetColumnWidth() - ImGui::GetStyle().FramePadding.x * 2;
-  ImGui::PushItemWidth(combo_width);
-
-  // Add spacing before the combo box
-  ImGui::Dummy(ImVec2(0, button_size * 0.2f));
+  // Put conversion type on the same line as the Convert button
+  ImGui::SameLine();
 
   // Style the combo box
   ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
@@ -95,10 +99,10 @@ void RenderControlsArea(AppState& state, float window_width,
 
   ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.9f, 0.9f, 1.0f));
 
-  // Label and combo box
-  ImGui::Text("Conversion Type:");
+  // Set a fixed width for combo box that's reasonable
+  float combo_width = window_width * 0.2f;
+  ImGui::PushItemWidth(combo_width);
 
-  // Put the combo on a new line for better visibility
   if (ImGui::BeginCombo(
           "##ConversionCombo",
           state.conversion_options[state.current_conversion].c_str(),
@@ -126,12 +130,7 @@ void RenderControlsArea(AppState& state, float window_width,
 
   ImGui::NextColumn();
 
-  // Second column: Spacer
-  ImGui::Dummy(ImVec2(ImGui::GetColumnWidth() * 0.5f, button_size * 0.2f));
-
-  ImGui::NextColumn();
-
-  // Third column: Slider
+  // Second column: Slider
   ImGui::PushItemWidth(ImGui::GetColumnWidth() -
                        ImGui::GetStyle().FramePadding.x * 2);
 
