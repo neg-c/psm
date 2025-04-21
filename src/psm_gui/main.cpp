@@ -1,7 +1,10 @@
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 
+#include <iostream>
+
 #include "app_state.h"
+#include "file_dialog.h"
 #include "image_loader.h"
 #include "image_processor.h"
 #include "imgui.h"
@@ -40,6 +43,28 @@ void HandleConversion(psm_gui::AppState& state) {
     // Update the texture with the processed image
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
                  GL_UNSIGNED_BYTE, imageData.data());
+  }
+}
+
+// Add a function to handle the load button click
+void HandleLoadImage(psm_gui::AppState& state) {
+  // Open file dialog to select an image
+  std::string filePath = psm_gui::OpenImageFileDialog();
+
+  if (!filePath.empty()) {
+    // Clean up previous texture if it exists
+    if (state.image_texture) {
+      glDeleteTextures(1, &state.image_texture);
+      state.image_texture = 0;
+    }
+
+    // Load the new image
+    if (LoadTextureFromFile(filePath.c_str(), &state.image_texture,
+                            &state.image_width, &state.image_height)) {
+      state.has_image = true;
+    } else {
+      std::cerr << "Failed to load image: " << filePath << std::endl;
+    }
   }
 }
 

@@ -1,17 +1,25 @@
 #include "image_loader.h"
 
+#include <iostream>
+#include <string>
+
 #include "stb_image.h"
 
 bool LoadTextureFromFile(const char* filename, GLuint* out_texture,
                          int* out_width, int* out_height) {
-  // Load from file
   int image_width = 0;
   int image_height = 0;
-  unsigned char* image_data =
-      stbi_load(filename, &image_width, &image_height, NULL, 4);
-  if (image_data == NULL) return false;
+  int channels = 0;
 
-  // Create a OpenGL texture identifier
+  std::cout << "Loading image: " << filename << std::endl;
+
+  unsigned char* image_data =
+      stbi_load(filename, &image_width, &image_height, &channels, 4);
+  if (image_data == NULL) {
+    std::cout << "Failed to load image: " << stbi_failure_reason() << std::endl;
+    return false;
+  }
+
   GLuint image_texture;
   glGenTextures(1, &image_texture);
   glBindTexture(GL_TEXTURE_2D, image_texture);
@@ -33,6 +41,9 @@ bool LoadTextureFromFile(const char* filename, GLuint* out_texture,
   *out_texture = image_texture;
   *out_width = image_width;
   *out_height = image_height;
+
+  std::cout << "Image loaded successfully: " << image_width << "x"
+            << image_height << std::endl;
 
   return true;
 }

@@ -1,5 +1,5 @@
 add_executable(psm_gui main.cpp image_loader.cpp ui_renderer.cpp
-                       image_processor.cpp conversion_types.h)
+                       image_processor.cpp conversion_types.h file_dialog.cpp)
 
 find_package(glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
