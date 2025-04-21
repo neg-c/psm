@@ -200,14 +200,14 @@ void ControlsArea::renderConversionCombo(float comboWidth) {
 
   ImGui::PushItemWidth(comboWidth);
 
-  if (ImGui::BeginCombo(
-          "##ConversionCombo",
-          m_state.conversion_options[m_state.current_conversion].c_str(),
-          ImGuiComboFlags_HeightLarge)) {
-    for (int i = 0; i < m_state.conversion_options.size(); i++) {
+  if (ImGui::BeginCombo("##ConversionCombo",
+                        m_state.getCurrentConversionName().c_str(),
+                        ImGuiComboFlags_HeightLarge)) {
+    const auto& options = m_state.conversion_registry.getOptions();
+    for (int i = 0; i < options.size(); i++) {
       const bool isSelected = (m_state.current_conversion == i);
-      if (ImGui::Selectable(m_state.conversion_options[i].c_str(), isSelected,
-                            0, ImVec2(0, 30))) {
+      if (ImGui::Selectable(options[i].second.c_str(), isSelected, 0,
+                            ImVec2(0, 30))) {
         m_state.current_conversion = i;
       }
       if (isSelected) {

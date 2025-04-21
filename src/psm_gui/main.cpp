@@ -3,6 +3,7 @@
 
 #include "app_state.h"
 #include "image_loader.h"
+#include "image_processor.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -16,6 +17,30 @@
 // GLFW error callback
 static void glfw_error_callback(int error, const char* description) {
   fprintf(stderr, "GLFW Error %d: %s\n", error, description);
+}
+
+// Add a function to handle the conversion button click
+void HandleConversion(psm_gui::AppState& state) {
+  if (!state.has_image || state.image_texture == 0) {
+    return;
+  }
+
+  // Get the image data from the texture
+  int width = state.image_width;
+  int height = state.image_height;
+  std::vector<unsigned char> imageData(width * height * 3);
+
+  // Bind the texture to read its data
+  glBindTexture(GL_TEXTURE_2D, state.image_texture);
+  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData.data());
+
+  // Process the image
+  if (psm_gui::ImageProcessor::ProcessImage(state, imageData, width, height,
+                                            3)) {
+    // Update the texture with the processed image
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
+                 GL_UNSIGNED_BYTE, imageData.data());
+  }
 }
 
 // Main code
@@ -52,7 +77,7 @@ int main(int, char**) {
   ImGui_ImplOpenGL3_Init(glsl_version);
 
   // Initialize application state
-  AppState state;
+  psm_gui::AppState state;
 
   // Create UI renderer
   psm_gui::UIRenderer uiRenderer(state);

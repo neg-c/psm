@@ -2,10 +2,10 @@
 
 #include <GLFW/glfw3.h>
 
-#include <string>
-#include <vector>
-
+#include "conversion_types.h"
 #include "imgui.h"
+
+namespace psm_gui {
 
 // Application state
 struct AppState {
@@ -15,17 +15,27 @@ struct AppState {
   int image_height = 0;
   bool has_image = false;
 
-  // Conversion options
-  std::vector<std::string> conversion_options = {
-      "RGB to Grayscale", "RGB to HSV", "RGB to YCbCr", "Invert Colors",
-      "Adjust Brightness"};
+  // Conversion state
   int current_conversion = 0;
   int slider_value = 50;
+  int vertical_slider_value = 50;  // Default value
 
   // UI state
   ImVec4 clear_color =
       ImVec4(0.118f, 0.169f, 0.161f, 1.00f);  // rgba(30,43,41,255)
 
-  // Add this to your AppState struct/class:
-  int vertical_slider_value = 50;  // Default value
+  // Conversion registry
+  ConversionRegistry conversion_registry;
+
+  // Helper method to get current conversion type
+  ConversionType getCurrentConversionType() const {
+    return conversion_registry.getConversionType(current_conversion);
+  }
+
+  // Helper method to get current conversion name
+  const std::string& getCurrentConversionName() const {
+    return conversion_registry.getConversionName(current_conversion);
+  }
 };
+
+}  // namespace psm_gui

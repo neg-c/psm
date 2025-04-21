@@ -1,4 +1,5 @@
-add_executable(psm_gui main.cpp image_loader.cpp ui_renderer.cpp)
+add_executable(psm_gui main.cpp image_loader.cpp ui_renderer.cpp
+                       image_processor.cpp conversion_types.h)
 
 find_package(glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
@@ -7,7 +8,7 @@ find_package(Stb REQUIRED)
 
 target_include_directories(psm_gui PRIVATE ${Stb_INCLUDE_DIR})
 
-target_link_libraries(psm_gui PRIVATE imgui::imgui glfw OpenGL::GL)
+target_link_libraries(psm_gui PRIVATE imgui::imgui glfw OpenGL::GL psm::psm)
 
 # Define STB_IMAGE_IMPLEMENTATION in one source file
 target_compile_definitions(psm_gui PRIVATE STB_IMAGE_IMPLEMENTATION)
