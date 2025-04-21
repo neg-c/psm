@@ -1,7 +1,5 @@
 #include "ui_renderer.h"
 
-#include "imgui.h"
-
 namespace psm_gui {
 
 // UIStyleManager implementation
@@ -129,9 +127,41 @@ void ControlsArea::render(float windowWidth, float windowHeight) {
   ImGui::Columns(1);
 }
 
+void ControlsArea::renderVerticalSlider(float width, float height) {
+  // Style the vertical slider to match the horizontal one
+  UIStyleManager frameBg(ImGuiCol_FrameBg, ImVec4(0.2f, 0.2f, 0.3f, 1.0f));
+  UIStyleManager sliderGrab(ImGuiCol_SliderGrab,
+                            ImVec4(0.4f, 0.4f, 0.8f, 0.8f));
+  UIStyleManager sliderGrabActive(ImGuiCol_SliderGrabActive,
+                                  ImVec4(0.5f, 0.5f, 0.9f, 0.8f));
+  UIStyleManager grabMinSize(ImGuiStyleVar_GrabMinSize, 10.0f);
+
+  // Center the slider in the available space - use more of the width
+  const float sliderWidth = width * 0.8f;  // Increased from 0.6f
+  const float sliderPosX = (width - sliderWidth) * 0.5f;
+
+  ImGui::SetCursorPos(ImVec2(sliderPosX, 10.0f));
+
+  ImGui::PushItemWidth(sliderWidth);
+
+  float sliderHeight = height - 20.0f;
+
+  ImGui::VSliderInt("##VerticalSlider", ImVec2(sliderWidth, sliderHeight),
+                    &m_state.vertical_slider_value, 0, 100, "%d%%");
+
+  ImGui::PopItemWidth();
+}
+
 void ControlsArea::renderButtons(float buttonWidth, float buttonHeight) {
+  // Style for button text alignment
+  UIStyleManager buttonTextAlign(ImGuiStyleVar_ButtonTextAlign,
+                                 ImVec2(0.5f, 0.5f));
+
+  UIStyleManager buttonPadding(ImGuiStyleVar_FramePadding, ImVec2(8.0f, 4.0f));
+
   float textWidth = ImGui::CalcTextSize("Load").x;
-  float loadButtonWidth = textWidth + buttonWidth * 0.4f;
+  float loadButtonWidth =
+      textWidth + buttonWidth * 0.6f;  // Increased from 0.4f
 
   if (ImGui::Button("Load", ImVec2(loadButtonWidth, buttonHeight))) {
     // Load button clicked
@@ -140,7 +170,8 @@ void ControlsArea::renderButtons(float buttonWidth, float buttonHeight) {
   ImGui::SameLine();
 
   textWidth = ImGui::CalcTextSize("Convert").x;
-  float convertButtonWidth = textWidth + buttonWidth * 0.4f;
+  float convertButtonWidth =
+      textWidth + buttonWidth * 0.6f;  // Increased from 0.4f
 
   if (ImGui::Button("Convert", ImVec2(convertButtonWidth, buttonHeight))) {
     // Convert button clicked
@@ -263,21 +294,33 @@ void UIRenderer::renderContent(float contentWidth, float contentHeight) {
       "Content", ImVec2(contentWidth, contentHeight), false,
       ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 
-  // Calculate sizes for preview and controls
   const float windowHeight = ImGui::GetWindowHeight();
-  const float controlsHeight = windowHeight * 0.15f;
-  const float spacing = windowHeight * 0.03f;
+
+  const float controlsHeight = windowHeight * 0.10f;  // Reduced from 0.12f
+  const float spacing = windowHeight * 0.02f;
+
   const float previewHeight =
       ImGui::GetContentRegionAvail().y - controlsHeight - spacing;
   const float previewWidth = ImGui::GetContentRegionAvail().x;
 
-  // Render the preview area
-  m_previewArea->render(previewWidth, previewHeight);
+  // Calculate the width for the vertical slider - increase to match horizontal slider height
+  const float verticalSliderWidth =
+      contentWidth * 0.07f;  // Increased from 0.05f
+  const float horizontalSpacing = contentWidth * 0.02f;
+  const float adjustedPreviewWidth =
+      previewWidth - verticalSliderWidth - horizontalSpacing;
+
+  m_controlsArea->renderVerticalSlider(verticalSliderWidth, previewHeight);
+
+  ImGui::SameLine();
+  ImGui::Dummy(ImVec2(horizontalSpacing, 0));
+  ImGui::SameLine();
+
+  m_previewArea->render(adjustedPreviewWidth, previewHeight);
 
   // Vertical spacer
   ImGui::Dummy(ImVec2(0, spacing));
 
-  // Render the controls area
   m_controlsArea->render(contentWidth, controlsHeight);
 
   ImGui::EndChild();  // End Content child

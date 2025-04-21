@@ -25,4 +25,7 @@ struct AppState {
   // UI state
   ImVec4 clear_color =
       ImVec4(0.118f, 0.169f, 0.161f, 1.00f);  // rgba(30,43,41,255)
+
+  // Add this to your AppState struct/class:
+  int vertical_slider_value = 50;  // Default value
 };

@@ -142,6 +142,14 @@ class ControlsArea {
      */
   void render(float windowWidth, float windowHeight);
 
+  /**
+     * @brief Render the vertical slider
+     *
+     * @param width Width of the slider area
+     * @param height Height of the slider area
+     */
+  void renderVerticalSlider(float width, float height);
+
  private:
   AppState& m_state;
 
