@@ -5,6 +5,8 @@
 
 #include "stb_image.h"
 
+namespace psm_gui {
+
 bool LoadTextureFromFile(const char* filename, GLuint* out_texture,
                          int* out_width, int* out_height) {
   int image_width = 0;
@@ -47,3 +49,5 @@ bool LoadTextureFromFile(const char* filename, GLuint* out_texture,
 
   return true;
 }
+
+}  // namespace psm_gui

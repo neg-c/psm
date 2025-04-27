@@ -7,8 +7,6 @@
 #ifdef _WIN32
 #include <commdlg.h>
 #include <windows.h>
-#elif defined(__APPLE__)
-#include <CoreFoundation/CoreFoundation.h>
 #else
 #include <cstdlib>
 #include <cstring>
@@ -40,39 +38,6 @@ std::string OpenImageFileDialog() {
   if (GetOpenFileNameA(&ofn)) {
     filePath = ofn.lpstrFile;
   }
-#elif defined(__APPLE__)
-  // macOS implementation using CoreFoundation
-  CFURLRef fileURL = NULL;
-  CFStringRef message = CFSTR("Select an image file");
-  CFStringRef title = CFSTR("Open");
-
-  CFMutableArrayRef fileTypes =
-      CFArrayCreateMutable(kCFAllocatorDefault, 5, &kCFTypeArrayCallBacks);
-  CFArrayAppendValue(fileTypes, CFSTR("png"));
-  CFArrayAppendValue(fileTypes, CFSTR("jpg"));
-  CFArrayAppendValue(fileTypes, CFSTR("jpeg"));
-  CFArrayAppendValue(fileTypes, CFSTR("bmp"));
-  CFArrayAppendValue(fileTypes, CFSTR("tga"));
-
-  // Create the dialog
-  fileURL = NULL;
-
-  // Convert CFURL to string
-  if (fileURL != NULL) {
-    CFStringRef filePathCF =
-        CFURLCopyFileSystemPath(fileURL, kCFURLPOSIXPathStyle);
-    if (filePathCF) {
-      char buffer[1024];
-      if (CFStringGetCString(filePathCF, buffer, sizeof(buffer),
-                             kCFStringEncodingUTF8)) {
-        filePath = buffer;
-      }
-      CFRelease(filePathCF);
-    }
-    CFRelease(fileURL);
-  }
-
-  CFRelease(fileTypes);
 #else
   // Linux implementation using zenity
   FILE* pipe = popen(

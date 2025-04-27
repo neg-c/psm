@@ -350,4 +350,47 @@ void UIRenderer::renderContent(float contentWidth, float contentHeight) {
   ImGui::End();
 }
 
+void UIRenderer::HandleLoadImage() {
+  // Open file dialog to select an image
+  std::string filePath = OpenImageFileDialog();
+
+  if (!filePath.empty()) {
+    // Clean up previous texture if it exists
+    if (m_state.image_texture) {
+      glDeleteTextures(1, &m_state.image_texture);
+      m_state.image_texture = 0;
+    }
+
+    // Load the new image
+    if (LoadTextureFromFile(filePath.c_str(), &m_state.image_texture,
+                            &m_state.image_width, &m_state.image_height)) {
+      m_state.has_image = true;
+    } else {
+      std::cerr << "Failed to load image: " << filePath << std::endl;
+    }
+  }
+}
+
+void UIRenderer::HandleConversion() {
+  if (!m_state.has_image || m_state.image_texture == 0) {
+    return;
+  }
+
+  // Get the image data from the texture
+  int width = m_state.image_width;
+  int height = m_state.image_height;
+  std::vector<unsigned char> imageData(width * height * 3);
+
+  // Bind the texture to read its data
+  glBindTexture(GL_TEXTURE_2D, m_state.image_texture);
+  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData.data());
+
+  // Process the image
+  if (ImageProcessor::ProcessImage(m_state, imageData, width, height, 3)) {
+    // Update the texture with the processed image
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
+                 GL_UNSIGNED_BYTE, imageData.data());
+  }
+}
+
 }  // namespace psm_gui

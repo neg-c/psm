@@ -22,52 +22,6 @@ static void glfw_error_callback(int error, const char* description) {
   fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
-// Add a function to handle the conversion button click
-void HandleConversion(psm_gui::AppState& state) {
-  if (!state.has_image || state.image_texture == 0) {
-    return;
-  }
-
-  // Get the image data from the texture
-  int width = state.image_width;
-  int height = state.image_height;
-  std::vector<unsigned char> imageData(width * height * 3);
-
-  // Bind the texture to read its data
-  glBindTexture(GL_TEXTURE_2D, state.image_texture);
-  glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData.data());
-
-  // Process the image
-  if (psm_gui::ImageProcessor::ProcessImage(state, imageData, width, height,
-                                            3)) {
-    // Update the texture with the processed image
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-                 GL_UNSIGNED_BYTE, imageData.data());
-  }
-}
-
-// Add a function to handle the load button click
-void HandleLoadImage(psm_gui::AppState& state) {
-  // Open file dialog to select an image
-  std::string filePath = psm_gui::OpenImageFileDialog();
-
-  if (!filePath.empty()) {
-    // Clean up previous texture if it exists
-    if (state.image_texture) {
-      glDeleteTextures(1, &state.image_texture);
-      state.image_texture = 0;
-    }
-
-    // Load the new image
-    if (LoadTextureFromFile(filePath.c_str(), &state.image_texture,
-                            &state.image_width, &state.image_height)) {
-      state.has_image = true;
-    } else {
-      std::cerr << "Failed to load image: " << filePath << std::endl;
-    }
-  }
-}
-
 // Main code
 int main(int, char**) {
   // Setup error callback

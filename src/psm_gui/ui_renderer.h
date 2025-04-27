@@ -43,6 +43,12 @@ class UIRenderer {
      */
   void render();
 
+  // Handle image loading
+  void HandleLoadImage();
+
+  // Handle image conversion
+  void HandleConversion();
+
  private:
   AppState& m_state;
   std::unique_ptr<PreviewArea> m_previewArea;
