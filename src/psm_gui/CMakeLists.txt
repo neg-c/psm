@@ -1,12 +1,21 @@
-add_executable(psm_gui main.cpp image_loader.cpp ui_renderer.cpp
-                       image_processor.cpp conversion_types.h file_dialog.cpp)
+add_executable(
+  psm_gui
+  main.cpp
+  ui/ui_renderer.cpp
+  ui/preview_area.cpp
+  ui/controls_area.cpp
+  style/style_manager.cpp
+  utils/image_loader.cpp
+  utils/image_processor.cpp
+  utils/file_dialog.cpp)
 
 find_package(glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(imgui REQUIRED)
 find_package(Stb REQUIRED)
 
-target_include_directories(psm_gui PRIVATE ${Stb_INCLUDE_DIR})
+target_include_directories(psm_gui PRIVATE ${Stb_INCLUDE_DIR}
+                                           ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(psm_gui PRIVATE imgui::imgui glfw OpenGL::GL psm::psm)
 

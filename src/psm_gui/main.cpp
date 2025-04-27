@@ -1,16 +1,15 @@
 #include <GLFW/glfw3.h>
-#include <stdio.h>
 
 #include <iostream>
 
-#include "app_state.h"
-#include "file_dialog.h"
-#include "image_loader.h"
-#include "image_processor.h"
+#include "app/app_state.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include "ui_renderer.h"
+#include "ui/ui_renderer.h"
+#include "utils/file_dialog.h"
+#include "utils/image_loader.h"
+#include "utils/image_processor.h"
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && \
     !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
