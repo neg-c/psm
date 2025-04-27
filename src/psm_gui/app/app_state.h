@@ -27,6 +27,39 @@ struct AppState {
   // Conversion registry
   ConversionRegistry conversion_registry;
 
+  // Slider values for different color spaces
+  struct {
+    int chromaticity = 50;
+    int coolWarm = 50;
+  } oRGB_sliders;
+
+  struct {
+    int brightness = 50;
+    int contrast = 50;
+  } sRGB_sliders;
+
+  struct {
+    int saturation = 50;
+    int tone = 50;
+  } adobeRGB_sliders;
+
+  struct {
+    int value1 = 50;
+    int value2 = 50;
+  } displayP3_sliders;
+
+  struct {
+    int value1 = 50;
+    int value2 = 50;
+  } proPhotoRGB_sliders;
+
+  // Before/after divider position (0-100%)
+  int beforeAfterDivider = 50;
+
+  // Image metadata
+  std::string fileName;
+  float fileSizeMB = 0.0f;
+
   // Helper method to get current conversion type
   ConversionType getCurrentConversionType() const {
     return conversion_registry.getConversionType(current_conversion);

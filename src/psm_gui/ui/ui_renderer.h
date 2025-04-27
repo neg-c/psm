@@ -57,6 +57,18 @@ class UIRenderer {
 
   void setupMainWindow();
   void renderContent(float contentWidth, float contentHeight);
+  void renderToolbar(float width, float height);
+  void renderMainContent(float width, float height);
+  void renderFilmStrip(float width, float height);
+  void renderDynamicControls(float width, float height);
+  void renderInfoPanel(float width, float height);
+  void renderBeforeAfterPreview(float width, float height);
+
+  void resetSliders();
+  void captureSnapshot();
+  void calculateImageDimensions(float containerWidth, float containerHeight,
+                                int imageWidth, int imageHeight,
+                                float& displayWidth, float& displayHeight);
 };
 
 }  // namespace psm_gui

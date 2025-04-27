@@ -34,7 +34,7 @@ int main(int, char**) {
 
   // Create window with graphics context
   GLFWwindow* window =
-      glfwCreateWindow(800, 610, "PSM GUI Demo", nullptr, nullptr);
+      glfwCreateWindow(1280, 960, "PSM GUI Demo", nullptr, nullptr);
   if (window == nullptr) return 1;
   glfwMakeContextCurrent(window);
   glfwSwapInterval(1);  // Enable vsync
