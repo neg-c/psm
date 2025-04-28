@@ -21,6 +21,24 @@ static void glfw_error_callback(int error, const char* description) {
   fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
+static void calculate_window_size(int& width, int& height) {
+  GLFWmonitor* primary_monitor = glfwGetPrimaryMonitor();
+  if (primary_monitor) {
+    const GLFWvidmode* mode = glfwGetVideoMode(primary_monitor);
+    if (mode) {
+      // Calculate size to be 60% of the monitor's height while maintaining 4:3 ratio
+      height = static_cast<int>(mode->height * 0.6);
+      width = static_cast<int>(height * 4.0 / 3.0);
+
+      // If width is too large for the monitor, scale down based on width instead
+      if (width > mode->width * 0.6) {
+        width = static_cast<int>(mode->width * 0.6);
+        height = static_cast<int>(width * 3.0 / 4.0);
+      }
+    }
+  }
+}
+
 // Main code
 int main(int, char**) {
   // Setup error callback
@@ -32,9 +50,12 @@ int main(int, char**) {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-  // Create window with graphics context
-  GLFWwindow* window =
-      glfwCreateWindow(1280, 960, "PSM GUI Demo", nullptr, nullptr);
+  int window_width = 1280;
+  int window_height = 960;
+  calculate_window_size(window_width, window_height);
+
+  GLFWwindow* window = glfwCreateWindow(window_width, window_height,
+                                        "PSM GUI Demo", nullptr, nullptr);
   if (window == nullptr) return 1;
   glfwMakeContextCurrent(window);
   glfwSwapInterval(1);  // Enable vsync
