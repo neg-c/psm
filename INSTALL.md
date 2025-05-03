@@ -61,7 +61,7 @@ Assuming that the VCPKG_ROOT is set:
    $ cmake --preset <preset-name> -DWITH_ORGB=ON -DWITH_ADOBE_RGB=ON
    ```
 
-   You can control whether the PSM CLI tool is built:
+   You can control whether the PSM CLI and GUI tool is built:
 
    ```bash
    # Disable building PSM CLI (build only the library)
@@ -69,6 +69,12 @@ Assuming that the VCPKG_ROOT is set:
 
    # Enable building PSM CLI (default)
    $ cmake --preset <preset-name> -DBUILD_PSM_CLI=ON
+
+   # Disable building PSM GUI (build only the library)
+   $ cmake --preset <preset-name> -DBUILD_PSM_GUI=OFF
+
+   # Enable building PSM GUI (default)
+   $ cmake --preset <preset-name> -DBUILD_PSM_GUI=ON
    ```
 
    You can also control whether tests are built:

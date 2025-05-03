@@ -2,7 +2,9 @@
   "dependencies": [
     "eigen3",
     "gtest",
-    "stb"
+    "stb",
+    "glfw3",
+    "opengl"
   ],
   "overrides": [
     {
@@ -16,6 +18,14 @@
     {
       "name": "stb",
       "version": "2024-07-29#1"
+    },
+    {
+      "name": "glfw",
+      "version": "3.4"
+    },
+    {
+      "name": "opengl",
+      "version": "2022-12-04#3"
     }
   ]
 }
