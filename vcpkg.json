@@ -4,7 +4,8 @@
     "gtest",
     "stb",
     "glfw3",
-    "opengl"
+    "opengl",
+    { "name": "imgui", "features": ["opengl3-binding", "glfw-binding"] }
   ],
   "overrides": [
     {
@@ -26,6 +27,10 @@
     {
       "name": "opengl",
       "version": "2022-12-04#3"
+    },
+    {
+      "name": "imgui",
+      "version": "1.90#3"
     }
   ]
 }
