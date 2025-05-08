@@ -16,6 +16,7 @@ Application::Application() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwSetErrorCallback(error_callback);
+  AppState{800,600,}
   window_ = glfwCreateWindow(800, 600, "PSM Gui Demo", nullptr, nullptr);
   if (window_ == nullptr) {
     std::cout << "Failed to create GLFW window " << "\n";
