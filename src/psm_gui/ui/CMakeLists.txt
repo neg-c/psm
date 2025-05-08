@@ -1,4 +1,4 @@
-add_libarary(psm_gui_ui_renderer STATIC)
+add_library(psm_gui_ui_renderer STATIC)
 
 target_sources(psm_gui_ui_renderer PRIVATE UIRenderer.cpp)
 target_include_directories(psm_gui_ui_renderer
