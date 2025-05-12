@@ -1,5 +1,7 @@
 #pragma once
 
+#include <imgui.h>
+
 #include "app/AppState.hpp"
 
 namespace psm_gui::ui {
