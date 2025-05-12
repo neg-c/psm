@@ -5,7 +5,10 @@
     "stb",
     "glfw3",
     "opengl",
-    { "name": "imgui", "features": ["opengl3-binding", "glfw-binding"] }
+    {
+      "name": "imgui",
+      "features": ["docking-experimental", "opengl3-binding", "glfw-binding"]
+    }
   ],
   "overrides": [
     {

@@ -6,6 +6,10 @@
 #include <imgui_impl_opengl3.h>
 
 #include <iostream>
+#include <memory>
+
+#include "AppState.hpp"
+#include "UIRenderer.hpp"
 
 namespace psm_gui {
 
@@ -16,8 +20,11 @@ Application::Application() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwSetErrorCallback(error_callback);
-  AppState{800,600,}
-  window_ = glfwCreateWindow(800, 600, "PSM Gui Demo", nullptr, nullptr);
+
+  state_ = AppState{800, 600, 4};
+
+  window_ = glfwCreateWindow(state_.size.width_, state_.size.height_,
+                             "PSM Gui Demo", nullptr, nullptr);
   if (window_ == nullptr) {
     std::cout << "Failed to create GLFW window " << "\n";
     glfwTerminate();
@@ -29,6 +36,7 @@ Application::Application() {
   ImGui::CreateContext();
   ImGuiIO& io = ImGui::GetIO();
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+  io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
   io.IniFilename = nullptr;
 
   ImGui_ImplGlfw_InitForOpenGL(window_, true);
@@ -44,15 +52,16 @@ Application::~Application() {
 }
 
 int Application::run() {
+  auto renderer_ = std::make_unique<ui::UIRenderer>(state_);
   while (!glfwWindowShouldClose(window_)) {
     glfwPollEvents();
     glfwSwapBuffers(window_);
 
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-    ImGui::ShowDemoWindow();
-    ImGui::Render();
+
+    renderer_->render();
+
     glClear(GL_COLOR_BUFFER_BIT);
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
   }

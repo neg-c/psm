@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AppState.hpp"
+#include "app/AppState.hpp"
 
 namespace psm_gui::ui {
 
