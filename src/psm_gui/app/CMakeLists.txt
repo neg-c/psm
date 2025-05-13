@@ -4,6 +4,8 @@ target_include_directories(psm_gui PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(psm_gui PRIVATE glfw OpenGL::GL imgui::imgui psm_gui_ui)
 
+target_compile_features(psm_gui PUBLIC cxx_std_20)
+
 if(MSVC)
   add_custom_command(
     TARGET psm_gui
