@@ -19,7 +19,6 @@ Application::Application() {
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
   glfwSetErrorCallback(error_callback);
 
   GLFWmonitor* primary = glfwGetPrimaryMonitor();
