@@ -19,9 +19,20 @@ Application::Application() {
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
   glfwSetErrorCallback(error_callback);
 
-  state_ = AppState{800, 600, 4};
+  GLFWmonitor* primary = glfwGetPrimaryMonitor();
+  const GLFWvidmode* mode = glfwGetVideoMode(primary);
+  int screenW = mode->width;
+  int screenH = mode->height;
+
+  constexpr float target_width = 1024.0f / 1920.0f;
+  constexpr float target_height = 768.0f / 1080.0f;
+  int winW = static_cast<int>(screenW * target_width + 0.5f);
+  int winH = static_cast<int>(screenH * target_height + 0.5f);
+
+  state_ = AppState{winW, winH, 4};
 
   window_ = glfwCreateWindow(state_.size.width_, state_.size.height_,
                              "PSM Gui Demo", nullptr, nullptr);
