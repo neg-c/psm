@@ -2,34 +2,48 @@
 
 #include <imgui_internal.h>
 
-#include "panels/ControlPanel.hpp"
-#include "panels/PanelRect.hpp"
+#include "panels/HorizontalSlider.hpp"
+#include "panels/InfoPanel.hpp"
 #include "panels/PreviewArea.hpp"
 #include "panels/Toolbar.hpp"
+#include "panels/VerticalSlider.hpp"
 
 namespace psm_gui::ui {
 UIRenderer::UIRenderer(AppState& state) : state_(state) {}
 
 void UIRenderer::render() {
   ImGui::NewFrame();
+
   ImGuiViewport* vp = ImGui::GetMainViewport();
   const ImVec2 origin = vp->WorkPos;
-  const ImVec2 fullSize = vp->WorkSize;
+  const ImVec2 sizeAll = vp->WorkSize;
 
-  // Decide proportions (10% toolbar, 25% ctrl panel)
-  float toolbarH = fullSize.y * 0.10f;
-  float ctrlW = fullSize.x * 0.25f;
-  float previewW = fullSize.x - ctrlW;
-  float lowerH = fullSize.y - toolbarH;
+  float toolbarH = sizeAll.y * 0.10f;  // 10% for toolbar
+  float contentH = sizeAll.y - toolbarH;
 
-  PanelRect toolbarRect{origin, {fullSize.x, toolbarH}};
-  PanelRect controlRect{{origin.x, origin.y + toolbarH}, {ctrlW, lowerH}};
-  PanelRect previewRect{{origin.x + ctrlW, origin.y + toolbarH},
-                        {previewW, lowerH}};
+  constexpr float rowSplit = 0.80f;  // first row = 60%, second = 40%
+  float firstRowH = contentH * rowSplit;
+  float secondRowH = contentH - firstRowH;
 
-  panels::Toolbar::draw(state_, toolbarRect);
-  panels::ControlPanel::draw(state_, controlRect);
-  panels::PreviewArea::draw(state_, previewRect);
+  constexpr float colSplit = 0.20f;  // first col = 60%, second = 40%
+  float firstColW = sizeAll.x * colSplit;
+  float secondColW = sizeAll.x - firstColW;
+
+  PanelRect toolbar{origin, {sizeAll.x, toolbarH}};
+  PanelRect satPanel{{origin.x, origin.y + toolbarH}, {firstColW, firstRowH}};
+  PanelRect preview{{origin.x + firstColW, origin.y + toolbarH},
+                    {secondColW, firstRowH}};
+  PanelRect infoPanel{{origin.x, origin.y + toolbarH + firstRowH},
+                      {firstColW, secondRowH}};
+  PanelRect tonePanel{{origin.x + firstColW, origin.y + toolbarH + firstRowH},
+                      {secondColW, secondRowH}};
+
+  panels::Toolbar::draw(state_, toolbar);
+  panels::VerticalSlider::draw(state_, satPanel);
+  panels::PreviewArea::draw(state_, preview);
+  panels::InfoPanel::draw(state_, infoPanel);
+  panels::HorizontalSlider::draw(state_, tonePanel);
+
   ImGui::Render();
 }
 
