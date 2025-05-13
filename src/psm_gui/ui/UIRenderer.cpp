@@ -2,6 +2,7 @@
 
 #include <imgui_internal.h>
 
+#include "panels/ControlPanel.hpp"
 #include "panels/PanelRect.hpp"
 #include "panels/Toolbar.hpp"
 
@@ -26,6 +27,7 @@ void UIRenderer::render() {
                         {previewW, lowerH}};
 
   panels::Toolbar::draw(state_, toolbarRect);
+  panels::ControlPanel::draw(state_, controlRect);
   ImGui::Render();
 }
 
