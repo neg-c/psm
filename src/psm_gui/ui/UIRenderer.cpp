@@ -4,6 +4,7 @@
 
 #include "panels/ControlPanel.hpp"
 #include "panels/PanelRect.hpp"
+#include "panels/PreviewArea.hpp"
 #include "panels/Toolbar.hpp"
 
 namespace psm_gui::ui {
@@ -28,6 +29,7 @@ void UIRenderer::render() {
 
   panels::Toolbar::draw(state_, toolbarRect);
   panels::ControlPanel::draw(state_, controlRect);
+  panels::PreviewArea::draw(state_, previewRect);
   ImGui::Render();
 }
 
