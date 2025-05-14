@@ -39,6 +39,8 @@ Application::Application() {
     std::cout << "Failed to create GLFW window " << "\n";
     glfwTerminate();
   }
+
+  glfwSetWindowPos(window_, screenW / 5, screenH / 7);
   glfwMakeContextCurrent(window_);
   glfwSetFramebufferSizeCallback(window_, framebuffer_size_callback);
 
