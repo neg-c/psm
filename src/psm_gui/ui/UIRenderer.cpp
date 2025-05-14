@@ -37,14 +37,15 @@ void UIRenderer::render() {
   const float firstColW = availW * colSplit;
   const float secondColW = availW - firstColW;
 
-  PanelRect toolbar{{innerX, innerY}, {innerW, toolbarH}};
+  PanelRect toolbar{.pos = {innerX, innerY}, .size = {innerW, toolbarH}};
   const float row0Y = innerY + toolbarH + pad;
-  PanelRect satPanel{{innerX, row0Y}, {firstColW, firstRowH}};
-  PanelRect preview{{innerX + firstColW + pad, row0Y}, {secondColW, firstRowH}};
+  PanelRect satPanel{.pos = {innerX, row0Y}, .size = {firstColW, firstRowH}};
+  PanelRect preview{.pos = {innerX + firstColW + pad, row0Y},
+                    .size = {secondColW, firstRowH}};
   const float row1Y = row0Y + firstRowH + pad;
-  PanelRect infoPanel{{innerX, row1Y}, {firstColW, secondRowH}};
-  PanelRect tonePanel{{innerX + firstColW + pad, row1Y},
-                      {secondColW, secondRowH}};
+  PanelRect infoPanel{.pos = {innerX, row1Y}, .size = {firstColW, secondRowH}};
+  PanelRect tonePanel{.pos = {innerX + firstColW + pad, row1Y},
+                      .size = {secondColW, secondRowH}};
 
   panels::Toolbar::draw(state_, toolbar);
   panels::VerticalSlider::draw(state_, satPanel);
