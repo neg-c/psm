@@ -23,6 +23,8 @@ void Toolbar::draw(AppState& s, const PanelRect& r) {
       style.WindowPadding.y + ((contentHeight - frameHeight) * 0.5f);
   ImGui::SetCursorPosY(offsetY);
 
+  ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 7.0f);
+  ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10, 10));
   if (ImGui::BeginTable("##ToolbarTable", 3, ImGuiTableFlags_NoPadInnerX)) {
     ImGui::TableSetupColumn("##Combo", ImGuiTableColumnFlags_WidthFixed,
                             comboW);
@@ -49,6 +51,7 @@ void Toolbar::draw(AppState& s, const PanelRect& r) {
     ImGui::SameLine();
     if (ImGui::Button("Save", ImVec2(btnW, 0))) { /*…*/
     }
+    ImGui::PopStyleVar(2);
 
     ImGui::EndTable();
   }
