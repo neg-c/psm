@@ -46,7 +46,7 @@ void Toolbar::draw(AppState& s, const PanelRect& r) {
     float rightPadding = -20.0f;
     float buttonsWidth = totalW - rightPadding;
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (totalW - buttonsWidth));
-    if (ImGui::Button("Reset", ImVec2(btnW, 0))) { /*…*/
+    if (ImGui::Button("Load", ImVec2(btnW, 0))) { /*…*/
     }
     ImGui::SameLine();
     if (ImGui::Button("Save", ImVec2(btnW, 0))) { /*…*/
