@@ -20,7 +20,7 @@ void Toolbar::draw(AppState& s, const PanelRect& r) {
   float contentHeight = r.size.y - (style.WindowPadding.y * 2);
   float frameHeight = ImGui::GetFrameHeight();
   float offsetY =
-      style.WindowPadding.y + ((contentHeight - frameHeight) * 0.5f);
+      style.WindowPadding.y + ((contentHeight - frameHeight) * 0.3f);
   ImGui::SetCursorPosY(offsetY);
 
   ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 7.0f);
