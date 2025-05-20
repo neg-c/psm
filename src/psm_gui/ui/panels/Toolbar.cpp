@@ -2,9 +2,13 @@
 
 #include <imgui.h>
 
+#include <iostream>
+
 namespace psm_gui::ui::panels {
 
 void Toolbar::draw(AppState& s, const PanelRect& r) {
+  controller::ToolbarController toolbarCtl_(s);
+
   ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar |
                            ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
   ImGui::SetNextWindowPos(r.pos);
@@ -46,10 +50,12 @@ void Toolbar::draw(AppState& s, const PanelRect& r) {
     float rightPadding = -20.0f;
     float buttonsWidth = totalW - rightPadding;
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (totalW - buttonsWidth));
-    if (ImGui::Button("Load", ImVec2(btnW, 0))) { /*…*/
+    if (ImGui::Button("Load", ImVec2(btnW, 0))) {
+      toolbarCtl_.loadImage();
     }
     ImGui::SameLine();
-    if (ImGui::Button("Save", ImVec2(btnW, 0))) { /*…*/
+    if (ImGui::Button("Save", ImVec2(btnW, 0))) {
+      toolbarCtl_.saveImage();
     }
     ImGui::PopStyleVar(2);
 

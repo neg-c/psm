@@ -4,6 +4,7 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+#include <nfd.h>
 
 #include <iostream>
 #include <memory>
@@ -17,6 +18,7 @@ Application::Application() {
   // GL 3.0 + GLSL 130
   const char* glsl_version = "#version 130";
   glfwInit();
+  NFD_Init();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwSetErrorCallback(error_callback);
@@ -31,7 +33,7 @@ Application::Application() {
   int winW = static_cast<int>(screenW * target_width + 0.5f);
   int winH = static_cast<int>(screenH * target_height + 0.5f);
 
-  state_ = AppState{winW, winH, 4};
+  state_ = AppState{winW, winH};
 
   window_ = glfwCreateWindow(state_.size.width_, state_.size.height_,
                              "PSM Gui Demo", nullptr, nullptr);
@@ -59,6 +61,7 @@ Application::~Application() {
   ImGui_ImplOpenGL3_Shutdown();
   ImGui_ImplGlfw_Shutdown();
   ImGui::DestroyContext();
+  NFD_Quit();
 
   glfwDestroyWindow(window_);
 }

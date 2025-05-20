@@ -2,6 +2,7 @@
 
 #include "PanelRect.hpp"
 #include "app/AppState.hpp"
+#include "controller/ToolbarController.hpp"
 
 namespace psm_gui::ui::panels {
 struct Toolbar {
