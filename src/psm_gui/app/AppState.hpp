@@ -21,5 +21,10 @@ struct AppState {
     int channels = 0;
   } io;
 
+  struct {
+    float vertical_slider = 0.5f;
+    float horizontal_slider = 0.5f;
+  } sliders;
+
   int selected_colorspace = 0;
 };
