@@ -39,9 +39,12 @@ void Toolbar::draw(AppState& s, const PanelRect& r) {
     ImGui::TableNextColumn();
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.0f);
     ImGui::PushItemWidth(-FLT_MIN);
-    static const char* names[] = {"sRGB", "AdobeRGB", "DisplayP3"};
-    static int current_item = 0;
-    ImGui::Combo("Color Space", &current_item, names, IM_ARRAYSIZE(names));
+    static const char* names[] = {"sRGB", "AdobeRGB", "DisplayP3", "oRGB"};
+
+    if (ImGui::Combo("Color Space", &s.selected_colorspace, names,
+                     IM_ARRAYSIZE(names))) {
+      toolbarCtl_.updateColorSpace(s.selected_colorspace);
+    }
     ImGui::PopItemWidth();
 
     ImGui::TableNextColumn();

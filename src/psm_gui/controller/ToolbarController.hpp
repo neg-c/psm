@@ -9,6 +9,8 @@ class ToolbarController {
   explicit ToolbarController(AppState &state);
   void loadImage();
   void saveImage();
+  void updateColorSpace(int colorspace);
+  void convertImage();
 
  private:
   AppState &state_;
