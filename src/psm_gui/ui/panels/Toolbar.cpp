@@ -16,10 +16,10 @@ void Toolbar::draw(AppState& s, const PanelRect& r) {
   ImGui::Begin("Toolbar", nullptr, flags);
 
   ImGuiStyle& style = ImGui::GetStyle();
-  float btnW = 80.0f;
+  float btnW = 100.0f;
   float spacing = style.ItemSpacing.x;
   float totalW = (btnW * 2) + spacing;
-  float comboW = r.size.x * 0.3f;
+  float comboW = r.size.x * 0.35f;
 
   float contentHeight = r.size.y - (style.WindowPadding.y * 2);
   float frameHeight = ImGui::GetFrameHeight();
@@ -27,8 +27,17 @@ void Toolbar::draw(AppState& s, const PanelRect& r) {
       style.WindowPadding.y + ((contentHeight - frameHeight) * 0.3f);
   ImGui::SetCursorPosY(offsetY);
 
-  ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 7.0f);
-  ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10, 10));
+  ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 8.0f);
+  ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(12, 10));
+  ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.2f, 0.4f, 0.7f, 0.8f));
+  ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.5f, 0.9f, 1.0f));
+  ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.15f, 0.3f, 0.6f, 1.0f));
+  ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.15f, 0.15f, 0.15f, 0.8f));
+  ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImVec4(0.2f, 0.2f, 0.2f, 0.9f));
+  ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImVec4(0.25f, 0.25f, 0.25f, 1.0f));
+  ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+  ImGui::PushStyleColor(ImGuiCol_PopupBg, ImVec4(0.15f, 0.15f, 0.15f, 0.94f));
+
   if (ImGui::BeginTable("##ToolbarTable", 3, ImGuiTableFlags_NoPadInnerX)) {
     ImGui::TableSetupColumn("##Combo", ImGuiTableColumnFlags_WidthFixed,
                             comboW);
@@ -41,7 +50,7 @@ void Toolbar::draw(AppState& s, const PanelRect& r) {
     ImGui::PushItemWidth(-FLT_MIN);
     static const char* names[] = {"sRGB", "AdobeRGB", "DisplayP3", "oRGB"};
 
-    if (ImGui::Combo("Color Space", &s.selected_colorspace, names,
+    if (ImGui::Combo("##ColorSpace", &s.selected_colorspace, names,
                      IM_ARRAYSIZE(names))) {
       toolbarCtl_.updateColorSpace(s.selected_colorspace);
     }
@@ -53,6 +62,7 @@ void Toolbar::draw(AppState& s, const PanelRect& r) {
     float rightPadding = -20.0f;
     float buttonsWidth = totalW - rightPadding;
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (totalW - buttonsWidth));
+
     if (ImGui::Button("Load", ImVec2(btnW, 0))) {
       toolbarCtl_.loadImage();
     }
@@ -60,10 +70,12 @@ void Toolbar::draw(AppState& s, const PanelRect& r) {
     if (ImGui::Button("Save", ImVec2(btnW, 0))) {
       toolbarCtl_.saveImage();
     }
-    ImGui::PopStyleVar(2);
 
     ImGui::EndTable();
   }
+
+  ImGui::PopStyleVar(2);
+  ImGui::PopStyleColor(8);
 
   ImGui::End();
 }
