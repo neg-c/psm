@@ -1,6 +1,7 @@
 add_library(psm_gui_controller STATIC)
 
-target_sources(psm_gui_controller PRIVATE ToolbarController.cpp)
+target_sources(psm_gui_controller PRIVATE ToolbarController.cpp
+                                          PreviewController.cpp)
 
 target_include_directories(
   psm_gui_controller
