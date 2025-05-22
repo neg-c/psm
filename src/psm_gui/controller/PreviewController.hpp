@@ -1,7 +1,8 @@
 #pragma once
 
-#include "app/AppState.hpp"
 #include <GL/glew.h>
+
+#include "app/AppState.hpp"
 
 namespace psm_gui::controller {
 
@@ -18,6 +19,7 @@ class PreviewController {
   static int last_width_;
   static int last_height_;
   static bool last_processed_;
+  static int last_colorspace_;
 };
 
 }  // namespace psm_gui::controller
