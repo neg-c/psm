@@ -6,7 +6,7 @@ target_sources(
           panels/Toolbar.cpp
           panels/ControlPanel.cpp
           panels/PreviewArea.cpp
-          panels/InfoPanel.cpp
+          panels/PixelInfo.cpp
           panels/HorizontalSlider.cpp
           panels/VerticalSlider.cpp)
 target_include_directories(

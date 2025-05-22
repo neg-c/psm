@@ -3,7 +3,7 @@
 #include <imgui_internal.h>
 
 #include "panels/HorizontalSlider.hpp"
-#include "panels/InfoPanel.hpp"
+#include "panels/PixelInfo.hpp"
 #include "panels/PreviewArea.hpp"
 #include "panels/Toolbar.hpp"
 #include "panels/VerticalSlider.hpp"
@@ -50,7 +50,7 @@ void UIRenderer::render() {
   panels::Toolbar::draw(state_, toolbar);
   panels::VerticalSlider::draw(state_, satPanel);
   panels::PreviewArea::draw(state_, preview);
-  panels::InfoPanel::draw(state_, infoPanel);
+  panels::PixelInfo::draw(state_, infoPanel);
   panels::HorizontalSlider::draw(state_, tonePanel);
 
   ImGui::Render();

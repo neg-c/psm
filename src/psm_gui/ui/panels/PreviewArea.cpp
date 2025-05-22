@@ -1,7 +1,8 @@
 #include "panels/PreviewArea.hpp"
 
-#include "PreviewArea.hpp"
 #include <imgui.h>
+
+#include "PreviewArea.hpp"
 #include "controller/PreviewController.hpp"
 
 namespace psm_gui::ui::panels {
@@ -30,12 +31,41 @@ void PreviewArea::draw(AppState& s, const PanelRect& r) {
 
     ImGui::Image((void*)(intptr_t)texture_id, image_size);
 
+    ImVec2 mouse_pos = ImGui::GetMousePos();
+    ImVec2 window_pos = ImGui::GetWindowPos();
+    ImVec2 image_pos = ImVec2(window_pos.x + pos_x, window_pos.y + pos_y);
+
+    if (mouse_pos.x >= image_pos.x &&
+        mouse_pos.x < image_pos.x + image_size.x &&
+        mouse_pos.y >= image_pos.y &&
+        mouse_pos.y < image_pos.y + image_size.y) {
+      float rel_x = (mouse_pos.x - image_pos.x) / image_size.x;
+      float rel_y = (mouse_pos.y - image_pos.y) / image_size.y;
+
+      int pixel_x = static_cast<int>(rel_x * s.io.width);
+      int pixel_y = static_cast<int>(rel_y * s.io.height);
+
+      if (pixel_x >= 0 && pixel_x < s.io.width && pixel_y >= 0 &&
+          pixel_y < s.io.height) {
+        size_t idx = (pixel_y * s.io.width + pixel_x) * s.io.channels;
+        if (idx + 2 < s.io.processed_image.size()) {
+          s.pixel_color.valid = true;
+          s.pixel_color.r = s.io.processed_image[idx];
+          s.pixel_color.g = s.io.processed_image[idx + 1];
+          s.pixel_color.b = s.io.processed_image[idx + 2];
+        }
+      }
+    } else {
+      s.pixel_color.valid = false;
+    }
+
   } else {
     ImVec2 text_size = ImGui::CalcTextSize("No image loaded");
     float pos_x = (r.size.x - text_size.x) * 0.5f;
     float pos_y = (r.size.y - text_size.y) * 0.5f;
     ImGui::SetCursorPos(ImVec2(pos_x, pos_y));
     ImGui::TextDisabled("No image loaded");
+    s.pixel_color.valid = false;
   }
 
   ImGui::End();

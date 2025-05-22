@@ -4,7 +4,7 @@
 #include "app/AppState.hpp"
 
 namespace psm_gui::ui::panels {
-struct InfoPanel {
+struct PixelInfo {
   static void draw(AppState& s, const PanelRect& r);
 };
 }  // namespace psm_gui::ui::panels

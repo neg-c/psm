@@ -26,5 +26,12 @@ struct AppState {
     float horizontal_slider = 0.5f;
   } sliders;
 
+  struct {
+    bool valid = false;
+    unsigned char r = 0;
+    unsigned char g = 0;
+    unsigned char b = 0;
+  } pixel_color;
+
   int selected_colorspace = 0;
 };
