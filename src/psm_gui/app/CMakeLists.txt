@@ -14,5 +14,6 @@ if(MSVC)
     TARGET psm_gui
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:psm_gui>
+            $<TARGET_RUNTIME_DLLS:psm_gui>
     COMMAND_EXPAND_LISTS)
 endif()
