@@ -4,6 +4,7 @@
     "gtest",
     "stb",
     "glfw3",
+    "glew",
     "opengl",
     {
       "name": "imgui",
@@ -25,8 +26,12 @@
       "version": "2024-07-29#1"
     },
     {
-      "name": "glfw",
-      "version": "3.4"
+        "name": "glfw",
+        "version": "3.4"
+    },
+    {
+      "name": "glew",
+      "version": "2.2.0#6"
     },
     {
       "name": "opengl",
