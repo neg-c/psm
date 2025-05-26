@@ -27,7 +27,7 @@ ToolbarController::ToolbarController(AppState &state) : state_(state) {}
 void ToolbarController::loadImage() {
   nfdu8char_t *path = nullptr;
   nfdu8filteritem_t filters[1] = {{"Image files", "png,jpeg,jpg,webp"}};
-  nfdopendialognargs_t args{};
+  nfdopendialogu8args_t args{};
   args.filterList = filters;
   args.filterCount = 1;
 
