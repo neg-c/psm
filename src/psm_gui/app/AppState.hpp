@@ -22,7 +22,7 @@ struct AppState {
   } io;
 
   struct {
-    float vertical_slider = 0.5f;
+    int vertical_slider = 0;
     float horizontal_slider = 0.5f;
   } sliders;
 
