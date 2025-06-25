@@ -8,6 +8,8 @@ int PreviewController::last_width_ = 0;
 int PreviewController::last_height_ = 0;
 bool PreviewController::last_processed_ = false;
 int PreviewController::last_colorspace_ = -1;
+int PreviewController::update_counter_ = 0;
+int PreviewController::last_update_counter_ = 0;
 
 PreviewController::PreviewController(AppState& state) : state_(state) {}
 
@@ -22,9 +24,10 @@ GLuint PreviewController::getOrCreateTexture() {
       last_width_ != state_.io.width || last_height_ != state_.io.height;
   bool processed_changed = last_processed_ != state_.io.image_processed;
   bool colorspace_changed = last_colorspace_ != state_.selected_colorspace;
+  bool force_update = update_counter_ != last_update_counter_;
 
   if (!texture_id_ || image_changed || size_changed || processed_changed ||
-      colorspace_changed) {
+      colorspace_changed || force_update) {
     if (!texture_id_) {
       glGenTextures(1, &texture_id_);
     }
@@ -40,6 +43,7 @@ GLuint PreviewController::getOrCreateTexture() {
     last_height_ = state_.io.height;
     last_processed_ = state_.io.image_processed;
     last_colorspace_ = state_.selected_colorspace;
+    last_update_counter_ = update_counter_;
   }
 
   return texture_id_;

@@ -1,7 +1,8 @@
 #include "VerticalSlider.hpp"
-#include "SliderController.hpp"
 
 #include <imgui.h>
+
+#include "SliderController.hpp"
 
 namespace psm_gui::ui::panels {
 

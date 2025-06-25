@@ -1,5 +1,6 @@
 #include "SliderController.hpp"
 
+#include "PreviewController.hpp"
 #include "psm/adjust_channels.hpp"
 #include "psm/percent.hpp"
 
@@ -8,9 +9,18 @@ SliderController::SliderController(AppState &state) : state_(state) {}
 
 void SliderController::updateImage() {
   if (state_.io.loaded_image) {
-    std::span<const unsigned char> input_span{state_.io.original_image};
-    psm::AdjustChannels(input_span,
+    if (state_.io.processed_image.size() != state_.io.original_image.size()) {
+      state_.io.processed_image.resize(state_.io.original_image.size());
+    }
+    std::copy(state_.io.original_image.begin(), state_.io.original_image.end(),
+              state_.io.processed_image.begin());
+
+    std::span<unsigned char> output_span{state_.io.processed_image};
+    psm::AdjustChannels(output_span,
                         psm::Percent{state_.sliders.vertical_slider, 0, 0});
+
+    state_.io.image_processed = true;
+    PreviewController::forcePreviousUpdate();
   }
 }
 
