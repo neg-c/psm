@@ -36,19 +36,19 @@ void VerticalSlider::draw(AppState& s, const PanelRect& r) {
   ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, sliderWidth * 0.8f);
 
   ImGui::SetCursorPos(ImVec2(centerX, centerY));
-  ImGui::VSliderInt("##VerticalSlider", ImVec2(sliderWidth, sliderHeight),
-                    &s.sliders.vertical_slider, -100, 100, "");
-
+  if (ImGui::VSliderInt("##VerticalSlider", ImVec2(sliderWidth, sliderHeight),
+                        &s.sliders.vertical_slider, -100, 100, "")) {
+    sliderCtl_.updateImage();
+  }
   char label[32];
   snprintf(label, sizeof(label), "%d", s.sliders.vertical_slider);
   ImVec2 textSize = ImGui::CalcTextSize(label);
-  ImGui::SetCursorPos(ImVec2(centerX + (sliderWidth - textSize.x) * 0.5f,
+  ImGui::SetCursorPos(ImVec2(centerX + ((sliderWidth - textSize.x) * 0.5f),
                              centerY + sliderHeight + 5.0f));
   ImGui::Text("%s", label);
 
   ImGui::PopStyleVar(3);
   ImGui::PopStyleColor(5);
-  sliderCtl_.updateImage();
 
   ImGui::End();
 }

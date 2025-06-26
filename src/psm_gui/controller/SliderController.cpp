@@ -9,13 +9,13 @@ SliderController::SliderController(AppState &state) : state_(state) {}
 
 void SliderController::updateImage() {
   if (state_.io.loaded_image) {
-    if (state_.io.processed_image.size() != state_.io.original_image.size()) {
-      state_.io.processed_image.resize(state_.io.original_image.size());
+    if (state_.io.display_image.size() != state_.io.converted_image.size()) {
+      state_.io.display_image.resize(state_.io.converted_image.size());
     }
-    std::copy(state_.io.original_image.begin(), state_.io.original_image.end(),
-              state_.io.processed_image.begin());
+    std::copy(state_.io.converted_image.begin(),
+              state_.io.converted_image.end(), state_.io.display_image.begin());
 
-    std::span<unsigned char> output_span{state_.io.processed_image};
+    std::span<unsigned char> output_span{state_.io.display_image};
     psm::AdjustChannels(output_span,
                         psm::Percent{state_.sliders.vertical_slider, 0, 0});
 

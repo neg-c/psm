@@ -15,7 +15,8 @@ struct AppState {
     bool loaded_image = false;
     bool image_processed = false;
     std::vector<unsigned char> original_image;
-    std::vector<unsigned char> processed_image;
+    std::vector<unsigned char> converted_image;
+    std::vector<unsigned char> display_image;
     int width = 0;
     int height = 0;
     int channels = 0;

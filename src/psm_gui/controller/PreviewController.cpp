@@ -19,7 +19,7 @@ PreviewController::~PreviewController() {
 }
 
 GLuint PreviewController::getOrCreateTexture() {
-  bool image_changed = last_image_update_ != state_.io.processed_image.data();
+  bool image_changed = last_image_update_ != state_.io.display_image.data();
   bool size_changed =
       last_width_ != state_.io.width || last_height_ != state_.io.height;
   bool processed_changed = last_processed_ != state_.io.image_processed;
@@ -36,9 +36,9 @@ GLuint PreviewController::getOrCreateTexture() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, state_.io.width, state_.io.height, 0,
-                 GL_RGB, GL_UNSIGNED_BYTE, state_.io.processed_image.data());
+                 GL_RGB, GL_UNSIGNED_BYTE, state_.io.display_image.data());
 
-    last_image_update_ = state_.io.processed_image.data();
+    last_image_update_ = state_.io.display_image.data();
     last_width_ = state_.io.width;
     last_height_ = state_.io.height;
     last_processed_ = state_.io.image_processed;

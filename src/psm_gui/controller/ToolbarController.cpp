@@ -82,9 +82,9 @@ void ToolbarController::saveImage() {
     NFD_FreePathU8(path);
 
     constexpr int jpeg_quality = 95;
-    bool success = stbi_write_jpg(
-        state_.io.save_path_.c_str(), state_.io.width, state_.io.height,
-        state_.io.channels, state_.io.processed_image.data(), jpeg_quality);
+    bool success = stbi_write_jpg(state_.io.save_path_.c_str(), state_.io.width,
+                                  state_.io.height, state_.io.channels,
+                                  state_.io.display_image.data(), jpeg_quality);
 
     if (!success) {
       std::cerr << "Failed to save image: " << state_.io.save_path_
@@ -108,34 +108,33 @@ void ToolbarController::convertImage() {
 
   const size_t image_size =
       state_.io.width * state_.io.height * state_.io.channels;
-  state_.io.processed_image.resize(image_size);
+  state_.io.converted_image.resize(image_size);
+  state_.io.display_image.resize(image_size);
 
   std::span<const unsigned char> input_span{state_.io.original_image};
-  std::span<unsigned char> output_span{state_.io.processed_image};
+  std::span<unsigned char> converted_span{state_.io.converted_image};
 
   try {
     switch (state_.selected_colorspace) {
       case 0:  // sRGB
-        psm::Convert<psm::sRGB, psm::sRGB>(input_span, output_span);
+        psm::Convert<psm::sRGB, psm::sRGB>(input_span, converted_span);
         break;
       case 1:  // AdobeRGB
-        psm::Convert<psm::sRGB, psm::AdobeRGB>(input_span, output_span);
+        psm::Convert<psm::sRGB, psm::AdobeRGB>(input_span, converted_span);
         break;
       case 2:  // DisplayP3
-        psm::Convert<psm::sRGB, psm::DisplayP3>(input_span, output_span);
+        psm::Convert<psm::sRGB, psm::DisplayP3>(input_span, converted_span);
         break;
       case 3:  // oRGB
-        psm::Convert<psm::sRGB, psm::oRGB>(input_span, output_span);
+        psm::Convert<psm::sRGB, psm::oRGB>(input_span, converted_span);
         break;
       default:
-        psm::Convert<psm::sRGB, psm::sRGB>(input_span, output_span);
+        psm::Convert<psm::sRGB, psm::sRGB>(input_span, converted_span);
     }
 
-    // Apply current slider value after color conversion
-    if (state_.sliders.vertical_slider != 0) {
-      psm::AdjustChannels(output_span,
-                          psm::Percent{state_.sliders.vertical_slider, 0, 0});
-    }
+    // Copy converted image to display image initially
+    std::copy(state_.io.converted_image.begin(),
+              state_.io.converted_image.end(), state_.io.display_image.begin());
 
     state_.io.image_processed = true;
   } catch (const std::exception &e) {
