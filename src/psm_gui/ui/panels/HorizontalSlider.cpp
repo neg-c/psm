@@ -1,8 +1,13 @@
 #include "HorizontalSlider.hpp"
 
+#include <imgui.h>
+
+#include "HSliderController.hpp"
+
 namespace psm_gui::ui::panels {
 
 void HorizontalSlider::draw(AppState& s, const PanelRect& r) {
+  controller::HSliderController sliderCtl_(s);
   ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar |
                            ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
   ImGui::SetNextWindowPos(r.pos);
@@ -21,9 +26,11 @@ void HorizontalSlider::draw(AppState& s, const PanelRect& r) {
   float oldFrameRounding = style.FrameRounding;
 
   ImGui::PushStyleColor(ImGuiCol_SliderGrab, ImVec4(0.3f, 0.7f, 0.9f, 1.0f));
-  ImGui::PushStyleColor(ImGuiCol_SliderGrabActive, ImVec4(0.4f, 0.8f, 1.0f, 1.0f));
+  ImGui::PushStyleColor(ImGuiCol_SliderGrabActive,
+                        ImVec4(0.4f, 0.8f, 1.0f, 1.0f));
   ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.1f, 0.1f, 0.8f));
-  ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImVec4(0.15f, 0.15f, 0.15f, 0.9f));
+  ImGui::PushStyleColor(ImGuiCol_FrameBgHovered,
+                        ImVec4(0.15f, 0.15f, 0.15f, 0.9f));
   ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImVec4(0.2f, 0.2f, 0.2f, 1.0f));
   ImGui::PushStyleVar(ImGuiStyleVar_GrabRounding, 8.0f);
   ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 6.0f);
@@ -31,14 +38,17 @@ void HorizontalSlider::draw(AppState& s, const PanelRect& r) {
 
   ImGui::SetCursorPos(ImVec2(centerX, centerY));
   ImGui::PushItemWidth(sliderWidth);
-  ImGui::SliderFloat("##HorizontalSlider", &s.sliders.horizontal_slider, 0, 1, "");
+  if (ImGui::SliderInt("##HorizontalSlider", &s.sliders.horizontal_slider, -100,
+                       100, "")) {
+    sliderCtl_.updateImage();
+  }
   ImGui::PopItemWidth();
 
   char label[32];
-  snprintf(label, sizeof(label), "%.2f", s.sliders.horizontal_slider);
+  snprintf(label, sizeof(label), "%d", s.sliders.horizontal_slider);
   ImVec2 textSize = ImGui::CalcTextSize(label);
-  ImGui::SetCursorPos(ImVec2((r.size.x - textSize.x) * 0.5f,
-                             centerY + sliderHeight + 5.0f));
+  ImGui::SetCursorPos(
+      ImVec2((r.size.x - textSize.x) * 0.5f, centerY + sliderHeight + 5.0f));
   ImGui::Text("%s", label);
 
   ImGui::PopStyleVar(3);

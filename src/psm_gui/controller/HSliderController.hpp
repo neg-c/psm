@@ -4,9 +4,9 @@
 
 namespace psm_gui::controller {
 
-class VSliderController {
+class HSliderController {
  public:
-  explicit VSliderController(AppState &state);
+  explicit HSliderController(AppState &state);
   void updateImage();  // Updates both R and B channels together
 
  private:

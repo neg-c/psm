@@ -2,7 +2,7 @@ add_library(psm_gui_controller STATIC)
 
 target_sources(
   psm_gui_controller PRIVATE ToolbarController.cpp PreviewController.cpp
-                             VSliderController.cpp)
+                             VSliderController.cpp HSliderController.cpp)
 
 target_include_directories(
   psm_gui_controller
