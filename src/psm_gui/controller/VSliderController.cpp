@@ -1,13 +1,13 @@
-#include "SliderController.hpp"
+#include "VSliderController.hpp"
 
 #include "PreviewController.hpp"
 #include "psm/adjust_channels.hpp"
 #include "psm/percent.hpp"
 
 namespace psm_gui::controller {
-SliderController::SliderController(AppState &state) : state_(state) {}
+VSliderController::VSliderController(AppState &state) : state_(state) {}
 
-void SliderController::updateImage() {
+void VSliderController::updateImage() {
   if (state_.io.loaded_image) {
     if (state_.io.display_image.size() != state_.io.converted_image.size()) {
       state_.io.display_image.resize(state_.io.converted_image.size());

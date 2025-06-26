@@ -2,12 +2,12 @@
 
 #include <imgui.h>
 
-#include "SliderController.hpp"
+#include "VSliderController.hpp"
 
 namespace psm_gui::ui::panels {
 
 void VerticalSlider::draw(AppState& s, const PanelRect& r) {
-  controller::SliderController sliderCtl_(s);
+  controller::VSliderController sliderCtl_(s);
   ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar |
                            ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
   ImGui::SetNextWindowPos(r.pos);

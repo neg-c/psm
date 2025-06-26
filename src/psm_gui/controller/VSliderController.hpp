@@ -4,9 +4,9 @@
 
 namespace psm_gui::controller {
 
-class SliderController {
+class VSliderController {
  public:
-  explicit SliderController(AppState &state);
+  explicit VSliderController(AppState &state);
   void updateImage();
 
  private:
