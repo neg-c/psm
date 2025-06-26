@@ -3,6 +3,7 @@
 #include <nfd.h>
 
 #include "PreviewController.hpp"
+#include "SliderConfig.hpp"
 #include "psm/adjust_channels.hpp"
 #include "psm/detail/orgb.hpp"
 #include "psm/percent.hpp"
@@ -98,6 +99,9 @@ void ToolbarController::updateColorSpace(int colorspace) {
   if (state_.io.loaded_image) {
     convertImage();
 
+    // Update slider configuration for new color space
+    SliderConfig::updateLabels(state_);
+
     // Force preview update after color space conversion
     PreviewController::forcePreviousUpdate();
   }
@@ -116,23 +120,22 @@ void ToolbarController::convertImage() {
 
   try {
     switch (state_.selected_colorspace) {
-      case 0:  // sRGB
+      case 0:
         psm::Convert<psm::sRGB, psm::sRGB>(input_span, converted_span);
         break;
-      case 1:  // AdobeRGB
+      case 1:
         psm::Convert<psm::sRGB, psm::AdobeRGB>(input_span, converted_span);
         break;
-      case 2:  // DisplayP3
+      case 2:
         psm::Convert<psm::sRGB, psm::DisplayP3>(input_span, converted_span);
         break;
-      case 3:  // oRGB
+      case 3:
         psm::Convert<psm::sRGB, psm::oRGB>(input_span, converted_span);
         break;
       default:
         psm::Convert<psm::sRGB, psm::sRGB>(input_span, converted_span);
     }
 
-    // Copy converted image to display image initially
     std::copy(state_.io.converted_image.begin(),
               state_.io.converted_image.end(), state_.io.display_image.begin());
 

@@ -25,6 +25,8 @@ struct AppState {
   struct {
     int vertical_slider = 0;
     int horizontal_slider = 0;
+    std::string vertical_label = "Brightness";
+    std::string horizontal_label = "Contrast";
   } sliders;
 
   struct {

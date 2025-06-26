@@ -51,6 +51,12 @@ void HorizontalSlider::draw(AppState& s, const PanelRect& r) {
       ImVec2((r.size.x - textSize.x) * 0.5f, centerY + sliderHeight + 5.0f));
   ImGui::Text("%s", label);
 
+  // Display the dynamic label showing what this slider does
+  ImVec2 labelSize = ImGui::CalcTextSize(s.sliders.horizontal_label.c_str());
+  ImGui::SetCursorPos(
+      ImVec2((r.size.x - labelSize.x) * 0.5f, centerY + sliderHeight + 25.0f));
+  ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "%s", s.sliders.horizontal_label.c_str());
+
   ImGui::PopStyleVar(3);
   ImGui::PopStyleColor(5);
 

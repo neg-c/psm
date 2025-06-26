@@ -11,6 +11,7 @@
 
 #include "AppState.hpp"
 #include "UIRenderer.hpp"
+#include "controller/SliderConfig.hpp"
 
 namespace psm_gui {
 
@@ -34,6 +35,8 @@ Application::Application() {
   int winH = static_cast<int>(screenH * target_height + 0.5f);
 
   state_ = AppState{winW, winH};
+
+  controller::SliderConfig::updateLabels(state_);
 
   window_ = glfwCreateWindow(state_.size.width_, state_.size.height_,
                              "PSM Gui Demo", nullptr, nullptr);
