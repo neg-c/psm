@@ -12,14 +12,12 @@ void VSliderController::updateImage() {
     if (state_.io.display_image.size() != state_.io.converted_image.size()) {
       state_.io.display_image.resize(state_.io.converted_image.size());
     }
+
     std::copy(state_.io.converted_image.begin(),
               state_.io.converted_image.end(), state_.io.display_image.begin());
 
-    if (state_.sliders.vertical_slider != 0 ||
-        state_.sliders.horizontal_slider != 0) {
-      std::span<unsigned char> output_span{state_.io.display_image};
-      psm::AdjustChannels(output_span, SliderConfig::getAdjustment(state_));
-    }
+    std::span<unsigned char> output_span{state_.io.display_image};
+    psm::AdjustChannels(output_span, SliderConfig::getAdjustment(state_));
 
     state_.io.image_processed = true;
     PreviewController::forcePreviousUpdate();

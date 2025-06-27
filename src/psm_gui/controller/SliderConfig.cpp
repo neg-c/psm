@@ -29,42 +29,35 @@ psm::Percent SliderConfig::getAdjustment(AppState& state) {
 }
 
 psm::Percent SliderConfig::sRGBAdjustment(int vertical, float horizontal) {
-  float brightness_factor = 1.0f + (vertical / 200.0f);
-  float contrast_factor = 1.0f + (horizontal / 200.0f);
+  int brightness_adjustment = vertical / 2;
+  int contrast_adjustment = static_cast<int>(horizontal / 2);
 
-  return psm::Percent{
-      static_cast<int>(brightness_factor * contrast_factor * 100.0f),
-      static_cast<int>(brightness_factor * 100.0f),
-      static_cast<int>(brightness_factor * contrast_factor * 100.0f)};
+  return psm::Percent{brightness_adjustment + contrast_adjustment,
+                      brightness_adjustment,
+                      brightness_adjustment + contrast_adjustment};
 }
 
 psm::Percent SliderConfig::adobeRGBAdjustment(int vertical, float horizontal) {
-  float saturation_factor = 1.0f + (vertical / 200.0f);
-  float green_magenta_factor = 1.0f + (horizontal / 200.0f);
+  int saturation_adjustment = vertical / 2;
+  int green_magenta_adjustment = static_cast<int>(horizontal / 2);
 
-  return psm::Percent{
-      static_cast<int>(100.0f),
-      static_cast<int>(saturation_factor * green_magenta_factor * 100.0f),
-      static_cast<int>(100.0f)};
+  return psm::Percent{0, saturation_adjustment + green_magenta_adjustment, 0};
 }
 
 psm::Percent SliderConfig::displayP3Adjustment(int vertical, float horizontal) {
-  float red_factor = 1.0f + (vertical / 200.0f);
-  float blue_factor = 1.0f + (horizontal / 200.0f);
+  int red_adjustment = vertical / 2;
+  int blue_adjustment = static_cast<int>(horizontal / 2);
 
-  return psm::Percent{static_cast<int>(red_factor * 100.0f),
-                      static_cast<int>(100.0f),
-                      static_cast<int>(blue_factor * 100.0f)};
+  return psm::Percent{red_adjustment, 0, blue_adjustment};
 }
 
 psm::Percent SliderConfig::oRGBAdjustment(int vertical, float horizontal) {
-  float luminance_factor = 1.0f + (vertical / 200.0f);
-  float chroma_factor = 1.0f + (horizontal / 200.0f);
+  int luminance_adjustment = vertical / 2;
+  int chroma_adjustment = static_cast<int>(horizontal / 2);
 
-  return psm::Percent{
-      static_cast<int>(luminance_factor * chroma_factor * 100.0f),
-      static_cast<int>(luminance_factor * 100.0f),
-      static_cast<int>(luminance_factor * chroma_factor * 100.0f)};
+  return psm::Percent{luminance_adjustment + chroma_adjustment,
+                      luminance_adjustment,
+                      luminance_adjustment + chroma_adjustment};
 }
 
 }  // namespace psm_gui::controller
