@@ -3,6 +3,9 @@
 #include <functional>
 #include <map>
 
+#include "psm/adjust_channels.hpp"
+#include "psm/psm.hpp"
+
 namespace psm_gui::controller {
 
 SliderConfig::Config SliderConfig::getConfig(int colorspace) {
@@ -26,6 +29,20 @@ psm::Percent SliderConfig::getAdjustment(AppState& state) {
   Config config = getConfig(state.selected_colorspace);
   return config.adjustment_function(state.sliders.vertical_slider,
                                     state.sliders.horizontal_slider);
+}
+
+void SliderConfig::applyAdjustmentAndConvert(
+    AppState& state, std::span<unsigned char> image_span) {
+  psm::AdjustChannels(image_span, getAdjustment(state));
+
+  if (state.selected_colorspace == 3) {  // oRGB
+    std::vector<unsigned char> temp_image(image_span.size());
+    std::span<unsigned char> temp_span{temp_image};
+
+    psm::Convert<psm::oRGB, psm::sRGB>(image_span, temp_span);
+
+    std::copy(temp_image.begin(), temp_image.end(), image_span.begin());
+  }
 }
 
 psm::Percent SliderConfig::sRGBAdjustment(int vertical, float horizontal) {

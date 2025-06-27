@@ -120,16 +120,16 @@ void ToolbarController::convertImage() {
 
   try {
     switch (state_.selected_colorspace) {
-      case 0:
+      case 0:  // sRGB
         psm::Convert<psm::sRGB, psm::sRGB>(input_span, converted_span);
         break;
-      case 1:
+      case 1:  // AdobeRGB
         psm::Convert<psm::sRGB, psm::AdobeRGB>(input_span, converted_span);
         break;
-      case 2:
+      case 2:  // DisplayP3
         psm::Convert<psm::sRGB, psm::DisplayP3>(input_span, converted_span);
         break;
-      case 3:
+      case 3:  // oRGB
         psm::Convert<psm::sRGB, psm::oRGB>(input_span, converted_span);
         break;
       default:
@@ -138,6 +138,17 @@ void ToolbarController::convertImage() {
 
     std::copy(state_.io.converted_image.begin(),
               state_.io.converted_image.end(), state_.io.display_image.begin());
+
+    if (state_.selected_colorspace == 3) {  // oRGB
+      std::vector<unsigned char> temp_image(state_.io.display_image.size());
+      std::span<unsigned char> temp_span{temp_image};
+
+      psm::Convert<psm::oRGB, psm::sRGB>(
+          std::span<unsigned char>{state_.io.display_image}, temp_span);
+
+      std::copy(temp_image.begin(), temp_image.end(),
+                state_.io.display_image.begin());
+    }
 
     state_.io.image_processed = true;
   } catch (const std::exception &e) {
