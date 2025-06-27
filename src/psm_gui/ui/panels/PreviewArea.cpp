@@ -20,11 +20,25 @@ void PreviewArea::draw(AppState& s, const PanelRect& r) {
     GLuint texture_id = previewCtl.getOrCreateTexture();
 
     ImVec2 content_size = ImGui::GetContentRegionAvail();
+    ImVec2 available_size;
+    available_size.x = content_size.x - 10.0f;
+    available_size.y = content_size.y - 10.0f;
 
     ImVec2 image_size;
-    image_size.x = content_size.x - 10.0f;
-    image_size.y = content_size.y - 10.0f;
+    float image_aspect_ratio =
+        static_cast<float>(s.io.width) / static_cast<float>(s.io.height);
+    float available_aspect_ratio = available_size.x / available_size.y;
 
+    if (image_aspect_ratio > available_aspect_ratio) {
+      // Image is wider than available space, fit to width
+      image_size.x = available_size.x;
+      image_size.y = available_size.x / image_aspect_ratio;
+    } else {
+      // Image is taller than available space, fit to height
+      image_size.y = available_size.y;
+      image_size.x = available_size.y * image_aspect_ratio;
+    }
+    // Center the image
     float pos_x = (content_size.x - image_size.x) * 0.5f;
     float pos_y = (content_size.y - image_size.y) * 0.5f;
     ImGui::SetCursorPos(ImVec2(pos_x, pos_y));
