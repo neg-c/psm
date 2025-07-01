@@ -7,18 +7,20 @@ namespace psm_gui::controller {
 VSliderController::VSliderController(AppState &state) : state_(state) {}
 
 void VSliderController::updateImage() {
-  if (state_.io.loaded_image) {
-    if (state_.io.display_image.size() != state_.io.converted_image.size()) {
-      state_.io.display_image.resize(state_.io.converted_image.size());
+  if (state_.image.is_loaded) {
+    if (state_.image.display_data.size() !=
+        state_.image.converted_data.size()) {
+      state_.image.display_data.resize(state_.image.converted_data.size());
     }
 
-    std::copy(state_.io.converted_image.begin(),
-              state_.io.converted_image.end(), state_.io.display_image.begin());
+    std::copy(state_.image.converted_data.begin(),
+              state_.image.converted_data.end(),
+              state_.image.display_data.begin());
 
-    std::span<unsigned char> output_span{state_.io.display_image};
+    std::span<unsigned char> output_span{state_.image.display_data};
     SliderConfig::applyAdjustmentAndConvert(state_, output_span);
 
-    state_.io.image_processed = true;
+    state_.image.is_processed = true;
     PreviewController::forcePreviousUpdate();
   }
 }

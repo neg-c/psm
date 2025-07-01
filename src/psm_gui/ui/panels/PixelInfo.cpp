@@ -15,13 +15,13 @@ void PixelInfo::draw(AppState& s, const PanelRect& r) {
   ImGui::SetNextWindowSize(r.size);
   ImGui::Begin("PixelInfo", nullptr, flags);
 
-  if (s.pixel_color.valid) {
+  if (s.pixel.is_valid) {
     ImVec2 color_size(r.size.x * 0.8f, r.size.y * 0.6f);
     ImVec2 center_pos = ImVec2(r.size.x * 0.5f - color_size.x * 0.5f, 20);
     ImGui::SetCursorPos(center_pos);
 
-    ImVec4 color = ImVec4(s.pixel_color.r / 255.0f, s.pixel_color.g / 255.0f,
-                          s.pixel_color.b / 255.0f, 1.0f);
+    ImVec4 color = ImVec4(s.pixel.r / 255.0f, s.pixel.g / 255.0f,
+                          s.pixel.b / 255.0f, 1.0f);
 
     ImGui::GetWindowDrawList()->AddRectFilled(
         ImGui::GetCursorScreenPos(),
@@ -32,9 +32,9 @@ void PixelInfo::draw(AppState& s, const PanelRect& r) {
     );
 
     std::stringstream ss;
-    ss << "RGB:(" << static_cast<int>(s.pixel_color.r) << ","
-       << static_cast<int>(s.pixel_color.g) << ","
-       << static_cast<int>(s.pixel_color.b) << ")";
+    ss << "RGB:(" << static_cast<int>(s.pixel.r) << ","
+       << static_cast<int>(s.pixel.g) << ","
+       << static_cast<int>(s.pixel.b) << ")";
 
     std::string rgb_text = ss.str();
     ImVec2 text_size = ImGui::CalcTextSize(rgb_text.c_str());

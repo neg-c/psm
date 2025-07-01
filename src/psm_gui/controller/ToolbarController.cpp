@@ -37,33 +37,34 @@ void ToolbarController::loadImage() {
 
   nfdresult_t result = NFD_OpenDialogU8_With(&path, &args);
   if (result == NFD_OKAY) {
-    state_.io.load_path_ = std::string(path);
+    state_.image.load_path = std::string(path);
     NFD_FreePathU8(path);
 
     int width, height, channels;
     constexpr int target_channels = 3;
 
-    unsigned char *image_data = stbi_load(state_.io.load_path_.c_str(), &width,
-                                          &height, &channels, target_channels);
+    unsigned char *image_data =
+        stbi_load(state_.image.load_path.c_str(), &width, &height, &channels,
+                  target_channels);
 
     if (image_data) {
-      state_.io.width = width;
-      state_.io.height = height;
-      state_.io.channels = target_channels;
+      state_.image.width = width;
+      state_.image.height = height;
+      state_.image.channels = target_channels;
 
       const size_t image_size = width * height * target_channels;
-      state_.io.original_image.resize(image_size);
+      state_.image.original_data.resize(image_size);
       std::copy(image_data, image_data + image_size,
-                state_.io.original_image.begin());
+                state_.image.original_data.begin());
 
       stbi_image_free(image_data);
-      state_.io.loaded_image = true;
+      state_.image.is_loaded = true;
 
       convertImage();
     } else {
-      std::cerr << "Failed to load image: " << state_.io.load_path_
+      std::cerr << "Failed to load image: " << state_.image.load_path
                 << std::endl;
-      state_.io.loaded_image = false;
+      state_.image.is_loaded = false;
     }
   }
 }
@@ -77,18 +78,18 @@ void ToolbarController::saveImage() {
   args.filterCount = 1;
 
   nfdresult_t result = NFD_SaveDialogU8_With(&path, &args);
-  if (result == NFD_OKAY && state_.io.loaded_image &&
-      state_.io.image_processed) {
-    state_.io.save_path_ = std::string(path);
+  if (result == NFD_OKAY && state_.image.is_loaded &&
+      state_.image.is_processed) {
+    state_.image.save_path = std::string(path);
     NFD_FreePathU8(path);
 
     constexpr int jpeg_quality = 95;
-    bool success = stbi_write_jpg(state_.io.save_path_.c_str(), state_.io.width,
-                                  state_.io.height, state_.io.channels,
-                                  state_.io.display_image.data(), jpeg_quality);
+    bool success = stbi_write_jpg(
+        state_.image.save_path.c_str(), state_.image.width, state_.image.height,
+        state_.image.channels, state_.image.display_data.data(), jpeg_quality);
 
     if (!success) {
-      std::cerr << "Failed to save image: " << state_.io.save_path_
+      std::cerr << "Failed to save image: " << state_.image.save_path
                 << std::endl;
     }
   }
@@ -96,7 +97,7 @@ void ToolbarController::saveImage() {
 
 void ToolbarController::updateColorSpace(int colorspace) {
   state_.selected_colorspace = colorspace;
-  if (state_.io.loaded_image) {
+  if (state_.image.is_loaded) {
     convertImage();
 
     // Update slider configuration for new color space
@@ -108,15 +109,14 @@ void ToolbarController::updateColorSpace(int colorspace) {
 }
 
 void ToolbarController::convertImage() {
-  if (!state_.io.loaded_image || state_.io.original_image.empty()) return;
+  if (!state_.image.is_loaded || state_.image.original_data.empty()) return;
 
-  const size_t image_size =
-      state_.io.width * state_.io.height * state_.io.channels;
-  state_.io.converted_image.resize(image_size);
-  state_.io.display_image.resize(image_size);
+  const size_t image_size = state_.image.getImageSize();
+  state_.image.converted_data.resize(image_size);
+  state_.image.display_data.resize(image_size);
 
-  std::span<const unsigned char> input_span{state_.io.original_image};
-  std::span<unsigned char> converted_span{state_.io.converted_image};
+  std::span<const unsigned char> input_span{state_.image.original_data};
+  std::span<unsigned char> converted_span{state_.image.converted_data};
 
   try {
     switch (state_.selected_colorspace) {
@@ -136,24 +136,25 @@ void ToolbarController::convertImage() {
         psm::Convert<psm::sRGB, psm::sRGB>(input_span, converted_span);
     }
 
-    std::copy(state_.io.converted_image.begin(),
-              state_.io.converted_image.end(), state_.io.display_image.begin());
+    std::copy(state_.image.converted_data.begin(),
+              state_.image.converted_data.end(),
+              state_.image.display_data.begin());
 
     if (state_.selected_colorspace == 3) {  // oRGB
-      std::vector<unsigned char> temp_image(state_.io.display_image.size());
+      std::vector<unsigned char> temp_image(state_.image.display_data.size());
       std::span<unsigned char> temp_span{temp_image};
 
       psm::Convert<psm::oRGB, psm::sRGB>(
-          std::span<unsigned char>{state_.io.display_image}, temp_span);
+          std::span<unsigned char>{state_.image.display_data}, temp_span);
 
       std::copy(temp_image.begin(), temp_image.end(),
-                state_.io.display_image.begin());
+                state_.image.display_data.begin());
     }
 
-    state_.io.image_processed = true;
+    state_.image.is_processed = true;
   } catch (const std::exception &e) {
     std::cerr << "Error converting image: " << e.what() << std::endl;
-    state_.io.image_processed = false;
+    state_.image.is_processed = false;
   }
 }
 

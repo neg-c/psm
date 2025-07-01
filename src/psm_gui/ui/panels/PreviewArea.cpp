@@ -16,7 +16,7 @@ void PreviewArea::draw(AppState& s, const PanelRect& r) {
 
   controller::PreviewController previewCtl(s);
 
-  if (s.io.loaded_image && s.io.image_processed) {
+  if (s.image.is_loaded && s.image.is_processed) {
     GLuint texture_id = previewCtl.getOrCreateTexture();
 
     ImVec2 content_size = ImGui::GetContentRegionAvail();
@@ -26,7 +26,7 @@ void PreviewArea::draw(AppState& s, const PanelRect& r) {
 
     ImVec2 image_size;
     float image_aspect_ratio =
-        static_cast<float>(s.io.width) / static_cast<float>(s.io.height);
+        static_cast<float>(s.image.width) / static_cast<float>(s.image.height);
     float available_aspect_ratio = available_size.x / available_size.y;
 
     if (image_aspect_ratio > available_aspect_ratio) {
@@ -56,17 +56,16 @@ void PreviewArea::draw(AppState& s, const PanelRect& r) {
       float rel_x = (mouse_pos.x - image_pos.x) / image_size.x;
       float rel_y = (mouse_pos.y - image_pos.y) / image_size.y;
 
-      int pixel_x = static_cast<int>(rel_x * s.io.width);
-      int pixel_y = static_cast<int>(rel_y * s.io.height);
+      int pixel_x = static_cast<int>(rel_x * s.image.width);
+      int pixel_y = static_cast<int>(rel_y * s.image.height);
 
-      if (pixel_x >= 0 && pixel_x < s.io.width && pixel_y >= 0 &&
-          pixel_y < s.io.height) {
-        size_t idx = (pixel_y * s.io.width + pixel_x) * s.io.channels;
-        if (idx + 2 < s.io.display_image.size()) {
-          s.pixel_color.valid = true;
-          s.pixel_color.r = s.io.display_image[idx];
-          s.pixel_color.g = s.io.display_image[idx + 1];
-          s.pixel_color.b = s.io.display_image[idx + 2];
+      if (pixel_x >= 0 && pixel_x < s.image.width && pixel_y >= 0 &&
+          pixel_y < s.image.height) {
+        size_t idx = (pixel_y * s.image.width + pixel_x) * s.image.channels;
+        if (idx + 2 < s.image.display_data.size()) {
+          s.pixel.setColor(s.image.display_data[idx],
+                          s.image.display_data[idx + 1],
+                          s.image.display_data[idx + 2]);
 
           // Draw magnifying glass
           DrawMagnifyingGlass(s, texture_id, mouse_pos, image_pos, image_size,
@@ -74,7 +73,7 @@ void PreviewArea::draw(AppState& s, const PanelRect& r) {
         }
       }
     } else {
-      s.pixel_color.valid = false;
+      s.pixel.clear();
     }
 
   } else {
@@ -83,7 +82,7 @@ void PreviewArea::draw(AppState& s, const PanelRect& r) {
     float pos_y = (r.size.y - text_size.y) * 0.5f;
     ImGui::SetCursorPos(ImVec2(pos_x, pos_y));
     ImGui::TextDisabled("No image loaded");
-    s.pixel_color.valid = false;
+    s.pixel.clear();
   }
 
   ImGui::End();
@@ -114,10 +113,10 @@ void PreviewArea::DrawMagnifyingGlass(AppState& s, GLuint texture_id,
   ImVec2 p_min = ImVec2(mag_center.x - radius, mag_center.y - radius);
   ImVec2 p_max = ImVec2(mag_center.x + radius, mag_center.y + radius);
 
-  float uv_half_width = (zoom_pixels + 0.5f) / s.io.width;
-  float uv_half_height = (zoom_pixels + 0.5f) / s.io.height;
+  float uv_half_width = (zoom_pixels + 0.5f) / s.image.width;
+  float uv_half_height = (zoom_pixels + 0.5f) / s.image.height;
   ImVec2 uv_center =
-      ImVec2((pixel_x + 0.5f) / s.io.width, (pixel_y + 0.5f) / s.io.height);
+      ImVec2((pixel_x + 0.5f) / s.image.width, (pixel_y + 0.5f) / s.image.height);
   ImVec2 uv_min =
       ImVec2(uv_center.x - uv_half_width, uv_center.y - uv_half_height);
   ImVec2 uv_max =

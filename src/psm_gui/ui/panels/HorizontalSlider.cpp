@@ -38,24 +38,24 @@ void HorizontalSlider::draw(AppState& s, const PanelRect& r) {
 
   ImGui::SetCursorPos(ImVec2(centerX, centerY));
   ImGui::PushItemWidth(sliderWidth);
-  if (ImGui::SliderInt("##HorizontalSlider", &s.sliders.horizontal_slider, -100,
+  if (ImGui::SliderInt("##HorizontalSlider", &s.controls.horizontal_slider, -100,
                        100, "")) {
     sliderCtl_.updateImage();
   }
   ImGui::PopItemWidth();
 
   char label[32];
-  snprintf(label, sizeof(label), "%d", s.sliders.horizontal_slider);
+  snprintf(label, sizeof(label), "%d", s.controls.horizontal_slider);
   ImVec2 textSize = ImGui::CalcTextSize(label);
   ImGui::SetCursorPos(
       ImVec2((r.size.x - textSize.x) * 0.5f, centerY + sliderHeight + 5.0f));
   ImGui::Text("%s", label);
 
   // Display the dynamic label showing what this slider does
-  ImVec2 labelSize = ImGui::CalcTextSize(s.sliders.horizontal_label.c_str());
+  ImVec2 labelSize = ImGui::CalcTextSize(s.controls.horizontal_label.c_str());
   ImGui::SetCursorPos(
       ImVec2((r.size.x - labelSize.x) * 0.5f, centerY + sliderHeight + 25.0f));
-  ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "%s", s.sliders.horizontal_label.c_str());
+  ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "%s", s.controls.horizontal_label.c_str());
 
   ImGui::PopStyleVar(3);
   ImGui::PopStyleColor(5);

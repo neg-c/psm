@@ -38,7 +38,7 @@ Application::Application() {
 
   controller::SliderConfig::updateLabels(state_);
 
-  window_ = glfwCreateWindow(state_.size.width_, state_.size.height_,
+  window_ = glfwCreateWindow(state_.window.width, state_.window.height,
                              "PSM Gui Demo", nullptr, nullptr);
   if (window_ == nullptr) {
     std::cout << "Failed to create GLFW window " << "\n";

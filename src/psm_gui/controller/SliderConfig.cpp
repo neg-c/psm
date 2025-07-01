@@ -21,14 +21,14 @@ SliderConfig::Config SliderConfig::getConfig(int colorspace) {
 
 void SliderConfig::updateLabels(AppState& state) {
   Config config = getConfig(state.selected_colorspace);
-  state.sliders.vertical_label = config.vertical_label;
-  state.sliders.horizontal_label = config.horizontal_label;
+  state.controls.vertical_label = config.vertical_label;
+  state.controls.horizontal_label = config.horizontal_label;
 }
 
 psm::Percent SliderConfig::getAdjustment(AppState& state) {
   Config config = getConfig(state.selected_colorspace);
-  return config.adjustment_function(state.sliders.vertical_slider,
-                                    state.sliders.horizontal_slider);
+  return config.adjustment_function(state.controls.vertical_slider,
+                                    state.controls.horizontal_slider);
 }
 
 void SliderConfig::applyAdjustmentAndConvert(

@@ -37,21 +37,21 @@ void VerticalSlider::draw(AppState& s, const PanelRect& r) {
 
   ImGui::SetCursorPos(ImVec2(centerX, centerY));
   if (ImGui::VSliderInt("##VerticalSlider", ImVec2(sliderWidth, sliderHeight),
-                        &s.sliders.vertical_slider, -100, 100, "")) {
+                        &s.controls.vertical_slider, -100, 100, "")) {
     sliderCtl_.updateImage();
   }
   char label[32];
-  snprintf(label, sizeof(label), "%d", s.sliders.vertical_slider);
+  snprintf(label, sizeof(label), "%d", s.controls.vertical_slider);
   ImVec2 textSize = ImGui::CalcTextSize(label);
   ImGui::SetCursorPos(ImVec2(centerX + ((sliderWidth - textSize.x) * 0.5f),
                              centerY + sliderHeight + 5.0f));
   ImGui::Text("%s", label);
 
   // Display the dynamic label showing what this slider does
-  ImVec2 labelSize = ImGui::CalcTextSize(s.sliders.vertical_label.c_str());
+  ImVec2 labelSize = ImGui::CalcTextSize(s.controls.vertical_label.c_str());
   ImGui::SetCursorPos(ImVec2(centerX + ((sliderWidth - labelSize.x) * 0.5f),
                              centerY + sliderHeight + 25.0f));
-  ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "%s", s.sliders.vertical_label.c_str());
+  ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "%s", s.controls.vertical_label.c_str());
 
   ImGui::PopStyleVar(3);
   ImGui::PopStyleColor(5);

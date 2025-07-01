@@ -19,10 +19,10 @@ PreviewController::~PreviewController() {
 }
 
 GLuint PreviewController::getOrCreateTexture() {
-  bool image_changed = last_image_update_ != state_.io.display_image.data();
+  bool image_changed = last_image_update_ != state_.image.display_data.data();
   bool size_changed =
-      last_width_ != state_.io.width || last_height_ != state_.io.height;
-  bool processed_changed = last_processed_ != state_.io.image_processed;
+      last_width_ != state_.image.width || last_height_ != state_.image.height;
+  bool processed_changed = last_processed_ != state_.image.is_processed;
   bool colorspace_changed = last_colorspace_ != state_.selected_colorspace;
   bool force_update = update_counter_ != last_update_counter_;
 
@@ -36,13 +36,14 @@ GLuint PreviewController::getOrCreateTexture() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, state_.io.width, state_.io.height, 0,
-                 GL_RGB, GL_UNSIGNED_BYTE, state_.io.display_image.data());
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, state_.image.width,
+                 state_.image.height, 0, GL_RGB, GL_UNSIGNED_BYTE,
+                 state_.image.display_data.data());
 
-    last_image_update_ = state_.io.display_image.data();
-    last_width_ = state_.io.width;
-    last_height_ = state_.io.height;
-    last_processed_ = state_.io.image_processed;
+    last_image_update_ = state_.image.display_data.data();
+    last_width_ = state_.image.width;
+    last_height_ = state_.image.height;
+    last_processed_ = state_.image.is_processed;
     last_colorspace_ = state_.selected_colorspace;
     last_update_counter_ = update_counter_;
   }
