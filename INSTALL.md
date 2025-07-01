@@ -65,10 +65,10 @@ Assuming that the VCPKG_ROOT is set:
 
    ```bash
    # Disable building PSM CLI (build only the library)
-   $ cmake --preset <preset-name> -DBUILD_PSM_CLI=OFF
+   $ cmake --preset <preset-name> -DBUILD_PSM_CLI=OFF -DBUILD_PSM_GUI=OFF
 
-   # Enable building PSM CLI (default)
-   $ cmake --preset <preset-name> -DBUILD_PSM_CLI=ON
+   # Enable building PSM CLI with GUI (default)
+   $ cmake --preset <preset-name> -DBUILD_PSM_CLI=ON -DBUILD_PSM_GUI=ON
 
    # Disable building PSM GUI (build only the library)
    $ cmake --preset <preset-name> -DBUILD_PSM_GUI=OFF
@@ -112,3 +112,17 @@ $ ctest
 Note that tests are only built for modules that are being built. For example, if
 you only build the Adobe RGB module with `-DWITH_ADOBE_RGB=ON`, only the Adobe
 RGB tests will be available.
+
+## Running the Tools
+
+After building, you can run the included tools:
+
+```bash
+# Run the command-line tool
+$ ./psm_cli --help
+
+# Run the GUI demo tool (if built)
+$ ./psm_gui
+```
+
+The GUI tool provides an interactive interface for exploring color space conversions and image processing capabilities.
