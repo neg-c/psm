@@ -51,7 +51,8 @@ void VerticalSlider::draw(AppState& s, const PanelRect& r) {
   ImVec2 labelSize = ImGui::CalcTextSize(s.controls.vertical_label.c_str());
   ImGui::SetCursorPos(ImVec2(centerX + ((sliderWidth - labelSize.x) * 0.5f),
                              centerY + sliderHeight + 25.0f));
-  ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "%s", s.controls.vertical_label.c_str());
+  ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "%s",
+                     s.controls.vertical_label.c_str());
 
   ImGui::PopStyleVar(3);
   ImGui::PopStyleColor(5);

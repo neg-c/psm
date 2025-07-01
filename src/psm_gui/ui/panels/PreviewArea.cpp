@@ -64,8 +64,8 @@ void PreviewArea::draw(AppState& s, const PanelRect& r) {
         size_t idx = (pixel_y * s.image.width + pixel_x) * s.image.channels;
         if (idx + 2 < s.image.display_data.size()) {
           s.pixel.setColor(s.image.display_data[idx],
-                          s.image.display_data[idx + 1],
-                          s.image.display_data[idx + 2]);
+                           s.image.display_data[idx + 1],
+                           s.image.display_data[idx + 2]);
 
           // Draw magnifying glass
           DrawMagnifyingGlass(s, texture_id, mouse_pos, image_pos, image_size,
@@ -115,8 +115,8 @@ void PreviewArea::DrawMagnifyingGlass(AppState& s, GLuint texture_id,
 
   float uv_half_width = (zoom_pixels + 0.5f) / s.image.width;
   float uv_half_height = (zoom_pixels + 0.5f) / s.image.height;
-  ImVec2 uv_center =
-      ImVec2((pixel_x + 0.5f) / s.image.width, (pixel_y + 0.5f) / s.image.height);
+  ImVec2 uv_center = ImVec2((pixel_x + 0.5f) / s.image.width,
+                            (pixel_y + 0.5f) / s.image.height);
   ImVec2 uv_min =
       ImVec2(uv_center.x - uv_half_width, uv_center.y - uv_half_height);
   ImVec2 uv_max =

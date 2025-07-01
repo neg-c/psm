@@ -33,8 +33,8 @@ void PixelInfo::draw(AppState& s, const PanelRect& r) {
 
     std::stringstream ss;
     ss << "RGB:(" << static_cast<int>(s.pixel.r) << ","
-       << static_cast<int>(s.pixel.g) << ","
-       << static_cast<int>(s.pixel.b) << ")";
+       << static_cast<int>(s.pixel.g) << "," << static_cast<int>(s.pixel.b)
+       << ")";
 
     std::string rgb_text = ss.str();
     ImVec2 text_size = ImGui::CalcTextSize(rgb_text.c_str());
