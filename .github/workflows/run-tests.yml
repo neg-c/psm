@@ -21,7 +21,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y git curl wget tar zip unzip cmake pkg-config
-          sudo apt-get install -y libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libglu1-mesa autoconf libltdl-dev
+          sudo apt-get install -y libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libglu1-mesa autoconf libltdl-dev libgl-dev
 
       - name: Setup GCC
         run: |
