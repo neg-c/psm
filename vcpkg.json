@@ -2,7 +2,15 @@
   "dependencies": [
     "eigen3",
     "gtest",
-    "stb"
+    "stb",
+    "glfw3",
+    "glew",
+    "opengl",
+    {
+      "name": "imgui",
+      "features": ["docking-experimental", "opengl3-binding", "glfw-binding"]
+    },
+    "nativefiledialog-extended"
   ],
   "overrides": [
     {
@@ -16,6 +24,26 @@
     {
       "name": "stb",
       "version": "2024-07-29#1"
+    },
+    {
+        "name": "glfw",
+        "version": "3.4"
+    },
+    {
+      "name": "glew",
+      "version": "2.2.0#6"
+    },
+    {
+      "name": "opengl",
+      "version": "2022-12-04#3"
+    },
+    {
+      "name": "imgui",
+      "version": "1.90#3"
+    },
+    {
+      "name": "nativefiledialog-extended",
+      "version": "1.2.1"
     }
   ]
 }

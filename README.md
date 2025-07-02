@@ -36,6 +36,7 @@ as an independent module:
 - **Container Flexibility**: Works with any container that satisfies
   `std::ranges::contiguous_range`
 - **Command-line Tool**: Includes a CLI utility for image processing
+- **GUI Demo Tool**: Interactive desktop application for real-time color space exploration
 
 ## Supported Containers
 
@@ -83,6 +84,11 @@ Prisma has the following dependencies:
 - **Optional Dependencies**:
   - [GoogleTest](https://github.com/google/googletest) - Used for testing only
   - [STB](https://github.com/nothings/stb) - Used for the CLI tool only
+  - [GLFW](https://www.glfw.org/) - Used for the GUI tool only
+  - [OpenGL](https://www.opengl.org/) - Used for the GUI tool only
+  - [ImGui](https://github.com/ocornut/imgui) - Used for the GUI tool only
+  - [GLEW](https://glew.sourceforge.net/) - Used for the GUI tool only
+  - [Native File Dialog](https://github.com/mlabbe/nativefiledialog-extended) - Used for the GUI tool only
 
 When using vcpkg, these dependencies are automatically managed. The optional
 components (tests and CLI tool) can be disabled during the build process if you
@@ -200,6 +206,41 @@ psm_cli --help
 -a, --adjust R,G,B     Adjust channels by percent (e.g., 10,5,-5)
 -h, --help             Show this help message
 ```
+
+## GUI Demo Tool
+
+Prisma includes an interactive GUI demo tool (`psm_gui`) that provides a visual interface for exploring color space conversions and image processing:
+
+### Features
+
+- **Real-time Image Processing**: Load images and see instant color space conversions
+- **Interactive Controls**: Dual-axis sliders with color space-specific adjustments
+- **Live Preview**: Real-time image preview with pixel inspection and magnifying glass
+- **Multiple Color Spaces**: Switch between sRGB, AdobeRGB, DisplayP3, and oRGB
+- **Pixel Inspection**: Hover over any pixel to see its RGB values
+- **Modern Interface**: Clean, responsive UI built with ImGui
+
+### Color Space-Specific Controls
+
+Each color space provides unique slider controls optimized for its characteristics:
+
+- **sRGB**: Luminance and Contrast adjustments
+- **AdobeRGB**: Saturation and Magenta-Green balance
+- **DisplayP3**: Contrast and Red-Orange balance  
+- **oRGB**: Chromaticity and Temperature adjustments
+
+### Usage
+
+```bash
+# Run the GUI tool
+psm_gui
+```
+
+The GUI tool provides an intuitive way to:
+- Explore different color spaces and their visual characteristics
+- Experiment with channel adjustments in real-time
+- Understand how color space conversions affect image appearance
+- Test the PSM library's capabilities interactively
 
 ## Integration with CMake
 
