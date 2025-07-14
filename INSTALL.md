@@ -62,7 +62,7 @@ sudo zypper install curl zip unzip tar pkg-config libXrandr-devel libXinerama-de
 <summary><strong>CentOS/RHEL</strong></summary>
 
 ```bash
-sudo yum install curl zip unzip tar pkgconfig libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel mesa-libGLU autoconf libtool-devel mesa-libGL-devel
+sudo yum install zip unzip tar pkgconfig libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel mesa-libGLU autoconf libtool mesa-libGL-devel
 ```
 </details>
 
