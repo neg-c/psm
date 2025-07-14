@@ -38,7 +38,7 @@ sudo apt install curl zip unzip tar g++ pkg-config python3-jinja2 libxrandr-dev 
 <summary><strong>Fedora</strong></summary>
 
 ```bash
-sudo dnf install curl zip unzip tar gcc g++ pkgconfig libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel mesa-libGLU autoconf mesa-libGL-devel
+sudo dnf install curl zip unzip tar gcc g++ pkgconfig automake libtool diffutils perl-open.noarch perl python3-jinja2 libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel mesa-libGLU autoconf mesa-libGL-devel
 ```
 </details>
 
