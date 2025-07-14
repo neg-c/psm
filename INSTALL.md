@@ -46,7 +46,7 @@ sudo dnf install curl zip unzip tar gcc g++ pkgconfig automake libtool diffutils
 <summary><strong>Arch Linux</strong></summary>
 
 ```bash
-sudo pacman -S curl zip unzip tar pkg-config libxrandr libxinerama libxcursor libxi glu autoconf libtool mesa
+sudo pacman -S curl zip unzip tar pkg-config gcc python3 automake make python-jinja libxrandr libxinerama libxcursor libxi glu autoconf libtool mesa
 ```
 </details>
 
