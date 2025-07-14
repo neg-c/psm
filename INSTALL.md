@@ -38,7 +38,7 @@ sudo apt install curl zip unzip tar pkg-config libxrandr-dev libxinerama-dev lib
 <summary><strong>Fedora</strong></summary>
 
 ```bash
-sudo dnf install curl zip unzip tar pkgconfig libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel mesa-libGLU autoconf libtool-devel mesa-libGL-devel
+sudo dnf install curl zip unzip tar pkgconfig libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel mesa-libGLU autoconf mesa-libGL-devel
 ```
 </details>
 
