@@ -30,7 +30,7 @@ distribution:
 <summary><strong>Ubuntu/Debian</strong></summary>
 
 ```bash
-sudo apt install curl zip unzip tar pkg-config libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libglu1-mesa autoconf libltdl-dev libgl-dev
+sudo apt install curl zip unzip tar g++ pkg-config python3-jinja2 libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libglu1-mesa autoconf libltdl-dev libgl-dev
 ```
 </details>
 
