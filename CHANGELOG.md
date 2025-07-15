@@ -6,6 +6,50 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-07-15
+
+### Added
+
+- **PSM GUI Demo Tool**:
+  - Introduced a new GUI demo tool (`psm_gui`) for interactive color space conversion and image processing.
+  - Features include:
+    - Image loading and saving with native file dialogs (NFD).
+    - Real-time color space conversion between sRGB, AdobeRGB, DisplayP3, and oRGB.
+    - Modern UI with ImGui, including toolbar, control panels, and preview area.
+    - Vertical and horizontal sliders for channel and color adjustments, with color space-specific schemes.
+    - Pixel color picker and magnifying glass for pixel-level inspection.
+    - Responsive image preview with aspect ratio preservation and OpenGL rendering.
+    - Centralized state management and intuitive controls for color grading workflows.
+  - Built by default; can be disabled with `-DBUILD_PSM_GUI=OFF`.
+
+### Changed
+
+- **GUI Enhancements**:
+  - Improved layout and panel grid logic for better usability.
+  - Added modern slider styles and dynamic slider labels based on color space.
+  - Implemented color space-specific adjustment algorithms for professional color grading.
+  - Enhanced preview area with OpenGL texture management and aspect ratio preservation.
+  - Improved state management and encapsulation for maintainability.
+  - Refactored code for better organization, readability, and maintainability.
+
+### Fixed
+
+- Addressed build issues related to GLEW and OpenGL dependencies, especially for Linux and Windows.
+- Fixed image preview artifacts by setting proper OpenGL texture alignment.
+- Resolved issues with slider sensitivity and image update mechanisms for smoother adjustments.
+- Fixed transitive dependency issues with libxcrypt and vcpkg baseline updates for GCC 15 compatibility.
+
+### Documentation
+
+- Added comprehensive documentation for the GUI demo tool in `README.md` and `INSTALL.md`.
+- Documented system dependencies and installation instructions for major Linux distributions.
+- Clarified build options and tool usage in project documentation.
+
+### Infrastructure
+
+- Updated CMake options to allow flexible builds (e.g., `BUILD_PSM_GUI`, `BUILD_PSM_CLI`).
+- Improved CI/CD workflows to handle new dependencies and build configurations.
+
 ## [1.0.0] - 2025-03-10
 
 ### Breaking Changes
@@ -390,6 +434,7 @@ psm::Convert<psm::sRGB, psm::oRGB>(input_image, output_image);
   - Code formatting checks
   - Release automation
 
+[1.1.0]: https://github.com/neg-c/psm/releases/tag/v1.1.0
 [1.0.0]: https://github.com/neg-c/psm/releases/tag/v1.0.0
 [0.3.0-alpha]: https://github.com/neg-c/psm/releases/tag/v0.3.0-alpha
 [0.2.0-alpha]: https://github.com/neg-c/psm/releases/tag/v0.2.0-alpha
