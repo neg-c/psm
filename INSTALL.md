@@ -70,7 +70,7 @@ sudo yum install zip unzip tar pkgconfig g++ diffutils perl python3-jinja2 libXr
 <summary><strong>Alpine Linux</strong></summary>
 
 ```bash
-sudo apk add curl zip unzip tar pkg-config libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev glu autoconf libtool mesa-gl
+sudo apk add buil-tools ninja curl zip unzip tar pkg-config gcc g++ diffutils perl py3-jinja2 make libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev glu autoconf libtool mesa-gl
 ```
 </details>
 
