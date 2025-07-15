@@ -18,6 +18,62 @@ On Windows, Visual Studio comes with `vcpkg` integrated. You can proceed to the
 ### Linux
 
 On Linux, `vcpkg` is not pre-installed, so you'll need to install it manually.
+Additionally, you'll need to install some system-wide packages for development
+dependencies.
+
+#### System Dependencies
+
+Before proceeding with the build, install the required system packages for your
+distribution:
+
+<details>
+<summary><strong>Ubuntu/Debian</strong></summary>
+
+```bash
+sudo apt install curl zip unzip tar g++ pkg-config python3-jinja2 libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libglu1-mesa autoconf libltdl-dev libgl-dev
+```
+</details>
+
+<details>
+<summary><strong>Fedora</strong></summary>
+
+```bash
+sudo dnf install curl zip unzip tar gcc g++ pkgconfig automake libtool diffutils perl-open.noarch perl python3-jinja2 libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel mesa-libGLU autoconf mesa-libGL-devel
+```
+</details>
+
+<details>
+<summary><strong>Arch Linux</strong></summary>
+
+```bash
+sudo pacman -S curl zip unzip tar pkg-config gcc python3 automake make python-jinja libxrandr libxinerama libxcursor libxi glu autoconf libtool mesa
+```
+</details>
+
+<details>
+<summary><strong>openSUSE</strong></summary>
+
+```bash
+sudo zypper install curl zip unzip tar pkg-config libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel Mesa-libGLU autoconf libtool-devel Mesa-libGL-devel
+```
+</details>
+
+<details>
+<summary><strong>CentOS/RHEL</strong></summary>
+
+```bash
+sudo yum install zip unzip tar pkgconfig g++ diffutils perl python3-jinja2 libXrandr-devel libXinerama-devel libXcursor-devel libXi-devel mesa-libGLU autoconf libtool mesa-libGL-devel
+```
+</details>
+
+<details>
+<summary><strong>Alpine Linux</strong></summary>
+
+```bash
+sudo apk add buil-tools ninja curl zip unzip tar pkg-config gcc g++ diffutils perl py3-jinja2 make libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev glu autoconf libtool mesa-gl
+```
+</details>
+
 Follow these steps to set it up, then proceed to the **Building** section.
 
 ### Install vcpkg
