@@ -11,6 +11,7 @@ target_link_libraries(psm_gui PRIVATE glfw OpenGL::GL imgui::imgui psm_gui_ui
 target_compile_features(psm_gui PUBLIC cxx_std_20)
 
 if(MSVC)
+  target_link_options(psm_gui PRIVATE "/SUBSYSTEM:WINDOWS" "/ENTRY:mainCRTStartup")
   add_custom_command(
     TARGET psm_gui
     POST_BUILD
