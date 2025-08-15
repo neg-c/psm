@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2025-08-15
+
+### Fixed
+
+- **Windows GUI Application**: Fixed missing DLL dependencies (`glfw3.dll`, `nfd.dll`) in Windows installer packages by properly installing runtime dependencies using `$<TARGET_RUNTIME_DLLS:psm_gui>` in the installation configuration.
+- **Windows GUI Application**: Configured GUI application to launch without console window by setting `/SUBSYSTEM:WINDOWS` and `/ENTRY:mainCRTStartup` linker options.
+
 ## [1.1.0] - 2025-07-15
 
 ### Added
@@ -55,14 +62,12 @@ and this project adheres to
 ### Breaking Changes
 
 - **Standardized RGB/BGR Color Format Handling**:
-
   - Changed the expected color format from BGR to RGB across the codebase.
   - Updated color space implementations to work with RGB input directly.
   - **Migration Note**: Code that previously relied on BGR format will need to
     be updated.
 
 - **Const Correctness in Color Space Conversions**:
-
   - Made source parameters const in color space conversion functions.
   - Updated ColorSpaceType concept to require const source parameters.
   - **Migration Note**: This should be transparent for most users but may affect
@@ -80,14 +85,12 @@ and this project adheres to
 ### Added
 
 - **New Color Spaces**:
-
   - **Display P3**: Added support for Display P3 color space with D65 white
     point and sRGB transfer function.
   - **ProPhoto RGB**: Added support for ProPhoto RGB color space with D50 white
     point and proper gamma encoding/decoding.
 
 - **Command-Line Interface**:
-
   - Added a new CLI tool (`psm_cli`) for color space conversion and channel
     adjustment.
   - Supports all color spaces in the library (sRGB, AdobeRGB, DisplayP3, oRGB,
@@ -95,14 +98,12 @@ and this project adheres to
   - Uses STB image libraries for image I/O.
 
 - **Visual Documentation**:
-
   - Added comprehensive visual examples showing color space conversions and
     channel adjustments.
   - Demonstrates practical benefits of different color spaces, particularly
     highlighting oRGB's perceptually uniform channels.
 
 - **Input Validation**:
-
   - Added validation check in `Convert` function to ensure input buffer size is
     a multiple of 3.
   - Throws `std::invalid_argument` if validation fails.
@@ -118,7 +119,6 @@ and this project adheres to
 ### Changed
 
 - **CMake Enhancements**:
-
   - Replaced custom `PSM_BUILD_TESTS` option with standard `BUILD_TESTING` flag
     from CTest module.
   - Conditionally build tests based on module availability.
@@ -134,7 +134,6 @@ and this project adheres to
 ### Infrastructure
 
 - **CI/CD Improvements**:
-
   - Added test status reporting workflow and badge.
   - Configured clang-tidy to use separate configs for src and test directories.
   - Added test-specific clang-tidy configuration to handle test-specific
@@ -434,6 +433,7 @@ psm::Convert<psm::sRGB, psm::oRGB>(input_image, output_image);
   - Code formatting checks
   - Release automation
 
+[1.1.1]: https://github.com/neg-c/psm/releases/tag/v1.1.1
 [1.1.0]: https://github.com/neg-c/psm/releases/tag/v1.1.0
 [1.0.0]: https://github.com/neg-c/psm/releases/tag/v1.0.0
 [0.3.0-alpha]: https://github.com/neg-c/psm/releases/tag/v0.3.0-alpha
