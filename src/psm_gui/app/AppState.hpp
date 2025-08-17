@@ -1,6 +1,8 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace psm_gui {
@@ -26,19 +28,64 @@ struct AppState {
     std::string save_path;
     bool is_loaded = false;
     bool is_processed = false;
-    std::vector<unsigned char> original_data;
-    std::vector<unsigned char> converted_data;
-    std::vector<unsigned char> display_data;
+
+    // Support for both 8-bit and 16-bit image data
+    enum class BitDepth { BITS_8 = 8, BITS_16 = 16 };
+    BitDepth bit_depth = BitDepth::BITS_8;
+
+    // Use variant to store different data types
+    std::variant<std::vector<std::uint8_t>, std::vector<std::uint16_t>>
+        original_data;
+    std::variant<std::vector<std::uint8_t>, std::vector<std::uint16_t>>
+        converted_data;
+    std::variant<std::vector<std::uint8_t>, std::vector<std::uint16_t>>
+        display_data;
+
     int width = 0;
     int height = 0;
     int channels = 3;  // Default to RGB
 
     bool hasValidImage() const {
-      return is_loaded && width > 0 && height > 0 && !original_data.empty();
+      return is_loaded && width > 0 && height > 0 &&
+             (std::holds_alternative<std::vector<std::uint8_t>>(
+                  original_data) ||
+              std::holds_alternative<std::vector<std::uint16_t>>(
+                  original_data));
     }
 
     size_t getImageSize() const {
       return static_cast<size_t>(width) * height * channels;
+    }
+
+    // Helper functions to get data as specific type
+    template <typename T>
+    const std::vector<T>& getOriginalData() const {
+      return std::get<std::vector<T>>(original_data);
+    }
+
+    template <typename T>
+    std::vector<T>& getOriginalData() {
+      return std::get<std::vector<T>>(original_data);
+    }
+
+    template <typename T>
+    const std::vector<T>& getConvertedData() const {
+      return std::get<std::vector<T>>(converted_data);
+    }
+
+    template <typename T>
+    std::vector<T>& getConvertedData() {
+      return std::get<std::vector<T>>(converted_data);
+    }
+
+    template <typename T>
+    const std::vector<T>& getDisplayData() const {
+      return std::get<std::vector<T>>(display_data);
+    }
+
+    template <typename T>
+    std::vector<T>& getDisplayData() {
+      return std::get<std::vector<T>>(display_data);
     }
 
     void clear() {
@@ -46,12 +93,13 @@ struct AppState {
       save_path.clear();
       is_loaded = false;
       is_processed = false;
-      original_data.clear();
-      converted_data.clear();
-      display_data.clear();
+      original_data = std::vector<std::uint8_t>{};
+      converted_data = std::vector<std::uint8_t>{};
+      display_data = std::vector<std::uint8_t>{};
       width = 0;
       height = 0;
       channels = 3;
+      bit_depth = BitDepth::BITS_8;
     }
   } image;
 

@@ -1,6 +1,9 @@
 #include "psm/adjust_channels.hpp"
 
 #include <Eigen/Dense>
+#include <cstdint>
+
+#include "psm/detail/pixel_transformation.hpp"
 
 namespace psm::detail {
 
@@ -16,14 +19,34 @@ void adjustChannels(std::span<T> buffer, const Percent& adjust_percentage) {
       static_cast<float>(adjust_percentage.channel(1)) / 100.0f,
       static_cast<float>(adjust_percentage.channel(2)) / 100.0f;
 
-  split_src = (split_src.template cast<float>().array() *
-               (1.0f + adjustments.replicate(split_src.rows(), 1)))
-                  .cwiseMin(255.0f)
-                  .cwiseMax(0.0f)
-                  .template cast<T>();
+  // Use appropriate normalization based on data type
+  Eigen::MatrixXf normalized_src;
+  if constexpr (std::is_same_v<T, std::uint16_t>) {
+    normalized_src = normalize16(split_src);
+  } else {
+    normalized_src = normalize(split_src);
+  }
+
+  // Apply adjustments
+  Eigen::MatrixXf adjusted =
+      (normalized_src.array() *
+       (1.0f + adjustments.replicate(split_src.rows(), 1)))
+          .cwiseMin(1.0f)
+          .cwiseMax(0.0f);
+
+  // Use appropriate denormalization based on data type
+  if constexpr (std::is_same_v<T, std::uint16_t>) {
+    split_src = denormalize_as16<T>(adjusted);
+  } else {
+    split_src = denormalize_as<T>(adjusted);
+  }
 }
 
 template void adjustChannels<unsigned char>(std::span<unsigned char>,
+                                            const Percent&);
+
+// Add 16-bit support
+template void adjustChannels<std::uint16_t>(std::span<std::uint16_t>,
                                             const Percent&);
 
 }  // namespace psm::detail

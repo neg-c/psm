@@ -2,6 +2,7 @@
 
 #include <Eigen/Dense>
 #include <cmath>
+#include <cstdint>
 
 #include "psm/detail/colorspace.hpp"
 #include "psm/detail/pixel_transformation.hpp"
@@ -36,7 +37,14 @@ namespace psm::detail {
 template <typename T>
 void DisplayP3::fromSRGB(std::span<const T> src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
-  psm::detail::RowXf norm_src = transform::srgb::decode(map_src);
+
+  // Use appropriate normalization based on data type
+  psm::detail::RowXf norm_src;
+  if constexpr (std::is_same_v<T, std::uint16_t>) {
+    norm_src = transform::srgb::decode16(map_src);
+  } else {
+    norm_src = transform::srgb::decode(map_src);
+  }
 
   // Assuming RGB/BGR as input
   const psm::detail::Mat3fView norm_rgb(norm_src.data(), norm_src.cols() / 3,
@@ -54,13 +62,26 @@ void DisplayP3::fromSRGB(std::span<const T> src, std::span<T> dst) {
                                       encoded_display_p3.size() / 3, 3);
 
   Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
-  dst_map = psm::detail::denormalize_as<T>(result);
+
+  // Use appropriate denormalization based on data type
+  if constexpr (std::is_same_v<T, std::uint16_t>) {
+    dst_map = psm::detail::denormalize_as16<T>(result);
+  } else {
+    dst_map = psm::detail::denormalize_as<T>(result);
+  }
 }
 
 template <typename T>
 void DisplayP3::toSRGB(std::span<const T> src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
-  psm::detail::RowXf norm_src = transform::srgb::decode(map_src);
+
+  // Use appropriate normalization based on data type
+  psm::detail::RowXf norm_src;
+  if constexpr (std::is_same_v<T, std::uint16_t>) {
+    norm_src = transform::srgb::decode16(map_src);
+  } else {
+    norm_src = transform::srgb::decode(map_src);
+  }
 
   // Assuming RGB/BGR as input
   const psm::detail::Mat3fView display_p3(norm_src.data(), norm_src.cols() / 3,
@@ -76,11 +97,23 @@ void DisplayP3::toSRGB(std::span<const T> src, std::span<T> dst) {
                                       encoded_srgb.size() / 3, 3);
 
   Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
-  dst_map = psm::detail::denormalize_as<T>(result);
+
+  // Use appropriate denormalization based on data type
+  if constexpr (std::is_same_v<T, std::uint16_t>) {
+    dst_map = psm::detail::denormalize_as16<T>(result);
+  } else {
+    dst_map = psm::detail::denormalize_as<T>(result);
+  }
 }
 
 template void DisplayP3::fromSRGB<unsigned char>(std::span<const unsigned char>,
                                                  std::span<unsigned char>);
 template void DisplayP3::toSRGB<unsigned char>(std::span<const unsigned char>,
                                                std::span<unsigned char>);
+
+// Add 16-bit support
+template void DisplayP3::fromSRGB<std::uint16_t>(std::span<const std::uint16_t>,
+                                                 std::span<std::uint16_t>);
+template void DisplayP3::toSRGB<std::uint16_t>(std::span<const std::uint16_t>,
+                                               std::span<std::uint16_t>);
 }  // namespace psm::detail

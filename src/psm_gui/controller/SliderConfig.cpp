@@ -33,6 +33,8 @@ psm::Percent SliderConfig::getAdjustment(AppState& state) {
 
 void SliderConfig::applyAdjustmentAndConvert(
     AppState& state, std::span<unsigned char> image_span) {
+  // This function is now deprecated - use the templated version instead
+  // Keeping for backward compatibility but it only handles 8-bit data
   psm::AdjustChannels(image_span, getAdjustment(state));
 
   if (state.selected_colorspace == 3) {  // oRGB
@@ -44,6 +46,27 @@ void SliderConfig::applyAdjustmentAndConvert(
     std::copy(temp_image.begin(), temp_image.end(), image_span.begin());
   }
 }
+
+template <typename T>
+void SliderConfig::applyAdjustmentAndConvertT(AppState& state,
+                                              std::span<T> image_span) {
+  psm::AdjustChannels(image_span, getAdjustment(state));
+
+  if (state.selected_colorspace == 3) {  // oRGB
+    std::vector<T> temp_image(image_span.size());
+    std::span<T> temp_span{temp_image};
+
+    psm::Convert<psm::oRGB, psm::sRGB>(image_span, temp_span);
+
+    std::copy(temp_image.begin(), temp_image.end(), image_span.begin());
+  }
+}
+
+// Explicit template instantiations
+template void SliderConfig::applyAdjustmentAndConvertT<std::uint8_t>(
+    AppState& state, std::span<std::uint8_t> image_span);
+template void SliderConfig::applyAdjustmentAndConvertT<std::uint16_t>(
+    AppState& state, std::span<std::uint16_t> image_span);
 
 psm::Percent SliderConfig::sRGBAdjustment(int vertical, float horizontal) {
   int luminance_adjustment = vertical / 2;

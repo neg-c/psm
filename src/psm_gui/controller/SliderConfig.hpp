@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <functional>
 #include <span>
 #include <vector>
@@ -22,6 +23,11 @@ class SliderConfig {
   static psm::Percent getAdjustment(AppState& state);
   static void applyAdjustmentAndConvert(AppState& state,
                                         std::span<unsigned char> image_span);
+
+  // Templated version for both 8-bit and 16-bit data
+  template <typename T>
+  static void applyAdjustmentAndConvertT(AppState& state,
+                                         std::span<T> image_span);
 
  private:
   static psm::Percent sRGBAdjustment(int vertical, float horizontal);
