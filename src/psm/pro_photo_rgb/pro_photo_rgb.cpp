@@ -38,13 +38,7 @@ template <typename T>
 void ProPhotoRgb::fromSRGB(std::span<const T> src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
 
-  // Use appropriate normalization based on data type
-  psm::detail::RowXf norm_src;
-  if constexpr (std::is_same_v<T, std::uint16_t>) {
-    norm_src = transform::srgb::decode16(map_src);
-  } else {
-    norm_src = transform::srgb::decode(map_src);
-  }
+  psm::detail::RowXf norm_src = transform::srgb::decode(map_src);
 
   // Assuming RGB/BGR as input
   const psm::detail::Mat3fView norm_rgb(norm_src.data(), norm_src.cols() / 3,
@@ -76,25 +70,14 @@ void ProPhotoRgb::fromSRGB(std::span<const T> src, std::span<T> dst) {
 
   Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
 
-  // Use appropriate denormalization based on data type
-  if constexpr (std::is_same_v<T, std::uint16_t>) {
-    dst_map = psm::detail::denormalize_as16<T>(result);
-  } else {
-    dst_map = psm::detail::denormalize_as<T>(result);
-  }
+  dst_map = psm::detail::denormalize_as<T>(result);
 }
 
 template <typename T>
 void ProPhotoRgb::toSRGB(std::span<const T> src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
 
-  // Use appropriate normalization based on data type
-  psm::detail::RowXf norm_src;
-  if constexpr (std::is_same_v<T, std::uint16_t>) {
-    norm_src = psm::detail::normalize16(map_src);
-  } else {
-    norm_src = psm::detail::normalize(map_src);
-  }
+  psm::detail::RowXf norm_src = psm::detail::normalize_pixels(map_src);
 
   psm::detail::RowXf decoded_pro_photo = norm_src.unaryExpr([](float value) {
     return (value < 16.0f / 512.0f) ? (value / 16.0f) : (std::pow(value, 1.8f));
@@ -127,12 +110,7 @@ void ProPhotoRgb::toSRGB(std::span<const T> src, std::span<T> dst) {
 
   Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
 
-  // Use appropriate denormalization based on data type
-  if constexpr (std::is_same_v<T, std::uint16_t>) {
-    dst_map = psm::detail::denormalize_as16<T>(result);
-  } else {
-    dst_map = psm::detail::denormalize_as<T>(result);
-  }
+  dst_map = psm::detail::denormalize_as<T>(result);
 }
 
 template void ProPhotoRgb::fromSRGB<unsigned char>(
