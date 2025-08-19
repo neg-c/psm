@@ -21,8 +21,8 @@ void HSliderController::updateImage() {
         state_.image.converted_data = std::vector<std::uint16_t>(image_size);
       }
 
-      auto& converted_data = state_.image.getConvertedData<std::uint16_t>();
-      auto& display_data = state_.image.getDisplayData<std::uint16_t>();
+      auto& converted_data = std::get<std::vector<std::uint16_t>>(state_.image.converted_data);
+      auto& display_data = std::get<std::vector<std::uint16_t>>(state_.image.display_data);
 
       std::copy(converted_data.begin(), converted_data.end(),
                 display_data.begin());
@@ -40,8 +40,8 @@ void HSliderController::updateImage() {
         state_.image.converted_data = std::vector<std::uint8_t>(image_size);
       }
 
-      auto& converted_data = state_.image.getConvertedData<std::uint8_t>();
-      auto& display_data = state_.image.getDisplayData<std::uint8_t>();
+      auto& converted_data = std::get<std::vector<std::uint8_t>>(state_.image.converted_data);
+      auto& display_data = std::get<std::vector<std::uint8_t>>(state_.image.display_data);
 
       std::copy(converted_data.begin(), converted_data.end(),
                 display_data.begin());

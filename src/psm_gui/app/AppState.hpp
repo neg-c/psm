@@ -47,45 +47,12 @@ struct AppState {
 
     bool hasValidImage() const {
       return is_loaded && width > 0 && height > 0 &&
-             (std::holds_alternative<std::vector<std::uint8_t>>(
-                  original_data) ||
-              std::holds_alternative<std::vector<std::uint16_t>>(
-                  original_data));
+             (std::holds_alternative<std::vector<std::uint8_t>>(original_data) ||
+              std::holds_alternative<std::vector<std::uint16_t>>(original_data));
     }
 
     size_t getImageSize() const {
       return static_cast<size_t>(width) * height * channels;
-    }
-
-    // Helper functions to get data as specific type
-    template <typename T>
-    const std::vector<T>& getOriginalData() const {
-      return std::get<std::vector<T>>(original_data);
-    }
-
-    template <typename T>
-    std::vector<T>& getOriginalData() {
-      return std::get<std::vector<T>>(original_data);
-    }
-
-    template <typename T>
-    const std::vector<T>& getConvertedData() const {
-      return std::get<std::vector<T>>(converted_data);
-    }
-
-    template <typename T>
-    std::vector<T>& getConvertedData() {
-      return std::get<std::vector<T>>(converted_data);
-    }
-
-    template <typename T>
-    const std::vector<T>& getDisplayData() const {
-      return std::get<std::vector<T>>(display_data);
-    }
-
-    template <typename T>
-    std::vector<T>& getDisplayData() {
-      return std::get<std::vector<T>>(display_data);
     }
 
     void clear() {

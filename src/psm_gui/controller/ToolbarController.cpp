@@ -168,7 +168,7 @@ void ToolbarController::saveImage() {
       std::cout << "  Converting 16-bit data to 8-bit for saving..."
                 << std::endl;
       // Convert 16-bit data to 8-bit for saving
-      auto& display_data_16 = state_.image.getDisplayData<std::uint16_t>();
+      auto& display_data_16 = std::get<std::vector<std::uint16_t>>(state_.image.display_data);
       std::vector<std::uint8_t> display_data_8(display_data_16.size());
 
       for (size_t i = 0; i < display_data_16.size(); ++i) {
@@ -182,7 +182,7 @@ void ToolbarController::saveImage() {
     } else {
       std::cout << "  Saving 8-bit data directly..." << std::endl;
       // 8-bit data can be saved directly
-      auto& display_data_8 = state_.image.getDisplayData<std::uint8_t>();
+      auto& display_data_8 = std::get<std::vector<std::uint8_t>>(state_.image.display_data);
       success =
           stbi_write_jpg(state_.image.save_path.c_str(), state_.image.width,
                          state_.image.height, state_.image.channels,
@@ -305,9 +305,9 @@ void ToolbarController::convertImage() {
     state_.image.converted_data = std::vector<std::uint8_t>(image_size);
     state_.image.display_data = std::vector<std::uint8_t>(image_size);
 
-    auto& original_data = state_.image.getOriginalData<std::uint8_t>();
-    auto& converted_data = state_.image.getConvertedData<std::uint8_t>();
-    auto& display_data = state_.image.getDisplayData<std::uint8_t>();
+    auto& original_data = std::get<std::vector<std::uint8_t>>(state_.image.original_data);
+    auto& converted_data = std::get<std::vector<std::uint8_t>>(state_.image.converted_data);
+    auto& display_data = std::get<std::vector<std::uint8_t>>(state_.image.display_data);
 
     std::span<const std::uint8_t> input_span{original_data};
     std::span<std::uint8_t> converted_span{converted_data};
