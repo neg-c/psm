@@ -109,7 +109,6 @@ namespace psm::detail {
 template <typename T>
 void Orgb::fromSRGB(std::span<const T> src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
-
   psm::detail::RowXf norm_src = psm::detail::normalize_pixels(map_src);
 
   // Assuming RGB/BGR as input
@@ -124,14 +123,12 @@ void Orgb::fromSRGB(std::span<const T> src, std::span<T> dst) {
   const psm::detail::RowXfView result(
       shifted_orgb.data(), shifted_orgb.cols() * shifted_orgb.rows());
   Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
-
   dst_map = psm::detail::denormalize_as<T>(result);
 }
 
 template <typename T>
 void Orgb::toSRGB(std::span<const T> src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
-
   psm::detail::RowXf norm_src = psm::detail::normalize_pixels(map_src);
 
   // Assuming RGB/BGR as input for oRGB
@@ -146,7 +143,6 @@ void Orgb::toSRGB(std::span<const T> src, std::span<T> dst) {
 
   const psm::detail::RowXfView result(rgb.data(), rgb.cols() * rgb.rows());
   Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
-
   dst_map = psm::detail::denormalize_as<T>(result);
 }
 
@@ -155,7 +151,6 @@ template void Orgb::fromSRGB<unsigned char>(std::span<const unsigned char>,
 template void Orgb::toSRGB<unsigned char>(std::span<const unsigned char>,
                                           std::span<unsigned char>);
 
-// Add 16-bit support
 template void Orgb::fromSRGB<std::uint16_t>(std::span<const std::uint16_t>,
                                             std::span<std::uint16_t>);
 template void Orgb::toSRGB<std::uint16_t>(std::span<const std::uint16_t>,

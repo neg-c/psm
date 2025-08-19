@@ -37,7 +37,6 @@ namespace psm::detail {
 template <typename T>
 void DisplayP3::fromSRGB(std::span<const T> src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
-
   psm::detail::RowXf norm_src = transform::srgb::decode(map_src);
 
   // Assuming RGB/BGR as input
@@ -56,14 +55,12 @@ void DisplayP3::fromSRGB(std::span<const T> src, std::span<T> dst) {
                                       encoded_display_p3.size() / 3, 3);
 
   Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
-
   dst_map = psm::detail::denormalize_as<T>(result);
 }
 
 template <typename T>
 void DisplayP3::toSRGB(std::span<const T> src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
-
   psm::detail::RowXf norm_src = transform::srgb::decode(map_src);
 
   // Assuming RGB/BGR as input
@@ -80,7 +77,6 @@ void DisplayP3::toSRGB(std::span<const T> src, std::span<T> dst) {
                                       encoded_srgb.size() / 3, 3);
 
   Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
-
   dst_map = psm::detail::denormalize_as<T>(result);
 }
 
@@ -89,7 +85,6 @@ template void DisplayP3::fromSRGB<unsigned char>(std::span<const unsigned char>,
 template void DisplayP3::toSRGB<unsigned char>(std::span<const unsigned char>,
                                                std::span<unsigned char>);
 
-// Add 16-bit support
 template void DisplayP3::fromSRGB<std::uint16_t>(std::span<const std::uint16_t>,
                                                  std::span<std::uint16_t>);
 template void DisplayP3::toSRGB<std::uint16_t>(std::span<const std::uint16_t>,

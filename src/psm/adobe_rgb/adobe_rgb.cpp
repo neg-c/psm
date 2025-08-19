@@ -36,7 +36,6 @@ namespace psm::detail {
 template <typename T>
 void AdobeRgb::fromSRGB(std::span<const T> src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
-
   psm::detail::RowXf norm_src = transform::srgb::decode(map_src);
 
   // Assuming RGB/BGR as input
@@ -54,14 +53,12 @@ void AdobeRgb::fromSRGB(std::span<const T> src, std::span<T> dst) {
                                       encoded_adobe_rgb.size() / 3, 3);
 
   Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
-
   dst_map = psm::detail::denormalize_as<T>(result);
 }
 
 template <typename T>
 void AdobeRgb::toSRGB(std::span<const T> src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
-
   psm::detail::RowXf norm_src = transform::srgb::decode(map_src);
 
   // Assuming RGB/BGR as input
@@ -78,7 +75,6 @@ void AdobeRgb::toSRGB(std::span<const T> src, std::span<T> dst) {
                                       encoded_srgb.size() / 3, 3);
 
   Eigen::Map<Eigen::RowVectorX<T>> dst_map(dst.data(), dst.size());
-
   dst_map = psm::detail::denormalize_as<T>(result);
 }
 
@@ -87,7 +83,6 @@ template void AdobeRgb::fromSRGB<unsigned char>(std::span<const unsigned char>,
 template void AdobeRgb::toSRGB<unsigned char>(std::span<const unsigned char>,
                                               std::span<unsigned char>);
 
-// Add 16-bit support
 template void AdobeRgb::fromSRGB<std::uint16_t>(std::span<const std::uint16_t>,
                                                 std::span<std::uint16_t>);
 template void AdobeRgb::toSRGB<std::uint16_t>(std::span<const std::uint16_t>,

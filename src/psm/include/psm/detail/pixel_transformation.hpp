@@ -22,7 +22,7 @@ auto normalize_pixels(const Eigen::MatrixBase<Derived>& src) {
     return src.template cast<float>();
   } else if constexpr (std::is_integral_v<Scalar> &&
                        std::is_unsigned_v<Scalar>) {
-    const float scale = static_cast<float>(std::numeric_limits<Scalar>::max());
+    const auto scale = static_cast<float>(std::numeric_limits<Scalar>::max());
     return src.template cast<float>() / scale;
   } else {
     static_assert(std::is_same_v<Scalar, void>,

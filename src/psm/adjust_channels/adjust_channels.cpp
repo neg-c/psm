@@ -10,7 +10,6 @@ namespace psm::detail {
 template <typename T>
 void adjustChannels(std::span<T> buffer, const Percent& adjust_percentage) {
   Eigen::Map<Eigen::RowVectorX<T>> map_src(buffer.data(), buffer.size());
-
   Eigen::Map<Eigen::Matrix<T, Eigen::Dynamic, 3, Eigen::RowMajor>> split_src(
       map_src.data(), buffer.size() / 3, 3);
 
@@ -20,7 +19,6 @@ void adjustChannels(std::span<T> buffer, const Percent& adjust_percentage) {
       static_cast<float>(adjust_percentage.channel(2)) / 100.0f;
 
   Eigen::MatrixXf normalized_src = normalize_pixels(split_src);
-
   Eigen::MatrixXf adjusted =
       (normalized_src.array() *
        (1.0f + adjustments.replicate(split_src.rows(), 1)))
@@ -33,7 +31,6 @@ void adjustChannels(std::span<T> buffer, const Percent& adjust_percentage) {
 template void adjustChannels<unsigned char>(std::span<unsigned char>,
                                             const Percent&);
 
-// Add 16-bit support
 template void adjustChannels<std::uint16_t>(std::span<std::uint16_t>,
                                             const Percent&);
 
