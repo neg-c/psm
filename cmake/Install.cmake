@@ -29,9 +29,10 @@ if(BUILD_PSM_GUI)
   install(TARGETS psm_gui RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                   COMPONENT applications)
 
-  install(FILES $<TARGET_RUNTIME_DLLS:psm_gui>
-          DESTINATION ${CMAKE_INSTALL_BINDIR}
-          COMPONENT applications)
+  install(
+    FILES $<TARGET_RUNTIME_DLLS:psm_gui>
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+    COMPONENT applications)
 endif()
 
 # Run ldconfig on Unix systems
