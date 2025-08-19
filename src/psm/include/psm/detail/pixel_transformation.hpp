@@ -49,7 +49,7 @@ auto normalize_pixels(const Eigen::MatrixBase<Derived>& src) {
  */
 template <typename Derived, typename ScalarType = typename Derived::Scalar>
 auto denormalize(const Eigen::MatrixBase<Derived>& src) {
-  const float max_value =
+  const auto max_value =
       static_cast<float>(std::numeric_limits<ScalarType>::max());
   return (src * max_value)
       .cwiseMin(max_value)
@@ -75,7 +75,7 @@ auto denormalize(const Eigen::MatrixBase<Derived>& src) {
  */
 template <typename ScalarType, typename Derived>
 auto denormalize_as(const Eigen::MatrixBase<Derived>& src) {
-  const float max_value =
+  const auto max_value =
       static_cast<float>(std::numeric_limits<ScalarType>::max());
   return (src * max_value)
       .cwiseMin(max_value)
