@@ -2,6 +2,8 @@
 
 #include <nfd.h>
 
+#include <iostream>
+
 #include "PreviewController.hpp"
 #include "SliderConfig.hpp"
 #include "psm/adjust_channels.hpp"
@@ -21,7 +23,6 @@
 #include "stb_image_write.h"
 #endif
 
-#include <iostream>
 #include <span>
 #include <string>
 #include <vector>
@@ -42,16 +43,8 @@ void ToolbarController::loadImage() {
     state_.image.load_path = std::string(path);
     NFD_FreePathU8(path);
 
-    std::cout << "Loading image: " << state_.image.load_path << std::endl;
-
     // Use stbi_is_16_bit to detect the actual bit depth
     bool is_16bit = stbi_is_16_bit(state_.image.load_path.c_str());
-
-    if (is_16bit) {
-      std::cout << "  Detected: 16-bit image" << std::endl;
-    } else {
-      std::cout << "  Detected: 8-bit image" << std::endl;
-    }
 
     int width, height, channels;
     constexpr int target_channels = 3;
@@ -63,14 +56,6 @@ void ToolbarController::loadImage() {
                        &channels, target_channels);
 
       if (image_data_16) {
-        // 16-bit image loaded successfully
-        std::cout << "✓ Successfully loaded 16-bit image" << std::endl;
-        std::cout << "  Dimensions: " << width << "x" << height << " pixels"
-                  << std::endl;
-        std::cout << "  Channels: " << channels << " (converted to "
-                  << target_channels << ")" << std::endl;
-        std::cout << "  Bit depth: 16-bit (0-65535 range)" << std::endl;
-
         state_.image.width = width;
         state_.image.height = height;
         state_.image.channels = target_channels;
@@ -86,12 +71,6 @@ void ToolbarController::loadImage() {
         stbi_image_free(image_data_16);
         state_.image.is_loaded = true;
 
-        std::cout << "  Memory usage: "
-                  << (image_size * sizeof(std::uint16_t) / 1024.0 / 1024.0)
-                  << " MB" << std::endl;
-        std::cout << "  Processing 16-bit data with full precision..."
-                  << std::endl;
-
         convertImage();
       } else {
         std::cerr << "✗ Failed to load 16-bit image: " << state_.image.load_path
@@ -106,14 +85,6 @@ void ToolbarController::loadImage() {
                     target_channels);
 
       if (image_data_8) {
-        // 8-bit image loaded successfully
-        std::cout << "✓ Successfully loaded 8-bit image" << std::endl;
-        std::cout << "  Dimensions: " << width << "x" << height << " pixels"
-                  << std::endl;
-        std::cout << "  Channels: " << channels << " (converted to "
-                  << target_channels << ")" << std::endl;
-        std::cout << "  Bit depth: 8-bit (0-255 range)" << std::endl;
-
         state_.image.width = width;
         state_.image.height = height;
         state_.image.channels = target_channels;
@@ -128,11 +99,6 @@ void ToolbarController::loadImage() {
 
         stbi_image_free(image_data_8);
         state_.image.is_loaded = true;
-
-        std::cout << "  Memory usage: "
-                  << (image_size * sizeof(std::uint8_t) / 1024.0 / 1024.0)
-                  << " MB" << std::endl;
-        std::cout << "  Processing 8-bit data..." << std::endl;
 
         convertImage();
       } else {
@@ -159,16 +125,13 @@ void ToolbarController::saveImage() {
     state_.image.save_path = std::string(path);
     NFD_FreePathU8(path);
 
-    std::cout << "Saving image to: " << state_.image.save_path << std::endl;
-
     constexpr int jpeg_quality = 95;
     bool success = false;
 
     if (state_.image.bit_depth == AppState::ImageData::BitDepth::BITS_16) {
-      std::cout << "  Converting 16-bit data to 8-bit for saving..."
-                << std::endl;
       // Convert 16-bit data to 8-bit for saving
-      auto& display_data_16 = std::get<std::vector<std::uint16_t>>(state_.image.display_data);
+      auto& display_data_16 =
+          std::get<std::vector<std::uint16_t>>(state_.image.display_data);
       std::vector<std::uint8_t> display_data_8(display_data_16.size());
 
       for (size_t i = 0; i < display_data_16.size(); ++i) {
@@ -180,21 +143,16 @@ void ToolbarController::saveImage() {
                          state_.image.height, state_.image.channels,
                          display_data_8.data(), jpeg_quality);
     } else {
-      std::cout << "  Saving 8-bit data directly..." << std::endl;
       // 8-bit data can be saved directly
-      auto& display_data_8 = std::get<std::vector<std::uint8_t>>(state_.image.display_data);
+      auto& display_data_8 =
+          std::get<std::vector<std::uint8_t>>(state_.image.display_data);
       success =
           stbi_write_jpg(state_.image.save_path.c_str(), state_.image.width,
                          state_.image.height, state_.image.channels,
                          display_data_8.data(), jpeg_quality);
     }
 
-    if (success) {
-      std::cout << "✓ Image saved successfully" << std::endl;
-      std::cout << "  Dimensions: " << state_.image.width << "x"
-                << state_.image.height << " pixels" << std::endl;
-      std::cout << "  Quality: " << jpeg_quality << "%" << std::endl;
-    } else {
+    if (!success) {
       std::cerr << "✗ Failed to save image: " << state_.image.save_path
                 << std::endl;
     }
@@ -202,40 +160,8 @@ void ToolbarController::saveImage() {
 }
 
 void ToolbarController::updateColorSpace(int colorspace) {
-  // Get color space name for logging
-  std::string colorspace_name;
-  switch (colorspace) {
-    case 0:
-      colorspace_name = "sRGB";
-      break;
-    case 1:
-      colorspace_name = "Adobe RGB";
-      break;
-    case 2:
-      colorspace_name = "Display P3";
-      break;
-    case 3:
-      colorspace_name = "oRGB";
-      break;
-    default:
-      colorspace_name = "sRGB";
-      break;
-  }
-
-  std::cout << "Switching to " << colorspace_name << " color space..."
-            << std::endl;
-
   state_.selected_colorspace = colorspace;
   if (state_.image.is_loaded) {
-    // Log the bit depth being processed
-    if (state_.image.bit_depth == AppState::ImageData::BitDepth::BITS_16) {
-      std::cout << "  Re-converting 16-bit image with new color space..."
-                << std::endl;
-    } else {
-      std::cout << "  Re-converting 8-bit image with new color space..."
-                << std::endl;
-    }
-
     convertImage();
 
     // Update slider configuration for new color space
@@ -243,8 +169,6 @@ void ToolbarController::updateColorSpace(int colorspace) {
 
     // Force preview update after color space conversion
     PreviewController::forcePreviousUpdate();
-
-    std::cout << "✓ Color space conversion completed" << std::endl;
   }
 }
 
@@ -300,14 +224,15 @@ void ToolbarController::convertImage() {
     }
   } else {
     // Handle 8-bit data
-    std::cout << "  Processing 8-bit data (0-255 range)" << std::endl;
-
     state_.image.converted_data = std::vector<std::uint8_t>(image_size);
     state_.image.display_data = std::vector<std::uint8_t>(image_size);
 
-    auto& original_data = std::get<std::vector<std::uint8_t>>(state_.image.original_data);
-    auto& converted_data = std::get<std::vector<std::uint8_t>>(state_.image.converted_data);
-    auto& display_data = std::get<std::vector<std::uint8_t>>(state_.image.display_data);
+    auto& original_data =
+        std::get<std::vector<std::uint8_t>>(state_.image.original_data);
+    auto& converted_data =
+        std::get<std::vector<std::uint8_t>>(state_.image.converted_data);
+    auto& display_data =
+        std::get<std::vector<std::uint8_t>>(state_.image.display_data);
 
     std::span<const std::uint8_t> input_span{original_data};
     std::span<std::uint8_t> converted_span{converted_data};
@@ -334,8 +259,6 @@ void ToolbarController::convertImage() {
                 display_data.begin());
 
       if (state_.selected_colorspace == 3) {  // oRGB
-        std::cout << "  Applying oRGB to sRGB conversion for display..."
-                  << std::endl;
         std::vector<std::uint8_t> temp_image(display_data.size());
         std::span<std::uint8_t> temp_span{temp_image};
 
@@ -346,8 +269,6 @@ void ToolbarController::convertImage() {
       }
 
       state_.image.is_processed = true;
-      std::cout << "✓ 8-bit image conversion completed successfully"
-                << std::endl;
     } catch (const std::exception& e) {
       std::cerr << "✗ Error converting 8-bit image: " << e.what() << std::endl;
       state_.image.is_processed = false;

@@ -2,8 +2,6 @@
 
 #include <imgui.h>
 
-#include <iostream>
-
 namespace psm_gui::ui::panels {
 
 void Toolbar::draw(AppState& s, const PanelRect& r) {
