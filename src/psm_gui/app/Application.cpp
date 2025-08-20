@@ -6,6 +6,7 @@
 #include <imgui_impl_opengl3.h>
 #include <nfd.h>
 
+#include <iostream>
 #include <memory>
 
 #include "AppState.hpp"
@@ -40,6 +41,7 @@ Application::Application() {
   window_ = glfwCreateWindow(state_.window.width, state_.window.height,
                              "PSM Gui Demo", nullptr, nullptr);
   if (window_ == nullptr) {
+    std::cout << "Failed to create GLFW window " << "\n";
     glfwTerminate();
   }
 
@@ -85,8 +87,7 @@ int Application::run() {
 }
 
 void Application::error_callback([[maybe_unused]] int error, const char* desc) {
-  // Error callback - could be used for logging in the future
-  (void)desc;  // Suppress unused parameter warning
+  std::cout << "Error: " << desc << "\n";
 }
 
 void Application::framebuffer_size_callback([[maybe_unused]] GLFWwindow* window,
