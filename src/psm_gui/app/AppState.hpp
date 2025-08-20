@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -27,15 +26,9 @@ struct AppState {
     std::string save_path;
     bool is_loaded = false;
     bool is_processed = false;
-
-    // Use 16-bit buffers for all image data (8-bit data stored in lower range)
-    std::vector<std::uint16_t> original_data;
-    std::vector<std::uint16_t> converted_data;
-    std::vector<std::uint16_t> display_data;
-
-    // Track original bit depth for proper display conversion
-    bool is_original_8bit = true;
-
+    std::vector<unsigned char> original_data;
+    std::vector<unsigned char> converted_data;
+    std::vector<unsigned char> display_data;
     int width = 0;
     int height = 0;
     int channels = 3;  // Default to RGB
@@ -59,7 +52,6 @@ struct AppState {
       width = 0;
       height = 0;
       channels = 3;
-      is_original_8bit = true;
     }
   } image;
 

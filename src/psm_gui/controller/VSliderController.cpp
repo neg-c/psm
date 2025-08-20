@@ -4,25 +4,21 @@
 #include "SliderConfig.hpp"
 
 namespace psm_gui::controller {
-VSliderController::VSliderController(AppState& state) : state_(state) {}
+VSliderController::VSliderController(AppState &state) : state_(state) {}
 
 void VSliderController::updateImage() {
   if (state_.image.is_loaded) {
-    const size_t image_size = state_.image.getImageSize();
-
-    if (state_.image.display_data.size() != image_size) {
-      state_.image.display_data.resize(image_size);
-    }
-    if (state_.image.converted_data.size() != image_size) {
-      state_.image.converted_data.resize(image_size);
+    if (state_.image.display_data.size() !=
+        state_.image.converted_data.size()) {
+      state_.image.display_data.resize(state_.image.converted_data.size());
     }
 
     std::copy(state_.image.converted_data.begin(),
               state_.image.converted_data.end(),
               state_.image.display_data.begin());
 
-    std::span<std::uint16_t> output_span{state_.image.display_data};
-    SliderConfig::applyAdjustmentAndConvertT(state_, output_span);
+    std::span<unsigned char> output_span{state_.image.display_data};
+    SliderConfig::applyAdjustmentAndConvert(state_, output_span);
 
     state_.image.is_processed = true;
     PreviewController::forcePreviousUpdate();

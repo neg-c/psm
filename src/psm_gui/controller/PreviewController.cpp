@@ -1,8 +1,5 @@
 #include "PreviewController.hpp"
 
-#include <cstdint>
-#include <vector>
-
 namespace psm_gui::controller {
 
 GLuint PreviewController::texture_id_ = 0;
@@ -22,11 +19,7 @@ PreviewController::~PreviewController() {
 }
 
 GLuint PreviewController::getOrCreateTexture() {
-  // Get the current display data pointer
-  const void* current_data = state_.image.display_data.data();
-
-  bool image_changed =
-      last_image_update_ != static_cast<const unsigned char*>(current_data);
+  bool image_changed = last_image_update_ != state_.image.display_data.data();
   bool size_changed =
       last_width_ != state_.image.width || last_height_ != state_.image.height;
   bool processed_changed = last_processed_ != state_.image.is_processed;
@@ -43,26 +36,11 @@ GLuint PreviewController::getOrCreateTexture() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-    std::vector<std::uint8_t> display_data_8(state_.image.display_data.size());
-
-    if (state_.image.is_original_8bit) {
-      for (size_t i = 0; i < state_.image.display_data.size(); ++i) {
-        display_data_8[i] =
-            static_cast<std::uint8_t>(state_.image.display_data[i]);
-      }
-    } else {
-      for (size_t i = 0; i < state_.image.display_data.size(); ++i) {
-        display_data_8[i] =
-            static_cast<std::uint8_t>(state_.image.display_data[i] >> 8);
-      }
-    }
-
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, state_.image.width,
                  state_.image.height, 0, GL_RGB, GL_UNSIGNED_BYTE,
-                 display_data_8.data());
+                 state_.image.display_data.data());
 
-    last_image_update_ = static_cast<const unsigned char*>(current_data);
+    last_image_update_ = state_.image.display_data.data();
     last_width_ = state_.image.width;
     last_height_ = state_.image.height;
     last_processed_ = state_.image.is_processed;

@@ -62,24 +62,15 @@ void PreviewArea::draw(AppState& s, const PanelRect& r) {
       if (pixel_x >= 0 && pixel_x < s.image.width && pixel_y >= 0 &&
           pixel_y < s.image.height) {
         size_t idx = (pixel_y * s.image.width + pixel_x) * s.image.channels;
-
         if (idx + 2 < s.image.display_data.size()) {
-          std::uint8_t r, g, b;
-          if (s.image.is_original_8bit) {
-            r = static_cast<std::uint8_t>(s.image.display_data[idx]);
-            g = static_cast<std::uint8_t>(s.image.display_data[idx + 1]);
-            b = static_cast<std::uint8_t>(s.image.display_data[idx + 2]);
-          } else {
-            r = static_cast<std::uint8_t>(s.image.display_data[idx] >> 8);
-            g = static_cast<std::uint8_t>(s.image.display_data[idx + 1] >> 8);
-            b = static_cast<std::uint8_t>(s.image.display_data[idx + 2] >> 8);
-          }
-          s.pixel.setColor(r, g, b);
-        }
+          s.pixel.setColor(s.image.display_data[idx],
+                           s.image.display_data[idx + 1],
+                           s.image.display_data[idx + 2]);
 
-        // Draw magnifying glass
-        DrawMagnifyingGlass(s, texture_id, mouse_pos, image_pos, image_size,
-                            pixel_x, pixel_y);
+          // Draw magnifying glass
+          DrawMagnifyingGlass(s, texture_id, mouse_pos, image_pos, image_size,
+                              pixel_x, pixel_y);
+        }
       }
     } else {
       s.pixel.clear();
