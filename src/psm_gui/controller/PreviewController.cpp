@@ -23,21 +23,7 @@ PreviewController::~PreviewController() {
 
 GLuint PreviewController::getOrCreateTexture() {
   // Get the current display data pointer
-  const void* current_data = nullptr;
-  if (state_.image.bit_depth == AppState::ImageData::BitDepth::BITS_16) {
-    if (std::holds_alternative<std::vector<std::uint16_t>>(
-            state_.image.display_data)) {
-      current_data =
-          std::get<std::vector<std::uint16_t>>(state_.image.display_data)
-              .data();
-    }
-  } else {
-    if (std::holds_alternative<std::vector<std::uint8_t>>(
-            state_.image.display_data)) {
-      current_data =
-          std::get<std::vector<std::uint8_t>>(state_.image.display_data).data();
-    }
-  }
+  const void* current_data = state_.image.display_data.data();
 
   bool image_changed =
       last_image_update_ != static_cast<const unsigned char*>(current_data);
@@ -58,35 +44,23 @@ GLuint PreviewController::getOrCreateTexture() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    // Handle different bit depths
-    if (state_.image.bit_depth == AppState::ImageData::BitDepth::BITS_16) {
-      // Convert 16-bit data to 8-bit for OpenGL display
-      if (std::holds_alternative<std::vector<std::uint16_t>>(
-              state_.image.display_data)) {
-        const auto& display_data_16 =
-            std::get<std::vector<std::uint16_t>>(state_.image.display_data);
-        std::vector<std::uint8_t> display_data_8(display_data_16.size());
+    std::vector<std::uint8_t> display_data_8(state_.image.display_data.size());
 
-        for (size_t i = 0; i < display_data_16.size(); ++i) {
-          display_data_8[i] =
-              static_cast<std::uint8_t>(display_data_16[i] >> 8);
-        }
-
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, state_.image.width,
-                     state_.image.height, 0, GL_RGB, GL_UNSIGNED_BYTE,
-                     display_data_8.data());
+    if (state_.image.is_original_8bit) {
+      for (size_t i = 0; i < state_.image.display_data.size(); ++i) {
+        display_data_8[i] =
+            static_cast<std::uint8_t>(state_.image.display_data[i]);
       }
     } else {
-      // 8-bit data can be used directly
-      if (std::holds_alternative<std::vector<std::uint8_t>>(
-              state_.image.display_data)) {
-        const auto& display_data_8 =
-            std::get<std::vector<std::uint8_t>>(state_.image.display_data);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, state_.image.width,
-                     state_.image.height, 0, GL_RGB, GL_UNSIGNED_BYTE,
-                     display_data_8.data());
+      for (size_t i = 0; i < state_.image.display_data.size(); ++i) {
+        display_data_8[i] =
+            static_cast<std::uint8_t>(state_.image.display_data[i] >> 8);
       }
     }
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, state_.image.width,
+                 state_.image.height, 0, GL_RGB, GL_UNSIGNED_BYTE,
+                 display_data_8.data());
 
     last_image_update_ = static_cast<const unsigned char*>(current_data);
     last_width_ = state_.image.width;

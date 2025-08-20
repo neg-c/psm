@@ -1,5 +1,6 @@
 #include "SliderConfig.hpp"
 
+#include <algorithm>
 #include <functional>
 #include <map>
 
@@ -31,40 +32,42 @@ psm::Percent SliderConfig::getAdjustment(AppState& state) {
                                     state.controls.horizontal_slider);
 }
 
-void SliderConfig::applyAdjustmentAndConvert(
-    AppState& state, std::span<unsigned char> image_span) {
-  // This function is now deprecated - use the templated version instead
-  // Keeping for backward compatibility but it only handles 8-bit data
-  psm::AdjustChannels(image_span, getAdjustment(state));
-
-  if (state.selected_colorspace == 3) {  // oRGB
-    std::vector<unsigned char> temp_image(image_span.size());
-    std::span<unsigned char> temp_span{temp_image};
-
-    psm::Convert<psm::oRGB, psm::sRGB>(image_span, temp_span);
-
-    std::copy(temp_image.begin(), temp_image.end(), image_span.begin());
-  }
-}
-
 template <typename T>
 void SliderConfig::applyAdjustmentAndConvertT(AppState& state,
                                               std::span<T> image_span) {
-  psm::AdjustChannels(image_span, getAdjustment(state));
+  if (state.image.is_original_8bit) {
+    std::vector<std::uint8_t> temp_8bit(image_span.size());
+    for (size_t i = 0; i < image_span.size(); ++i) {
+      temp_8bit[i] = static_cast<std::uint8_t>(image_span[i]);
+    }
+    std::span<std::uint8_t> span_8bit{temp_8bit};
 
-  if (state.selected_colorspace == 3) {  // oRGB
-    std::vector<T> temp_image(image_span.size());
-    std::span<T> temp_span{temp_image};
+    psm::AdjustChannels(span_8bit, getAdjustment(state));
 
-    psm::Convert<psm::oRGB, psm::sRGB>(image_span, temp_span);
+    if (state.selected_colorspace == 3) {  // oRGB
+      std::vector<std::uint8_t> temp_image(span_8bit.size());
+      std::span<std::uint8_t> temp_span{temp_image};
+      psm::Convert<psm::oRGB, psm::sRGB>(span_8bit, temp_span);
+      std::copy(temp_image.begin(), temp_image.end(), span_8bit.begin());
+    }
 
-    std::copy(temp_image.begin(), temp_image.end(), image_span.begin());
+    std::transform(temp_8bit.cbegin(), temp_8bit.cend(), image_span.begin(),
+                   [](std::uint8_t val) { return static_cast<T>(val); });
+  } else {
+    psm::AdjustChannels(image_span, getAdjustment(state));
+
+    if (state.selected_colorspace == 3) {  // oRGB
+      std::vector<T> temp_image(image_span.size());
+      std::span<T> temp_span{temp_image};
+
+      psm::Convert<psm::oRGB, psm::sRGB>(image_span, temp_span);
+
+      std::copy(temp_image.begin(), temp_image.end(), image_span.begin());
+    }
   }
 }
 
-// Explicit template instantiations
-template void SliderConfig::applyAdjustmentAndConvertT<std::uint8_t>(
-    AppState& state, std::span<std::uint8_t> image_span);
+// Explicit template instantiation for 16-bit only
 template void SliderConfig::applyAdjustmentAndConvertT<std::uint16_t>(
     AppState& state, std::span<std::uint16_t> image_span);
 

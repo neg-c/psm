@@ -21,10 +21,6 @@ class SliderConfig {
   static Config getConfig(int colorspace);
   static void updateLabels(AppState& state);
   static psm::Percent getAdjustment(AppState& state);
-  static void applyAdjustmentAndConvert(AppState& state,
-                                        std::span<unsigned char> image_span);
-
-  // Templated version for both 8-bit and 16-bit data
   template <typename T>
   static void applyAdjustmentAndConvertT(AppState& state,
                                          std::span<T> image_span);

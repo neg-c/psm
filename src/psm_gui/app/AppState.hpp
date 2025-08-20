@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include <string>
-#include <variant>
 #include <vector>
 
 namespace psm_gui {
@@ -29,26 +28,20 @@ struct AppState {
     bool is_loaded = false;
     bool is_processed = false;
 
-    // Support for both 8-bit and 16-bit image data
-    enum class BitDepth { BITS_8 = 8, BITS_16 = 16 };
-    BitDepth bit_depth = BitDepth::BITS_8;
+    // Use 16-bit buffers for all image data (8-bit data stored in lower range)
+    std::vector<std::uint16_t> original_data;
+    std::vector<std::uint16_t> converted_data;
+    std::vector<std::uint16_t> display_data;
 
-    // Use variant to store different data types
-    std::variant<std::vector<std::uint8_t>, std::vector<std::uint16_t>>
-        original_data;
-    std::variant<std::vector<std::uint8_t>, std::vector<std::uint16_t>>
-        converted_data;
-    std::variant<std::vector<std::uint8_t>, std::vector<std::uint16_t>>
-        display_data;
+    // Track original bit depth for proper display conversion
+    bool is_original_8bit = true;
 
     int width = 0;
     int height = 0;
     int channels = 3;  // Default to RGB
 
     bool hasValidImage() const {
-      return is_loaded && width > 0 && height > 0 &&
-             (std::holds_alternative<std::vector<std::uint8_t>>(original_data) ||
-              std::holds_alternative<std::vector<std::uint16_t>>(original_data));
+      return is_loaded && width > 0 && height > 0 && !original_data.empty();
     }
 
     size_t getImageSize() const {
@@ -60,13 +53,13 @@ struct AppState {
       save_path.clear();
       is_loaded = false;
       is_processed = false;
-      original_data = std::vector<std::uint8_t>{};
-      converted_data = std::vector<std::uint8_t>{};
-      display_data = std::vector<std::uint8_t>{};
+      original_data.clear();
+      converted_data.clear();
+      display_data.clear();
       width = 0;
       height = 0;
       channels = 3;
-      bit_depth = BitDepth::BITS_8;
+      is_original_8bit = true;
     }
   } image;
 

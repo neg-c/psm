@@ -63,33 +63,18 @@ void PreviewArea::draw(AppState& s, const PanelRect& r) {
           pixel_y < s.image.height) {
         size_t idx = (pixel_y * s.image.width + pixel_x) * s.image.channels;
 
-        // Handle different bit depths
-        if (s.image.bit_depth == AppState::ImageData::BitDepth::BITS_16) {
-          if (std::holds_alternative<std::vector<std::uint16_t>>(
-                  s.image.display_data)) {
-            const auto& display_data =
-                std::get<std::vector<std::uint16_t>>(s.image.display_data);
-            if (idx + 2 < display_data.size()) {
-              // Convert 16-bit values to 8-bit for display
-              std::uint8_t r =
-                  static_cast<std::uint8_t>(display_data[idx] >> 8);
-              std::uint8_t g =
-                  static_cast<std::uint8_t>(display_data[idx + 1] >> 8);
-              std::uint8_t b =
-                  static_cast<std::uint8_t>(display_data[idx + 2] >> 8);
-              s.pixel.setColor(r, g, b);
-            }
+        if (idx + 2 < s.image.display_data.size()) {
+          std::uint8_t r, g, b;
+          if (s.image.is_original_8bit) {
+            r = static_cast<std::uint8_t>(s.image.display_data[idx]);
+            g = static_cast<std::uint8_t>(s.image.display_data[idx + 1]);
+            b = static_cast<std::uint8_t>(s.image.display_data[idx + 2]);
+          } else {
+            r = static_cast<std::uint8_t>(s.image.display_data[idx] >> 8);
+            g = static_cast<std::uint8_t>(s.image.display_data[idx + 1] >> 8);
+            b = static_cast<std::uint8_t>(s.image.display_data[idx + 2] >> 8);
           }
-        } else {
-          if (std::holds_alternative<std::vector<std::uint8_t>>(
-                  s.image.display_data)) {
-            const auto& display_data =
-                std::get<std::vector<std::uint8_t>>(s.image.display_data);
-            if (idx + 2 < display_data.size()) {
-              s.pixel.setColor(display_data[idx], display_data[idx + 1],
-                               display_data[idx + 2]);
-            }
-          }
+          s.pixel.setColor(r, g, b);
         }
 
         // Draw magnifying glass

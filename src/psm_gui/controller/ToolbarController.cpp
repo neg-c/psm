@@ -59,14 +59,12 @@ void ToolbarController::loadImage() {
         state_.image.width = width;
         state_.image.height = height;
         state_.image.channels = target_channels;
-        state_.image.bit_depth = AppState::ImageData::BitDepth::BITS_16;
+        state_.image.is_original_8bit = false;  // This is true 16-bit data
 
         const size_t image_size = width * height * target_channels;
-        state_.image.original_data = std::vector<std::uint16_t>(image_size);
-        auto& original_data_16 =
-            std::get<std::vector<std::uint16_t>>(state_.image.original_data);
+        state_.image.original_data.resize(image_size);
         std::copy(image_data_16, image_data_16 + image_size,
-                  original_data_16.begin());
+                  state_.image.original_data.begin());
 
         stbi_image_free(image_data_16);
         state_.image.is_loaded = true;
@@ -79,7 +77,7 @@ void ToolbarController::loadImage() {
         state_.image.is_loaded = false;
       }
     } else {
-      // Load as 8-bit
+      // Load as 8-bit and store in 16-bit buffer without scaling
       unsigned char* image_data_8 =
           stbi_load(state_.image.load_path.c_str(), &width, &height, &channels,
                     target_channels);
@@ -88,14 +86,15 @@ void ToolbarController::loadImage() {
         state_.image.width = width;
         state_.image.height = height;
         state_.image.channels = target_channels;
-        state_.image.bit_depth = AppState::ImageData::BitDepth::BITS_8;
+        state_.image.is_original_8bit = true;  // This is 8-bit data
 
         const size_t image_size = width * height * target_channels;
-        state_.image.original_data = std::vector<std::uint8_t>(image_size);
-        auto& original_data_8 =
-            std::get<std::vector<std::uint8_t>>(state_.image.original_data);
-        std::copy(image_data_8, image_data_8 + image_size,
-                  original_data_8.begin());
+        state_.image.original_data.resize(image_size);
+        // Store 8-bit data in 16-bit buffer without scaling - preserve original values
+        for (size_t i = 0; i < image_size; ++i) {
+          state_.image.original_data[i] =
+              static_cast<std::uint16_t>(image_data_8[i]);
+        }
 
         stbi_image_free(image_data_8);
         state_.image.is_loaded = true;
@@ -126,31 +125,27 @@ void ToolbarController::saveImage() {
     NFD_FreePathU8(path);
 
     constexpr int jpeg_quality = 95;
-    bool success = false;
 
-    if (state_.image.bit_depth == AppState::ImageData::BitDepth::BITS_16) {
-      // Convert 16-bit data to 8-bit for saving
-      auto& display_data_16 =
-          std::get<std::vector<std::uint16_t>>(state_.image.display_data);
-      std::vector<std::uint8_t> display_data_8(display_data_16.size());
+    // Convert to 8-bit for saving (JPEG only supports 8-bit)
+    std::vector<std::uint8_t> display_data_8(state_.image.display_data.size());
 
-      for (size_t i = 0; i < display_data_16.size(); ++i) {
-        display_data_8[i] = static_cast<std::uint8_t>(display_data_16[i] >> 8);
+    if (state_.image.is_original_8bit) {
+      // For original 8-bit data, just cast down (values are already in 0-255 range)
+      for (size_t i = 0; i < state_.image.display_data.size(); ++i) {
+        display_data_8[i] =
+            static_cast<std::uint8_t>(state_.image.display_data[i]);
       }
-
-      success =
-          stbi_write_jpg(state_.image.save_path.c_str(), state_.image.width,
-                         state_.image.height, state_.image.channels,
-                         display_data_8.data(), jpeg_quality);
     } else {
-      // 8-bit data can be saved directly
-      auto& display_data_8 =
-          std::get<std::vector<std::uint8_t>>(state_.image.display_data);
-      success =
-          stbi_write_jpg(state_.image.save_path.c_str(), state_.image.width,
-                         state_.image.height, state_.image.channels,
-                         display_data_8.data(), jpeg_quality);
+      // For original 16-bit data, scale down properly
+      for (size_t i = 0; i < state_.image.display_data.size(); ++i) {
+        display_data_8[i] =
+            static_cast<std::uint8_t>(state_.image.display_data[i] >> 8);
+      }
     }
+
+    bool success = stbi_write_jpg(
+        state_.image.save_path.c_str(), state_.image.width, state_.image.height,
+        state_.image.channels, display_data_8.data(), jpeg_quality);
 
     if (!success) {
       std::cerr << "✗ Failed to save image: " << state_.image.save_path
@@ -173,12 +168,7 @@ void ToolbarController::updateColorSpace(int colorspace) {
 }
 
 void ToolbarController::convertImage() {
-  if (!state_.image.is_loaded ||
-      (!std::holds_alternative<std::vector<std::uint8_t>>(
-           state_.image.original_data) &&
-       !std::holds_alternative<std::vector<std::uint16_t>>(
-           state_.image.original_data)))
-    return;
+  if (!state_.image.is_loaded || state_.image.original_data.empty()) return;
 
   const size_t image_size = state_.image.getImageSize();
 
@@ -222,57 +212,11 @@ void ToolbarController::convertImage() {
       default:
         psm::Convert<psm::sRGB, psm::sRGB>(input_span, converted_span);
     }
-  } else {
-    // Handle 8-bit data
-    state_.image.converted_data = std::vector<std::uint8_t>(image_size);
-    state_.image.display_data = std::vector<std::uint8_t>(image_size);
 
-    auto& original_data =
-        std::get<std::vector<std::uint8_t>>(state_.image.original_data);
-    auto& converted_data =
-        std::get<std::vector<std::uint8_t>>(state_.image.converted_data);
-    auto& display_data =
-        std::get<std::vector<std::uint8_t>>(state_.image.display_data);
-
-    std::span<const std::uint8_t> input_span{original_data};
-    std::span<std::uint8_t> converted_span{converted_data};
-
-    try {
-      switch (state_.selected_colorspace) {
-        case 0:  // sRGB
-          psm::Convert<psm::sRGB, psm::sRGB>(input_span, converted_span);
-          break;
-        case 1:  // AdobeRGB
-          psm::Convert<psm::sRGB, psm::AdobeRGB>(input_span, converted_span);
-          break;
-        case 2:  // DisplayP3
-          psm::Convert<psm::sRGB, psm::DisplayP3>(input_span, converted_span);
-          break;
-        case 3:  // oRGB
-          psm::Convert<psm::sRGB, psm::oRGB>(input_span, converted_span);
-          break;
-        default:
-          psm::Convert<psm::sRGB, psm::sRGB>(input_span, converted_span);
-      }
-
-      std::copy(converted_data.begin(), converted_data.end(),
-                display_data.begin());
-
-      if (state_.selected_colorspace == 3) {  // oRGB
-        std::vector<std::uint8_t> temp_image(display_data.size());
-        std::span<std::uint8_t> temp_span{temp_image};
-
-        psm::Convert<psm::oRGB, psm::sRGB>(
-            std::span<std::uint8_t>{display_data}, temp_span);
-
-        std::copy(temp_image.begin(), temp_image.end(), display_data.begin());
-      }
-
-      state_.image.is_processed = true;
-    } catch (const std::exception& e) {
-      std::cerr << "✗ Error converting 8-bit image: " << e.what() << std::endl;
-      state_.image.is_processed = false;
-    }
+    state_.image.is_processed = true;
+  } catch (const std::exception& e) {
+    std::cerr << "✗ Error converting image: " << e.what() << std::endl;
+    state_.image.is_processed = false;
   }
 }
 
