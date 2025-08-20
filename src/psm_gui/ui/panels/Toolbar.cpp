@@ -49,8 +49,7 @@ void Toolbar::draw(AppState& s, const PanelRect& r) {
     ImGui::TableNextColumn();
     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 20.0f);
     ImGui::PushItemWidth(-FLT_MIN);
-    static const char* names[] = {"sRGB", "AdobeRGB", "DisplayP3", "oRGB",
-                                  "ProPhotoRGB"};
+    static const char* names[] = {"sRGB", "AdobeRGB", "DisplayP3", "oRGB"};
 
     if (ImGui::Combo("##ColorSpace", &s.selected_colorspace, names,
                      IM_ARRAYSIZE(names))) {

@@ -6,8 +6,6 @@
 #include "SliderConfig.hpp"
 #include "psm/adjust_channels.hpp"
 #include "psm/detail/orgb.hpp"
-#include "psm/detail/pro_photo_rgb.hpp"
-#include "psm/detail/srgb.hpp"
 #include "psm/percent.hpp"
 #include "psm/psm.hpp"
 
@@ -133,9 +131,6 @@ void ToolbarController::convertImage() {
         break;
       case 3:  // oRGB
         psm::Convert<psm::sRGB, psm::oRGB>(input_span, converted_span);
-        break;
-      case 4:
-        psm::Convert<psm::sRGB, psm::ProPhotoRGB>(input_span, converted_span);
         break;
       default:
         psm::Convert<psm::sRGB, psm::sRGB>(input_span, converted_span);
