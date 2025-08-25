@@ -1,9 +1,16 @@
 add_executable(psm_cli psm_cli.cpp cli_parser.cpp image_io.cpp
                        image_processor.cpp)
 
-find_package(Stb REQUIRED)
-target_include_directories(psm_cli PRIVATE ${Stb_INCLUDE_DIR})
-target_link_libraries(psm_cli PRIVATE psm::psm psm::adjust_channels)
+find_package(PNG REQUIRED)
+find_package(libjpeg-turbo CONFIG REQUIRED)
+target_link_libraries(
+  psm_cli
+  PRIVATE
+    psm::psm
+    psm::adjust_channels
+    PNG::PNG
+    $<IF:$<TARGET_EXISTS:libjpeg-turbo::turbojpeg>,libjpeg-turbo::turbojpeg,libjpeg-turbo::turbojpeg-static>
+)
 
 if(MSVC)
   add_custom_command(

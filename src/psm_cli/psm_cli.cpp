@@ -22,9 +22,11 @@ int main(int argc, char* argv[]) {
         }
         auto processed_data =
             psm_cli::process_image<DataType>(image_data, options);
-        const bool save_success = psm_cli::save_image<DataType>(
-            processed_data, image_data.width(), image_data.height(),
-            options.output_file);
+        psm_cli::ImageData<DataType> output_image(std::move(processed_data),
+                                                  image_data.width(),
+                                                  image_data.height(), 3);
+        const bool save_success =
+            psm_cli::save_image<DataType>(output_image, options.output_file);
         if (!save_success) {
           std::cerr << std::format("Failed to save image: {}\n",
                                    options.output_file);
