@@ -45,23 +45,33 @@ void ToolbarController::loadImage() {
               state_.image.height = image_data.height();
               state_.image.channels = image_data.channels();
 
-              // Convert to 8-bit for GUI display (GUI currently expects uint8_t)
               const size_t image_size = image_data.size();
-              state_.image.original_data.resize(image_size);
+              
+              // Determine if this is 16-bit data
+              using DataType = std::decay_t<decltype(*image_data.data())>;
+              constexpr bool is_16bit = std::is_same_v<DataType, uint16_t>;
+              state_.image.is_16bit = is_16bit;
 
-              if constexpr (std::is_same_v<
-                                std::decay_t<decltype(*image_data.data())>,
-                                uint8_t>) {
-                // Already 8-bit, direct copy
+              if constexpr (is_16bit) {
+                // Store 16-bit data directly
+                std::vector<uint16_t> original_data(image_size);
                 std::copy(image_data.data(), image_data.data() + image_size,
-                          state_.image.original_data.begin());
+                          original_data.begin());
+                state_.image.original_data = std::move(original_data);
+                
+                // Initialize converted and display data as 16-bit
+                state_.image.converted_data = std::vector<uint16_t>(image_size);
+                state_.image.display_data = std::vector<uint16_t>(image_size);
               } else {
-                // Convert 16-bit to 8-bit for display
-                const uint16_t* src = image_data.data();
-                for (size_t i = 0; i < image_size; ++i) {
-                  state_.image.original_data[i] =
-                      static_cast<uint8_t>(src[i] / 257);
-                }
+                // Store 8-bit data directly
+                std::vector<unsigned char> original_data(image_size);
+                std::copy(image_data.data(), image_data.data() + image_size,
+                          original_data.begin());
+                state_.image.original_data = std::move(original_data);
+                
+                // Initialize converted and display data as 8-bit
+                state_.image.converted_data = std::vector<unsigned char>(image_size);
+                state_.image.display_data = std::vector<unsigned char>(image_size);
               }
 
               state_.image.is_loaded = true;
@@ -95,12 +105,23 @@ void ToolbarController::saveImage() {
     NFD_FreePathU8(path);
 
     try {
-      // Create ImageData object for saving
-      psm_cli::ImageData<uint8_t> image_data(
-          state_.image.display_data,  // This is already std::vector<uint8_t>
-          state_.image.width, state_.image.height, state_.image.channels);
-
-      bool success = psm_cli::save_image(image_data, state_.image.save_path);
+      bool success = false;
+      
+      if (state_.image.is_16bit) {
+        // Save 16-bit image
+        std::vector<uint16_t> display_data = std::get<std::vector<uint16_t>>(state_.image.display_data);
+        psm_cli::ImageData<uint16_t> image_data(
+            std::move(display_data),
+            state_.image.width, state_.image.height, state_.image.channels);
+        success = psm_cli::save_image(image_data, state_.image.save_path);
+      } else {
+        // Save 8-bit image
+        std::vector<unsigned char> display_data = std::get<std::vector<unsigned char>>(state_.image.display_data);
+        psm_cli::ImageData<uint8_t> image_data(
+            std::move(display_data),
+            state_.image.width, state_.image.height, state_.image.channels);
+        success = psm_cli::save_image(image_data, state_.image.save_path);
+      }
 
       if (!success) {
         std::cerr << "Failed to save image: " << state_.image.save_path
@@ -128,41 +149,82 @@ void ToolbarController::updateColorSpace(int colorspace) {
 }
 
 void ToolbarController::convertImage() {
-  if (!state_.image.is_loaded || state_.image.original_data.empty()) return;
+  if (!state_.image.is_loaded) return;
 
   const size_t image_size = state_.image.getImageSize();
-  state_.image.converted_data.resize(image_size);
-  state_.image.display_data.resize(image_size);
+  
+  if (state_.image.is_16bit) {
+    // Handle 16-bit image conversion
+    std::vector<uint16_t>& original_data = std::get<std::vector<uint16_t>>(state_.image.original_data);
+    std::vector<uint16_t>& converted_data = std::get<std::vector<uint16_t>>(state_.image.converted_data);
+    std::vector<uint16_t>& display_data = std::get<std::vector<uint16_t>>(state_.image.display_data);
+    
+    if (original_data.empty()) return;
+    
+    converted_data.resize(image_size);
+    display_data.resize(image_size);
 
-  std::span<const unsigned char> input_span{state_.image.original_data};
-  std::span<unsigned char> converted_span{state_.image.converted_data};
+    std::span<const uint16_t> input_span{original_data};
+    std::span<uint16_t> converted_span{converted_data};
 
-  try {
-    // Use shared image processor for consistent color space conversion
-    psm_cli::convert_colorspace<unsigned char>(input_span, converted_span, 0,
-                                               state_.selected_colorspace);
+    try {
+      // Use shared image processor for consistent color space conversion
+      psm_cli::convert_colorspace<uint16_t>(input_span, converted_span, 0,
+                                             state_.selected_colorspace);
 
-    std::copy(state_.image.converted_data.begin(),
-              state_.image.converted_data.end(),
-              state_.image.display_data.begin());
+      std::copy(converted_data.begin(), converted_data.end(), display_data.begin());
 
-    if (state_.selected_colorspace ==
-        3) {  // oRGB - convert back to sRGB for display
-      std::vector<unsigned char> temp_image(state_.image.display_data.size());
-      std::span<unsigned char> temp_span{temp_image};
+      if (state_.selected_colorspace == 3) {  // oRGB - convert back to sRGB for display
+        std::vector<uint16_t> temp_image(display_data.size());
+        std::span<uint16_t> temp_span{temp_image};
 
-      psm_cli::convert_colorspace<unsigned char>(
-          std::span<unsigned char>{state_.image.display_data}, temp_span, 3,
-          0);  // oRGB to sRGB
+        psm_cli::convert_colorspace<uint16_t>(
+            std::span<uint16_t>{display_data}, temp_span, 3, 0);  // oRGB to sRGB
 
-      std::copy(temp_image.begin(), temp_image.end(),
-                state_.image.display_data.begin());
+        std::copy(temp_image.begin(), temp_image.end(), display_data.begin());
+      }
+
+      state_.image.is_processed = true;
+    } catch (const std::exception& e) {
+      std::cerr << "Error converting 16-bit image: " << e.what() << std::endl;
+      state_.image.is_processed = false;
     }
+  } else {
+    // Handle 8-bit image conversion (existing logic)
+    std::vector<unsigned char>& original_data = std::get<std::vector<unsigned char>>(state_.image.original_data);
+    std::vector<unsigned char>& converted_data = std::get<std::vector<unsigned char>>(state_.image.converted_data);
+    std::vector<unsigned char>& display_data = std::get<std::vector<unsigned char>>(state_.image.display_data);
+    
+    if (original_data.empty()) return;
+    
+    converted_data.resize(image_size);
+    display_data.resize(image_size);
 
-    state_.image.is_processed = true;
-  } catch (const std::exception& e) {
-    std::cerr << "Error converting image: " << e.what() << std::endl;
-    state_.image.is_processed = false;
+    std::span<const unsigned char> input_span{original_data};
+    std::span<unsigned char> converted_span{converted_data};
+
+    try {
+      // Use shared image processor for consistent color space conversion
+      psm_cli::convert_colorspace<unsigned char>(input_span, converted_span, 0,
+                                                 state_.selected_colorspace);
+
+      std::copy(converted_data.begin(), converted_data.end(), display_data.begin());
+
+      if (state_.selected_colorspace == 3) {  // oRGB - convert back to sRGB for display
+        std::vector<unsigned char> temp_image(display_data.size());
+        std::span<unsigned char> temp_span{temp_image};
+
+        psm_cli::convert_colorspace<unsigned char>(
+            std::span<unsigned char>{display_data}, temp_span, 3, 0);  // oRGB to sRGB
+
+        std::copy(temp_image.begin(), temp_image.end(), display_data.begin());
+      }
+
+      state_.image.is_processed = true;
+    } catch (const std::exception& e) {
+      std::cerr << "Error converting 8-bit image: " << e.what() << std::endl;
+      state_.image.is_processed = false;
+    }
   }
 }
 
