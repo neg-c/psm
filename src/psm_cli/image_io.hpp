@@ -4,8 +4,7 @@
 #include <string>
 #include <utility>
 #include <variant>
-
-extern "C" void stbi_image_free(void* retval_from_stbi_load);
+#include <vector>
 
 namespace psm_cli {
 
@@ -15,12 +14,9 @@ class ImageData {
   ImageData(T* ptr, int w, int h, int c)
       : data_(ptr), width_(w), height_(h), channels_(c) {}
 
-  ~ImageData() {
-    if (data_) {
-      stbi_image_free(data_);
-    }
-  }
+  ~ImageData();
 
+  // Non-copyable but movable
   ImageData(const ImageData&) = delete;
   ImageData& operator=(const ImageData&) = delete;
 
@@ -62,6 +58,12 @@ class ImageData {
 
 using ImageVariant = std::variant<ImageData<uint8_t>, ImageData<uint16_t>>;
 
+// Load image with automatic bit depth detection
 ImageVariant load_image(const std::string& filepath);
+
+// Save image with appropriate format based on bit depth
+template <typename DataType>
+bool save_image(const std::vector<DataType>& image_data, int width, int height,
+                const std::string& output_path);
 
 }  // namespace psm_cli

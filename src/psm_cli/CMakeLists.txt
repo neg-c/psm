@@ -1,5 +1,5 @@
-add_executable(psm_cli psm_cli.cpp cli_parser.cpp image_loader.cpp
-                       image_processor.cpp image_saver.cpp)
+add_executable(psm_cli psm_cli.cpp cli_parser.cpp image_io.cpp
+                       image_processor.cpp)
 
 find_package(Stb REQUIRED)
 target_include_directories(psm_cli PRIVATE ${Stb_INCLUDE_DIR})

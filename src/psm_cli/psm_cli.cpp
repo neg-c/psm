@@ -5,9 +5,8 @@
 #include <variant>
 
 #include "cli_parser.hpp"
-#include "image_loader.hpp"
+#include "image_io.hpp"
 #include "image_processor.hpp"
-#include "image_saver.hpp"
 
 int main(int argc, char* argv[]) {
   const auto options = parse_args(argc, argv);
