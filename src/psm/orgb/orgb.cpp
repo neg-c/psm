@@ -2,6 +2,7 @@
 
 #include <Eigen/Dense>
 #include <cmath>
+#include <cstdint>
 #include <numbers>
 
 #include "psm/detail/pixel_transformation.hpp"
@@ -108,7 +109,7 @@ namespace psm::detail {
 template <typename T>
 void Orgb::fromSRGB(std::span<const T> src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
-  psm::detail::RowXf norm_src = psm::detail::normalize(map_src);
+  psm::detail::RowXf norm_src = psm::detail::normalize_pixels(map_src);
 
   // Assuming RGB/BGR as input
   const psm::detail::Mat3fView norm_rgb(norm_src.data(), norm_src.cols() / 3,
@@ -128,7 +129,7 @@ void Orgb::fromSRGB(std::span<const T> src, std::span<T> dst) {
 template <typename T>
 void Orgb::toSRGB(std::span<const T> src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
-  psm::detail::RowXf norm_src = psm::detail::normalize(map_src);
+  psm::detail::RowXf norm_src = psm::detail::normalize_pixels(map_src);
 
   // Assuming RGB/BGR as input for oRGB
   psm::detail::Mat3fView norm_orgb(norm_src.data(), norm_src.cols() / 3, 3);
@@ -149,4 +150,9 @@ template void Orgb::fromSRGB<unsigned char>(std::span<const unsigned char>,
                                             std::span<unsigned char>);
 template void Orgb::toSRGB<unsigned char>(std::span<const unsigned char>,
                                           std::span<unsigned char>);
+
+template void Orgb::fromSRGB<std::uint16_t>(std::span<const std::uint16_t>,
+                                            std::span<std::uint16_t>);
+template void Orgb::toSRGB<std::uint16_t>(std::span<const std::uint16_t>,
+                                          std::span<std::uint16_t>);
 }  // namespace psm::detail

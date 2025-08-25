@@ -2,6 +2,7 @@
 
 #include <Eigen/Dense>
 #include <cmath>
+#include <cstdint>
 
 #include "psm/detail/colorspace.hpp"
 #include "psm/detail/pixel_transformation.hpp"
@@ -81,4 +82,9 @@ template void AdobeRgb::fromSRGB<unsigned char>(std::span<const unsigned char>,
                                                 std::span<unsigned char>);
 template void AdobeRgb::toSRGB<unsigned char>(std::span<const unsigned char>,
                                               std::span<unsigned char>);
+
+template void AdobeRgb::fromSRGB<std::uint16_t>(std::span<const std::uint16_t>,
+                                                std::span<std::uint16_t>);
+template void AdobeRgb::toSRGB<std::uint16_t>(std::span<const std::uint16_t>,
+                                              std::span<std::uint16_t>);
 }  // namespace psm::detail

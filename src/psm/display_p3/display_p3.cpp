@@ -2,6 +2,7 @@
 
 #include <Eigen/Dense>
 #include <cmath>
+#include <cstdint>
 
 #include "psm/detail/colorspace.hpp"
 #include "psm/detail/pixel_transformation.hpp"
@@ -83,4 +84,9 @@ template void DisplayP3::fromSRGB<unsigned char>(std::span<const unsigned char>,
                                                  std::span<unsigned char>);
 template void DisplayP3::toSRGB<unsigned char>(std::span<const unsigned char>,
                                                std::span<unsigned char>);
+
+template void DisplayP3::fromSRGB<std::uint16_t>(std::span<const std::uint16_t>,
+                                                 std::span<std::uint16_t>);
+template void DisplayP3::toSRGB<std::uint16_t>(std::span<const std::uint16_t>,
+                                               std::span<std::uint16_t>);
 }  // namespace psm::detail

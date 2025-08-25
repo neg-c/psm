@@ -1,28 +1,34 @@
 #pragma once
 
 #include <cmath>
+#include <cstdint>
+#include <limits>
+#include <type_traits>
 
 #include "psm/detail/types.hpp"
 
 namespace psm::detail {
 
 /**
- * @brief Normalizes integer values in range [0, 255] to floating point values in range [0.0, 1.0]
+ * @brief Normalizes pixel values of any unsigned integer or float type to [0.0, 1.0]
  *
- * @tparam Derived The derived Eigen expression type
- * @param src Source data to normalize
- * @return A normalized expression with float values between 0.0 and 1.0
- *
- * @note This function works with any compatible Eigen expression (vectors, matrices, blocks, etc.)
- *
- * @code
- * Mat3f pixels = ...; // Some matrix with integer values 0-255
- * auto normalized = normalize(pixels); // Converts to floating point 0.0-1.0
- * @endcode
+ * - Unsigned integers: divides by std::numeric_limits<Scalar>::max()
+ * - Floats: pass-through cast to float (assumes already [0.0, 1.0])
  */
 template <typename Derived>
-auto normalize(const Eigen::MatrixBase<Derived>& src) {
-  return src.template cast<float>() / 255.0f;
+auto normalize_pixels(const Eigen::MatrixBase<Derived>& src) {
+  using Scalar = typename Derived::Scalar;
+  if constexpr (std::is_floating_point_v<Scalar>) {
+    return src.template cast<float>();
+  } else if constexpr (std::is_integral_v<Scalar> &&
+                       std::is_unsigned_v<Scalar>) {
+    const auto scale = static_cast<float>(std::numeric_limits<Scalar>::max());
+    return src.template cast<float>() / scale;
+  } else {
+    static_assert(std::is_same_v<Scalar, void>,
+                  "normalize_pixels requires unsigned integral or "
+                  "floating-point scalars");
+  }
 }
 
 /**
@@ -43,8 +49,10 @@ auto normalize(const Eigen::MatrixBase<Derived>& src) {
  */
 template <typename Derived, typename ScalarType = typename Derived::Scalar>
 auto denormalize(const Eigen::MatrixBase<Derived>& src) {
-  return (src * 255.0f)
-      .cwiseMin(255.0f)
+  const auto max_value =
+      static_cast<float>(std::numeric_limits<ScalarType>::max());
+  return (src * max_value)
+      .cwiseMin(max_value)
       .cwiseMax(0.0f)
       .template cast<ScalarType>();
 }
@@ -67,8 +75,10 @@ auto denormalize(const Eigen::MatrixBase<Derived>& src) {
  */
 template <typename ScalarType, typename Derived>
 auto denormalize_as(const Eigen::MatrixBase<Derived>& src) {
-  return (src * 255.0f)
-      .cwiseMin(255.0f)
+  const auto max_value =
+      static_cast<float>(std::numeric_limits<ScalarType>::max());
+  return (src * max_value)
+      .cwiseMin(max_value)
       .cwiseMax(0.0f)
       .template cast<ScalarType>();
 }
@@ -109,7 +119,7 @@ RowXf encode(const Eigen::MatrixBase<Derived>& src, float gamma = 2.2f) {
  */
 template <typename Derived>
 RowXf decode(const Eigen::MatrixBase<Derived>& src, float gamma = 2.2f) {
-  const RowXf normalized = normalize(src);
+  const RowXf normalized = normalize_pixels(src);
   return normalized.unaryExpr([gamma](float v) { return std::pow(v, gamma); });
 }
 }  // namespace gamma
@@ -146,7 +156,7 @@ RowXf encode(const Eigen::MatrixBase<Derived>& src) {
  */
 template <typename Derived>
 RowXf decode(const Eigen::MatrixBase<Derived>& src) {
-  const RowXf normalized = normalize(src);
+  const RowXf normalized = normalize_pixels(src);
 
   return normalized.unaryExpr([](float value) {
     return (value <= 0.04045f) ? (value / 12.92f)

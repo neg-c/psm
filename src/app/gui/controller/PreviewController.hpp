@@ -18,11 +18,12 @@ class PreviewController {
  private:
   AppState& state_;
   static GLuint texture_id_;
-  static const unsigned char* last_image_update_;
+  static const void* last_image_update_;  // Changed to void* to support both data types
   static int last_width_;
   static int last_height_;
   static bool last_processed_;
   static int last_colorspace_;
+  static bool last_is_16bit_;  // Track if last image was 16-bit
   static int update_counter_;
   static int last_update_counter_;
 };
