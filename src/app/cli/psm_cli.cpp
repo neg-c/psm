@@ -5,7 +5,7 @@
 #include <variant>
 
 #include "cli_parser.hpp"
-#include "image_io.hpp"
+#include "image_io.hpp"  // From shared module
 #include "image_processor.hpp"
 
 int main(int argc, char* argv[]) {

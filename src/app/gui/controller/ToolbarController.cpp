@@ -2,8 +2,14 @@
 
 #include <nfd.h>
 
+#include <iostream>
+#include <span>
+#include <string>
+#include <vector>
+
 #include "PreviewController.hpp"
 #include "SliderConfig.hpp"
+#include "image_io.hpp"
 #include "psm/adjust_channels.hpp"
 #include "psm/detail/orgb.hpp"
 #include "psm/detail/pro_photo_rgb.hpp"
@@ -11,27 +17,12 @@
 #include "psm/percent.hpp"
 #include "psm/psm.hpp"
 
-#ifndef STB_IMAGE_INCLUDED
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-#endif
-
-#ifndef STBI_WRITE_INCLUDED
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
-#endif
-
-#include <iostream>
-#include <span>
-#include <string>
-#include <vector>
-
 namespace psm_gui::controller {
 
-ToolbarController::ToolbarController(AppState &state) : state_(state) {}
+ToolbarController::ToolbarController(AppState& state) : state_(state) {}
 
 void ToolbarController::loadImage() {
-  nfdu8char_t *path = nullptr;
+  nfdu8char_t* path = nullptr;
   nfdu8filteritem_t filters[1] = {{"Image files", "png,jpeg,jpg,webp"}};
   nfdopendialogu8args_t args{};
   args.filterList = filters;
@@ -42,37 +33,54 @@ void ToolbarController::loadImage() {
     state_.image.load_path = std::string(path);
     NFD_FreePathU8(path);
 
-    int width, height, channels;
-    constexpr int target_channels = 3;
+    try {
+      auto image_variant = psm_cli::load_image(state_.image.load_path);
 
-    unsigned char *image_data =
-        stbi_load(state_.image.load_path.c_str(), &width, &height, &channels,
-                  target_channels);
+      // Visit the variant to handle both 8-bit and 16-bit images
+      std::visit(
+          [this](auto& image_data) {
+            if (image_data) {
+              state_.image.width = image_data.width();
+              state_.image.height = image_data.height();
+              state_.image.channels = image_data.channels();
 
-    if (image_data) {
-      state_.image.width = width;
-      state_.image.height = height;
-      state_.image.channels = target_channels;
+              // Convert to 8-bit for GUI display (GUI currently expects uint8_t)
+              const size_t image_size = image_data.size();
+              state_.image.original_data.resize(image_size);
 
-      const size_t image_size = width * height * target_channels;
-      state_.image.original_data.resize(image_size);
-      std::copy(image_data, image_data + image_size,
-                state_.image.original_data.begin());
+              if constexpr (std::is_same_v<
+                                std::decay_t<decltype(*image_data.data())>,
+                                uint8_t>) {
+                // Already 8-bit, direct copy
+                std::copy(image_data.data(), image_data.data() + image_size,
+                          state_.image.original_data.begin());
+              } else {
+                // Convert 16-bit to 8-bit for display
+                const uint16_t* src = image_data.data();
+                for (size_t i = 0; i < image_size; ++i) {
+                  state_.image.original_data[i] =
+                      static_cast<uint8_t>(src[i] / 257);
+                }
+              }
 
-      stbi_image_free(image_data);
-      state_.image.is_loaded = true;
+              state_.image.is_loaded = true;
+              convertImage();
+            } else {
+              state_.image.is_loaded = false;
+            }
+          },
+          image_variant);
 
-      convertImage();
-    } else {
-      std::cerr << "Failed to load image: " << state_.image.load_path
-                << std::endl;
+    } catch (const std::exception& e) {
+      std::cerr << "Failed to load image: " << state_.image.load_path << " - "
+                << e.what() << std::endl;
       state_.image.is_loaded = false;
     }
   }
 }
 
 void ToolbarController::saveImage() {
-  nfdu8char_t *path = nullptr;
+  nfdu8char_t* path = nullptr;
   nfdu8filteritem_t filters[1] = {{"Image files", "png,jpeg,jpg,webp"}};
   nfdsavedialogu8args_t args{};
   args.filterList = filters;
@@ -85,14 +93,22 @@ void ToolbarController::saveImage() {
     state_.image.save_path = std::string(path);
     NFD_FreePathU8(path);
 
-    constexpr int jpeg_quality = 95;
-    bool success = stbi_write_jpg(
-        state_.image.save_path.c_str(), state_.image.width, state_.image.height,
-        state_.image.channels, state_.image.display_data.data(), jpeg_quality);
+    try {
+      // Create ImageData object for saving
+      psm_cli::ImageData<uint8_t> image_data(
+          state_.image.display_data,  // This is already std::vector<uint8_t>
+          state_.image.width, state_.image.height, state_.image.channels);
 
-    if (!success) {
-      std::cerr << "Failed to save image: " << state_.image.save_path
-                << std::endl;
+      bool success = psm_cli::save_image(image_data, state_.image.save_path);
+
+      if (!success) {
+        std::cerr << "Failed to save image: " << state_.image.save_path
+                  << std::endl;
+      }
+
+    } catch (const std::exception& e) {
+      std::cerr << "Failed to save image: " << state_.image.save_path << " - "
+                << e.what() << std::endl;
     }
   }
 }
@@ -157,7 +173,7 @@ void ToolbarController::convertImage() {
     }
 
     state_.image.is_processed = true;
-  } catch (const std::exception &e) {
+  } catch (const std::exception& e) {
     std::cerr << "Error converting image: " << e.what() << std::endl;
     state_.image.is_processed = false;
   }

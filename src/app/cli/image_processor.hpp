@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "cli_parser.hpp"
-#include "image_io.hpp"
+#include "image_io.hpp"  // From shared module
 
 namespace psm_cli {
 

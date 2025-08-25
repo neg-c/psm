@@ -12,6 +12,12 @@ target_include_directories(
   PUBLIC ${CMAKE_SOURCE_DIR}/src/psm/include)
 
 target_link_libraries(
-  psm_gui_controller PRIVATE glfw OpenGL::GL GLEW::GLEW imgui::imgui psm::psm
-                             psm::adjust_channels)
+  psm_gui_controller
+  PRIVATE glfw
+          OpenGL::GL
+          GLEW::GLEW
+          imgui::imgui
+          psm::psm
+          psm::adjust_channels
+          psm::image_io)
 target_compile_features(psm_gui_controller PUBLIC cxx_std_20)
