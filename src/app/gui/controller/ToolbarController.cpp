@@ -9,7 +9,8 @@
 
 #include "PreviewController.hpp"
 #include "SliderConfig.hpp"
-#include "image_io.hpp"
+#include "image_io/image_io.hpp"
+#include "image_processor/image_processor.hpp"
 #include "psm/adjust_channels.hpp"
 #include "psm/detail/orgb.hpp"
 #include "psm/detail/pro_photo_rgb.hpp"
@@ -137,36 +138,22 @@ void ToolbarController::convertImage() {
   std::span<unsigned char> converted_span{state_.image.converted_data};
 
   try {
-    switch (state_.selected_colorspace) {
-      case 0:  // sRGB
-        psm::Convert<psm::sRGB, psm::sRGB>(input_span, converted_span);
-        break;
-      case 1:  // AdobeRGB
-        psm::Convert<psm::sRGB, psm::AdobeRGB>(input_span, converted_span);
-        break;
-      case 2:  // DisplayP3
-        psm::Convert<psm::sRGB, psm::DisplayP3>(input_span, converted_span);
-        break;
-      case 3:  // oRGB
-        psm::Convert<psm::sRGB, psm::oRGB>(input_span, converted_span);
-        break;
-      case 4:
-        psm::Convert<psm::sRGB, psm::ProPhotoRGB>(input_span, converted_span);
-        break;
-      default:
-        psm::Convert<psm::sRGB, psm::sRGB>(input_span, converted_span);
-    }
+    // Use shared image processor for consistent color space conversion
+    psm_cli::convert_colorspace<unsigned char>(input_span, converted_span, 0,
+                                               state_.selected_colorspace);
 
     std::copy(state_.image.converted_data.begin(),
               state_.image.converted_data.end(),
               state_.image.display_data.begin());
 
-    if (state_.selected_colorspace == 3) {  // oRGB
+    if (state_.selected_colorspace ==
+        3) {  // oRGB - convert back to sRGB for display
       std::vector<unsigned char> temp_image(state_.image.display_data.size());
       std::span<unsigned char> temp_span{temp_image};
 
-      psm::Convert<psm::oRGB, psm::sRGB>(
-          std::span<unsigned char>{state_.image.display_data}, temp_span);
+      psm_cli::convert_colorspace<unsigned char>(
+          std::span<unsigned char>{state_.image.display_data}, temp_span, 3,
+          0);  // oRGB to sRGB
 
       std::copy(temp_image.begin(), temp_image.end(),
                 state_.image.display_data.begin());

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "../../cli/cli_parser.hpp"
 #include "psm/adjust_channels.hpp"
 #include "psm/psm.hpp"
 
@@ -50,7 +51,6 @@ void convert_between(std::string_view from_space, std::string_view to_space,
   }
 }
 
-// Explicit template instantiations
 template void convert_from<psm::sRGB, uint8_t>(std::string_view,
                                                std::span<const uint8_t>,
                                                std::span<uint8_t>);
@@ -92,12 +92,38 @@ template void convert_between<uint16_t>(std::string_view, std::string_view,
 }  // namespace conversion
 
 template <typename DataType>
+void convert_colorspace(std::span<const DataType> input,
+                        std::span<DataType> output, int from_colorspace_id,
+                        int to_colorspace_id) {
+  auto id_to_name = [](int id) -> std::string_view {
+    switch (id) {
+      case 0:
+        return "sRGB";
+      case 1:
+        return "AdobeRGB";
+      case 2:
+        return "DisplayP3";
+      case 3:
+        return "oRGB";
+      case 4:
+        return "ProPhotoRGB";
+      default:
+        return "sRGB";
+    }
+  };
+
+  std::string_view from_name = id_to_name(from_colorspace_id);
+  std::string_view to_name = id_to_name(to_colorspace_id);
+
+  conversion::convert_between<DataType>(from_name, to_name, input, output);
+}
+
+template <typename DataType>
 std::vector<DataType> process_image(const ImageData<DataType>& image_data,
                                     const CLIOptions& options) {
   const size_t image_size = image_data.size();
   std::span<const DataType> input_image{image_data.data(), image_size};
 
-  // Create output storage
   std::vector<DataType> output_storage(image_size);
   std::span<DataType> output_image{output_storage};
 
@@ -107,11 +133,9 @@ std::vector<DataType> process_image(const ImageData<DataType>& image_data,
   std::cout << std::format("Converting from {} to {}\n", options.from_space,
                            options.to_space);
 
-  // Perform color space conversion
   conversion::convert_between<DataType>(options.from_space, options.to_space,
                                         input_image, output_image);
 
-  // Apply channel adjustments if requested
   if (options.adjust_values) {
     std::cout << std::format("Adjusting channels by R:{}%, G:{}%, B:{}%\n",
                              options.adjust_values->channel(0),
@@ -120,7 +144,6 @@ std::vector<DataType> process_image(const ImageData<DataType>& image_data,
 
     psm::AdjustChannels(output_image, *options.adjust_values);
 
-    // Convert back to original color space if needed
     if (options.from_space != options.to_space) {
       std::vector<DataType> temp_storage(output_image.size());
       std::span<DataType> temp_image{temp_storage};
@@ -134,7 +157,11 @@ std::vector<DataType> process_image(const ImageData<DataType>& image_data,
   return output_storage;
 }
 
-// Explicit template instantiations
+template void convert_colorspace<uint8_t>(std::span<const uint8_t>,
+                                          std::span<uint8_t>, int, int);
+template void convert_colorspace<uint16_t>(std::span<const uint16_t>,
+                                           std::span<uint16_t>, int, int);
+
 template std::vector<uint8_t> process_image<uint8_t>(const ImageData<uint8_t>&,
                                                      const CLIOptions&);
 template std::vector<uint16_t> process_image<uint16_t>(

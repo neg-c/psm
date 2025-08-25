@@ -5,8 +5,8 @@
 #include <variant>
 
 #include "cli_parser.hpp"
-#include "image_io.hpp"  // From shared module
-#include "image_processor.hpp"
+#include "image_io.hpp"
+#include "image_processor/image_processor.hpp"
 
 int main(int argc, char* argv[]) {
   const auto options = parse_args(argc, argv);

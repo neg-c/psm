@@ -3,6 +3,7 @@
 #include <functional>
 #include <map>
 
+#include "image_processor/image_processor.hpp"
 #include "psm/adjust_channels.hpp"
 #include "psm/psm.hpp"
 
@@ -35,11 +36,12 @@ void SliderConfig::applyAdjustmentAndConvert(
     AppState& state, std::span<unsigned char> image_span) {
   psm::AdjustChannels(image_span, getAdjustment(state));
 
-  if (state.selected_colorspace == 3) {  // oRGB
+  if (state.selected_colorspace ==
+      3) {  // oRGB - convert back to sRGB for display
     std::vector<unsigned char> temp_image(image_span.size());
     std::span<unsigned char> temp_span{temp_image};
 
-    psm::Convert<psm::oRGB, psm::sRGB>(image_span, temp_span);
+    psm_cli::convert_colorspace<unsigned char>(image_span, temp_span, 3, 0);
 
     std::copy(temp_image.begin(), temp_image.end(), image_span.begin());
   }

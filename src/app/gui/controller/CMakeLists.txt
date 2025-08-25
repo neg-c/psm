@@ -9,7 +9,8 @@ target_include_directories(
   psm_gui_controller
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/..
-  PUBLIC ${CMAKE_SOURCE_DIR}/src/psm/include)
+  PUBLIC ${CMAKE_SOURCE_DIR}/src/psm/include
+  PUBLIC ${CMAKE_SOURCE_DIR}/src/app/shared)
 
 target_link_libraries(
   psm_gui_controller
@@ -19,5 +20,6 @@ target_link_libraries(
           imgui::imgui
           psm::psm
           psm::adjust_channels
-          psm::image_io)
+          psm::image_io
+          psm_image_processor)
 target_compile_features(psm_gui_controller PUBLIC cxx_std_20)

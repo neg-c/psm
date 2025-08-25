@@ -1,2 +1,2 @@
-# Shared modules for PSM applications
 add_subdirectory(image_io)
+add_subdirectory(image_processor)
