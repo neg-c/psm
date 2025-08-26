@@ -87,6 +87,26 @@ TEST_F(DisplayP3Test, RoundTripConversion) {
   EXPECT_THAT(result, IsNearVector(original, Tolerance));
 }
 
+TEST_F(DisplayP3Test, SixteenBit_RoundTripConversion) {
+  const std::vector<std::uint16_t> original = {42000, 16000, 48000};
+  std::vector<std::uint16_t> intermediate(3);
+  std::vector<std::uint16_t> result16(3);
+
+  psm::Convert<psm::sRGB, psm::DisplayP3>(original, intermediate);
+  psm::Convert<psm::DisplayP3, psm::sRGB>(intermediate, result16);
+
+  std::vector<unsigned char> orig8 = {
+      static_cast<unsigned char>(original[0] >> 8),
+      static_cast<unsigned char>(original[1] >> 8),
+      static_cast<unsigned char>(original[2] >> 8)};
+  std::vector<unsigned char> res8 = {
+      static_cast<unsigned char>(result16[0] >> 8),
+      static_cast<unsigned char>(result16[1] >> 8),
+      static_cast<unsigned char>(result16[2] >> 8)};
+
+  EXPECT_THAT(res8, IsNearVector(orig8, Tolerance));
+}
+
 TEST_F(DisplayP3Test, ValidatesInputSize) {
   const std::vector<unsigned char> invalid_size = {255,
                                                    255};  // Only 2 components

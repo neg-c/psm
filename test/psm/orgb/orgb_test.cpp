@@ -107,6 +107,27 @@ TEST_F(OrgbTest, BulkConversionPerformance) {
   EXPECT_LT(duration.count(), 1000);  // Should complete within 1 second
 }
 
+TEST_F(OrgbTest, SixteenBit_RoundTripConversion) {
+  const std::vector<std::uint16_t> colors[] = {
+      {60000, 1000, 1000}, {1000, 60000, 1000}, {1000, 1000, 60000}};
+
+  for (const auto& color : colors) {
+    std::vector<std::uint16_t> orgb16(3), back16(3);
+    psm::Convert<psm::sRGB, psm::oRGB>(color, orgb16);
+    psm::Convert<psm::oRGB, psm::sRGB>(orgb16, back16);
+
+    std::vector<unsigned char> orig8 = {
+        static_cast<unsigned char>(color[0] >> 8),
+        static_cast<unsigned char>(color[1] >> 8),
+        static_cast<unsigned char>(color[2] >> 8)};
+    std::vector<unsigned char> back8 = {
+        static_cast<unsigned char>(back16[0] >> 8),
+        static_cast<unsigned char>(back16[1] >> 8),
+        static_cast<unsigned char>(back16[2] >> 8)};
+    EXPECT_THAT(back8, psm_test::IsNearVector(orig8, Tolerance));
+  }
+}
+
 TEST_F(OrgbTest, HandlesExtremeValues) {
   std::vector<unsigned char> max_color{255, 255, 255};
   std::vector<unsigned char> min_color{0, 0, 0};

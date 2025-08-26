@@ -84,6 +84,27 @@ TEST_F(AdobeRgbTest, RoundTripConversion) {
   EXPECT_THAT(result, IsNearVector(original, Tolerance));
 }
 
+TEST_F(AdobeRgbTest, SixteenBit_RoundTripConversion) {
+  const std::vector<std::uint16_t> original = {50000, 10000, 30000};
+  std::vector<std::uint16_t> intermediate(3);
+  std::vector<std::uint16_t> result16(3);
+
+  psm::Convert<psm::sRGB, psm::AdobeRGB>(original, intermediate);
+  psm::Convert<psm::AdobeRGB, psm::sRGB>(intermediate, result16);
+
+  // Allow a small tolerance due to float math; compare after downscaling to 8-bit
+  std::vector<unsigned char> orig8 = {
+      static_cast<unsigned char>(original[0] >> 8),
+      static_cast<unsigned char>(original[1] >> 8),
+      static_cast<unsigned char>(original[2] >> 8)};
+  std::vector<unsigned char> res8 = {
+      static_cast<unsigned char>(result16[0] >> 8),
+      static_cast<unsigned char>(result16[1] >> 8),
+      static_cast<unsigned char>(result16[2] >> 8)};
+
+  EXPECT_THAT(res8, IsNearVector(orig8, Tolerance));
+}
+
 TEST_F(AdobeRgbTest, ValidatesInputSize) {
   const std::vector<unsigned char> invalid_size = {255,
                                                    255};  // Only 2 components
