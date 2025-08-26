@@ -16,7 +16,8 @@ void PixelInfo::draw(AppState& s, const PanelRect& r) {
   ImGui::Begin("PixelInfo", nullptr, flags);
 
   if (s.pixel.is_valid) {
-    ImVec2 color_size(r.size.x * 0.8f, r.size.y * 0.4f);  // Reduced height to make room for text
+    ImVec2 color_size(r.size.x * 0.8f,
+                      r.size.y * 0.4f);  // Reduced height to make room for text
     ImVec2 center_pos = ImVec2(r.size.x * 0.5f - color_size.x * 0.5f, 10);
     ImGui::SetCursorPos(center_pos);
 
@@ -55,9 +56,8 @@ void PixelInfo::draw(AppState& s, const PanelRect& r) {
 
       std::string rgb16_text = ss16.str();
       ImVec2 text16_size = ImGui::CalcTextSize(rgb16_text.c_str());
-      ImVec2 text16_pos = ImVec2(
-          r.size.x * 0.5f - text16_size.x * 0.5f,
-          text_pos.y + text_size.y + 5);
+      ImVec2 text16_pos = ImVec2(r.size.x * 0.5f - text16_size.x * 0.5f,
+                                 text_pos.y + text_size.y + 5);
       ImGui::SetCursorPos(text16_pos);
       ImGui::TextDisabled("%s", rgb16_text.c_str());
 
@@ -66,9 +66,8 @@ void PixelInfo::draw(AppState& s, const PanelRect& r) {
       ss_coord << "Pixel: (" << s.pixel.x << ", " << s.pixel.y << ")";
       std::string coord_text = ss_coord.str();
       ImVec2 coord_size = ImGui::CalcTextSize(coord_text.c_str());
-      ImVec2 coord_pos = ImVec2(
-          r.size.x * 0.5f - coord_size.x * 0.5f,
-          text16_pos.y + text16_size.y + 5);
+      ImVec2 coord_pos = ImVec2(r.size.x * 0.5f - coord_size.x * 0.5f,
+                                text16_pos.y + text16_size.y + 5);
       ImGui::SetCursorPos(coord_pos);
       ImGui::TextDisabled("%s", coord_text.c_str());
     }

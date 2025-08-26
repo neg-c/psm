@@ -29,21 +29,23 @@ struct AppState {
     std::string save_path;
     bool is_loaded = false;
     bool is_processed = false;
-    
+
     // Support both 8-bit and 16-bit image data
-    using ImageVariant = std::variant<std::vector<unsigned char>, std::vector<uint16_t>>;
+    using ImageVariant =
+        std::variant<std::vector<unsigned char>, std::vector<uint16_t>>;
     ImageVariant original_data;
     ImageVariant converted_data;
     ImageVariant display_data;
-    
+
     int width = 0;
     int height = 0;
-    int channels = 3;  // Default to RGB
+    int channels = 3;       // Default to RGB
     bool is_16bit = false;  // Track if we're working with 16-bit data
 
     bool hasValidImage() const {
-      return is_loaded && width > 0 && height > 0 && 
-             std::visit([](const auto& data) { return !data.empty(); }, original_data);
+      return is_loaded && width > 0 && height > 0 &&
+             std::visit([](const auto& data) { return !data.empty(); },
+                        original_data);
     }
 
     size_t getImageSize() const {
@@ -52,15 +54,18 @@ struct AppState {
 
     // Helper functions to get data size
     size_t getOriginalDataSize() const {
-      return std::visit([](const auto& data) { return data.size(); }, original_data);
+      return std::visit([](const auto& data) { return data.size(); },
+                        original_data);
     }
 
     size_t getConvertedDataSize() const {
-      return std::visit([](const auto& data) { return data.size(); }, converted_data);
+      return std::visit([](const auto& data) { return data.size(); },
+                        converted_data);
     }
 
     size_t getDisplayDataSize() const {
-      return std::visit([](const auto& data) { return data.size(); }, display_data);
+      return std::visit([](const auto& data) { return data.size(); },
+                        display_data);
     }
 
     void clear() {
@@ -110,9 +115,9 @@ struct AppState {
       is_valid = true;
     }
 
-    void setColor16Bit(unsigned char red, unsigned char green, unsigned char blue,
-                       uint16_t red_16, uint16_t green_16, uint16_t blue_16,
-                       int pixel_x, int pixel_y) {
+    void setColor16Bit(unsigned char red, unsigned char green,
+                       unsigned char blue, uint16_t red_16, uint16_t green_16,
+                       uint16_t blue_16, int pixel_x, int pixel_y) {
       r = red;
       g = green;
       b = blue;

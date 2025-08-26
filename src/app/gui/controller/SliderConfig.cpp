@@ -47,8 +47,8 @@ void SliderConfig::applyAdjustmentAndConvert(
   }
 }
 
-void SliderConfig::applyAdjustmentAndConvert(
-    AppState& state, std::span<uint16_t> image_span) {
+void SliderConfig::applyAdjustmentAndConvert(AppState& state,
+                                             std::span<uint16_t> image_span) {
   psm::AdjustChannels(image_span, getAdjustment(state));
 
   if (state.selected_colorspace ==
@@ -72,8 +72,9 @@ psm::Percent SliderConfig::sRGBAdjustment(int vertical, float horizontal) {
 }
 
 psm::Percent SliderConfig::adobeRGBAdjustment(int vertical, float horizontal) {
-  int saturation_adjustment = static_cast<int>(vertical * 0.5f);      // -50 to +50
-  int magenta_green_adjustment = static_cast<int>(horizontal * 0.5f); // -50 to +50
+  int saturation_adjustment = static_cast<int>(vertical * 0.5f);  // -50 to +50
+  int magenta_green_adjustment =
+      static_cast<int>(horizontal * 0.5f);  // -50 to +50
 
   return psm::Percent{saturation_adjustment + magenta_green_adjustment,
                       saturation_adjustment - magenta_green_adjustment,
@@ -81,16 +82,19 @@ psm::Percent SliderConfig::adobeRGBAdjustment(int vertical, float horizontal) {
 }
 
 psm::Percent SliderConfig::displayP3Adjustment(int vertical, float horizontal) {
-  int contrast_adjustment = static_cast<int>(vertical * 0.5f);     // -50 to +50
-  int red_orange_adjustment = static_cast<int>(horizontal * 0.5f); // -50 to +50
+  int contrast_adjustment = static_cast<int>(vertical * 0.5f);  // -50 to +50
+  int red_orange_adjustment =
+      static_cast<int>(horizontal * 0.5f);  // -50 to +50
 
   return psm::Percent{contrast_adjustment + red_orange_adjustment,
                       contrast_adjustment, contrast_adjustment};
 }
 
 psm::Percent SliderConfig::oRGBAdjustment(int vertical, float horizontal) {
-  int chromaticity_adjustment = static_cast<int>(vertical * 0.5f);   // -50 to +50
-  int temperature_adjustment = static_cast<int>(horizontal * 0.5f);  // -50 to +50
+  int chromaticity_adjustment =
+      static_cast<int>(vertical * 0.5f);  // -50 to +50
+  int temperature_adjustment =
+      static_cast<int>(horizontal * 0.5f);  // -50 to +50
 
   return psm::Percent{chromaticity_adjustment + temperature_adjustment,
                       chromaticity_adjustment,

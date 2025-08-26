@@ -18,7 +18,8 @@ class PreviewController {
  private:
   AppState& state_;
   static GLuint texture_id_;
-  static const void* last_image_update_;  // Changed to void* to support both data types
+  static const void*
+      last_image_update_;  // Changed to void* to support both data types
   static int last_width_;
   static int last_height_;
   static bool last_processed_;

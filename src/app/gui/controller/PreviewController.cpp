@@ -21,15 +21,17 @@ PreviewController::~PreviewController() {
 
 GLuint PreviewController::getOrCreateTexture() {
   const void* current_image_data = nullptr;
-  
+
   if (state_.image.is_16bit) {
-    const auto& display_data = std::get<std::vector<uint16_t>>(state_.image.display_data);
+    const auto& display_data =
+        std::get<std::vector<uint16_t>>(state_.image.display_data);
     current_image_data = display_data.data();
   } else {
-    const auto& display_data = std::get<std::vector<unsigned char>>(state_.image.display_data);
+    const auto& display_data =
+        std::get<std::vector<unsigned char>>(state_.image.display_data);
     current_image_data = display_data.data();
   }
-  
+
   bool image_changed = last_image_update_ != current_image_data;
   bool size_changed =
       last_width_ != state_.image.width || last_height_ != state_.image.height;
@@ -48,16 +50,18 @@ GLuint PreviewController::getOrCreateTexture() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    
+
     if (state_.image.is_16bit) {
       // Use 16-bit texture format for 16-bit images
-      const auto& display_data = std::get<std::vector<uint16_t>>(state_.image.display_data);
+      const auto& display_data =
+          std::get<std::vector<uint16_t>>(state_.image.display_data);
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, state_.image.width,
                    state_.image.height, 0, GL_RGB, GL_UNSIGNED_SHORT,
                    display_data.data());
     } else {
       // Use 8-bit texture format for 8-bit images
-      const auto& display_data = std::get<std::vector<unsigned char>>(state_.image.display_data);
+      const auto& display_data =
+          std::get<std::vector<unsigned char>>(state_.image.display_data);
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, state_.image.width,
                    state_.image.height, 0, GL_RGB, GL_UNSIGNED_BYTE,
                    display_data.data());

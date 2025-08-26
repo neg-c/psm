@@ -21,7 +21,7 @@ class SliderConfig {
   static Config getConfig(int colorspace);
   static void updateLabels(AppState& state);
   static psm::Percent getAdjustment(AppState& state);
-  
+
   // Overloaded functions for different data types
   static void applyAdjustmentAndConvert(AppState& state,
                                         std::span<unsigned char> image_span);
