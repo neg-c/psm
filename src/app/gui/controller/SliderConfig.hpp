@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <functional>
 #include <span>
 #include <vector>
@@ -20,8 +21,12 @@ class SliderConfig {
   static Config getConfig(int colorspace);
   static void updateLabels(AppState& state);
   static psm::Percent getAdjustment(AppState& state);
+
+  // Overloaded functions for different data types
   static void applyAdjustmentAndConvert(AppState& state,
                                         std::span<unsigned char> image_span);
+  static void applyAdjustmentAndConvert(AppState& state,
+                                        std::span<uint16_t> image_span);
 
  private:
   static psm::Percent sRGBAdjustment(int vertical, float horizontal);

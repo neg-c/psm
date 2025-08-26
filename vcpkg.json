@@ -2,7 +2,8 @@
   "dependencies": [
     "eigen3",
     "gtest",
-    "stb",
+    "libpng",
+    "libjpeg-turbo",
     "glfw3",
     "glew",
     "opengl",
@@ -21,10 +22,7 @@
       "name": "gtest",
       "version": "1.15.2"
     },
-    {
-      "name": "stb",
-      "version": "2024-07-29#1"
-    },
+
     {
         "name": "glfw",
         "version": "3.4"

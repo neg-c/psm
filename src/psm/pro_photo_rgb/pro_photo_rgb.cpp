@@ -2,6 +2,7 @@
 
 #include <Eigen/Dense>
 #include <cmath>
+#include <cstdint>
 
 #include "psm/detail/colorspace.hpp"
 #include "psm/detail/pixel_transformation.hpp"
@@ -73,7 +74,7 @@ void ProPhotoRgb::fromSRGB(std::span<const T> src, std::span<T> dst) {
 template <typename T>
 void ProPhotoRgb::toSRGB(std::span<const T> src, std::span<T> dst) {
   const Eigen::Map<const Eigen::RowVectorX<T>> map_src(src.data(), src.size());
-  psm::detail::RowXf norm_src = psm::detail::normalize(map_src);
+  psm::detail::RowXf norm_src = psm::detail::normalize_pixels(map_src);
 
   psm::detail::RowXf decoded_pro_photo = norm_src.unaryExpr([](float value) {
     return (value < 16.0f / 512.0f) ? (value / 16.0f) : (std::pow(value, 1.8f));
@@ -112,4 +113,9 @@ template void ProPhotoRgb::fromSRGB<unsigned char>(
     std::span<const unsigned char>, std::span<unsigned char>);
 template void ProPhotoRgb::toSRGB<unsigned char>(std::span<const unsigned char>,
                                                  std::span<unsigned char>);
+
+template void ProPhotoRgb::fromSRGB<std::uint16_t>(
+    std::span<const std::uint16_t>, std::span<std::uint16_t>);
+template void ProPhotoRgb::toSRGB<std::uint16_t>(std::span<const std::uint16_t>,
+                                                 std::span<std::uint16_t>);
 }  // namespace psm::detail

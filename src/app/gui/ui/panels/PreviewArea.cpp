@@ -62,14 +62,38 @@ void PreviewArea::draw(AppState& s, const PanelRect& r) {
       if (pixel_x >= 0 && pixel_x < s.image.width && pixel_y >= 0 &&
           pixel_y < s.image.height) {
         size_t idx = (pixel_y * s.image.width + pixel_x) * s.image.channels;
-        if (idx + 2 < s.image.display_data.size()) {
-          s.pixel.setColor(s.image.display_data[idx],
-                           s.image.display_data[idx + 1],
-                           s.image.display_data[idx + 2]);
 
-          // Draw magnifying glass
-          DrawMagnifyingGlass(s, texture_id, mouse_pos, image_pos, image_size,
-                              pixel_x, pixel_y);
+        if (s.image.is_16bit) {
+          const auto& display_data =
+              std::get<std::vector<uint16_t>>(s.image.display_data);
+          if (idx + 2 < display_data.size()) {
+            // Get original 16-bit values
+            uint16_t r_16 = display_data[idx];
+            uint16_t g_16 = display_data[idx + 1];
+            uint16_t b_16 = display_data[idx + 2];
+
+            // Convert 16-bit values to 8-bit for display (divide by 257)
+            unsigned char r = static_cast<unsigned char>(r_16 / 257);
+            unsigned char g = static_cast<unsigned char>(g_16 / 257);
+            unsigned char b = static_cast<unsigned char>(b_16 / 257);
+
+            s.pixel.setColor16Bit(r, g, b, r_16, g_16, b_16, pixel_x, pixel_y);
+
+            // Draw magnifying glass
+            DrawMagnifyingGlass(s, texture_id, mouse_pos, image_pos, image_size,
+                                pixel_x, pixel_y);
+          }
+        } else {
+          const auto& display_data =
+              std::get<std::vector<unsigned char>>(s.image.display_data);
+          if (idx + 2 < display_data.size()) {
+            s.pixel.setColor(display_data[idx], display_data[idx + 1],
+                             display_data[idx + 2]);
+
+            // Draw magnifying glass
+            DrawMagnifyingGlass(s, texture_id, mouse_pos, image_pos, image_size,
+                                pixel_x, pixel_y);
+          }
         }
       }
     } else {
@@ -132,8 +156,9 @@ void PreviewArea::DrawMagnifyingGlass(AppState& s, GLuint texture_id,
                              mag_center.y - (center_pixel_size * 0.5f));
   ImVec2 center_max = ImVec2(mag_center.x + (center_pixel_size * 0.5f),
                              mag_center.y + (center_pixel_size * 0.5f));
-  draw_list->AddRect(center_min, center_max, IM_COL32(255, 0, 0, 255), 0.0f, 0,
-                     2.0f);
+
+  draw_list->AddRect(center_min, center_max, IM_COL32(255, 255, 0, 255), 0.0f,
+                     0, 2.0f);
 }
 
 }  // namespace psm_gui::ui::panels

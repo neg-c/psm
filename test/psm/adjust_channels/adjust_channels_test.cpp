@@ -138,6 +138,32 @@ TEST_F(AdjustChannelsTest, MultipleSuccessiveAdjustments) {
   ValidatePixel(buffer, 0, 100, 100, 100);
 }
 
+TEST_F(AdjustChannelsTest, SixteenBit_MixedPercentages) {
+  std::vector<std::uint16_t> buffer = {10000, 30000, 50000};
+  const psm::Percent adjust{50, -25, 10};
+
+  psm::AdjustChannels(buffer, adjust);
+
+  // channel0: 10000 * 1.5 = 15000
+  // channel1: 30000 * 0.75 = 22500
+  // channel2: 50000 * 1.1 = 55000
+  EXPECT_EQ(buffer[0], static_cast<std::uint16_t>(15000));
+  EXPECT_EQ(buffer[1], static_cast<std::uint16_t>(22500));
+  EXPECT_EQ(buffer[2], static_cast<std::uint16_t>(55000));
+}
+
+TEST_F(AdjustChannelsTest, SixteenBit_Clamping) {
+  std::vector<std::uint16_t> buffer = {65000, 10, 32000};
+  const psm::Percent adjust{10, -200, 0};
+
+  psm::AdjustChannels(buffer, adjust);
+
+  // clamp above 65535 and below 0
+  EXPECT_EQ(buffer[0], static_cast<std::uint16_t>(65535));
+  EXPECT_EQ(buffer[1], static_cast<std::uint16_t>(0));
+  EXPECT_EQ(buffer[2], static_cast<std::uint16_t>(32000));
+}
+
 TEST_F(AdjustChannelsTest, OverflowProtection) {
   std::vector<unsigned char> buffer = {200, 100, 100};
   psm::AdjustChannels(buffer, psm::Percent{100, 0, 0});

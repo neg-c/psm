@@ -3,6 +3,7 @@
 #include <functional>
 #include <map>
 
+#include "image_processor/image_processor.hpp"
 #include "psm/adjust_channels.hpp"
 #include "psm/psm.hpp"
 
@@ -35,46 +36,65 @@ void SliderConfig::applyAdjustmentAndConvert(
     AppState& state, std::span<unsigned char> image_span) {
   psm::AdjustChannels(image_span, getAdjustment(state));
 
-  if (state.selected_colorspace == 3) {  // oRGB
+  if (state.selected_colorspace ==
+      3) {  // oRGB - convert back to sRGB for display
     std::vector<unsigned char> temp_image(image_span.size());
     std::span<unsigned char> temp_span{temp_image};
 
-    psm::Convert<psm::oRGB, psm::sRGB>(image_span, temp_span);
+    psm_cli::convert_colorspace<unsigned char>(image_span, temp_span, 3, 0);
+
+    std::copy(temp_image.begin(), temp_image.end(), image_span.begin());
+  }
+}
+
+void SliderConfig::applyAdjustmentAndConvert(AppState& state,
+                                             std::span<uint16_t> image_span) {
+  psm::AdjustChannels(image_span, getAdjustment(state));
+
+  if (state.selected_colorspace ==
+      3) {  // oRGB - convert back to sRGB for display
+    std::vector<uint16_t> temp_image(image_span.size());
+    std::span<uint16_t> temp_span{temp_image};
+
+    psm_cli::convert_colorspace<uint16_t>(image_span, temp_span, 3, 0);
 
     std::copy(temp_image.begin(), temp_image.end(), image_span.begin());
   }
 }
 
 psm::Percent SliderConfig::sRGBAdjustment(int vertical, float horizontal) {
-  int luminance_adjustment = vertical / 2;
-  int contrast_adjustment = static_cast<int>(horizontal / 2);
+  // Convert slider values to percentage adjustments
+  int luminance_adjustment = static_cast<int>(vertical * 0.5f);   // -50 to +50
+  int contrast_adjustment = static_cast<int>(horizontal * 0.5f);  // -50 to +50
 
-  return psm::Percent{luminance_adjustment + contrast_adjustment,
-                      luminance_adjustment + contrast_adjustment,
+  return psm::Percent{luminance_adjustment, luminance_adjustment,
                       luminance_adjustment + contrast_adjustment};
 }
 
 psm::Percent SliderConfig::adobeRGBAdjustment(int vertical, float horizontal) {
-  int saturation_adjustment = vertical / 2;
-  int green_magenta_adjustment = static_cast<int>(horizontal / 2);
+  int saturation_adjustment = static_cast<int>(vertical * 0.5f);  // -50 to +50
+  int magenta_green_adjustment =
+      static_cast<int>(horizontal * 0.5f);  // -50 to +50
 
-  return psm::Percent{-green_magenta_adjustment / 2,
-                      saturation_adjustment + green_magenta_adjustment,
-                      green_magenta_adjustment / 2};
+  return psm::Percent{saturation_adjustment + magenta_green_adjustment,
+                      saturation_adjustment - magenta_green_adjustment,
+                      saturation_adjustment};
 }
 
 psm::Percent SliderConfig::displayP3Adjustment(int vertical, float horizontal) {
-  int contrast_adjustment = vertical / 2;
-  int red_orange_adjustment = static_cast<int>(horizontal / 2);
+  int contrast_adjustment = static_cast<int>(vertical * 0.5f);  // -50 to +50
+  int red_orange_adjustment =
+      static_cast<int>(horizontal * 0.5f);  // -50 to +50
 
   return psm::Percent{contrast_adjustment + red_orange_adjustment,
-                      contrast_adjustment,
-                      contrast_adjustment - red_orange_adjustment / 2};
+                      contrast_adjustment, contrast_adjustment};
 }
 
 psm::Percent SliderConfig::oRGBAdjustment(int vertical, float horizontal) {
-  int chromaticity_adjustment = vertical / 2;
-  int temperature_adjustment = static_cast<int>(horizontal / 2);
+  int chromaticity_adjustment =
+      static_cast<int>(vertical * 0.5f);  // -50 to +50
+  int temperature_adjustment =
+      static_cast<int>(horizontal * 0.5f);  // -50 to +50
 
   return psm::Percent{chromaticity_adjustment + temperature_adjustment,
                       chromaticity_adjustment,
