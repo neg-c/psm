@@ -211,6 +211,7 @@ psm_cli --help
 
 Prisma includes an interactive GUI demo tool (`psm_gui`) that provides a visual interface for exploring color space conversions and image processing:
 
+![PSM_GUI](docs/images/psm_gui.png)
 ### Features
 
 - **Real-time Image Processing**: Load images and see instant color space conversions
