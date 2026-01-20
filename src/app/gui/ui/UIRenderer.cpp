@@ -53,6 +53,7 @@ void UIRenderer::render() {
   panels::PixelInfo::draw(state_, infoPanel);
   panels::HorizontalSlider::draw(state_, tonePanel);
 
+  ImGui::PopStyleVar();
   ImGui::Render();
 }
 
