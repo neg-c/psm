@@ -88,7 +88,7 @@ Prisma has the following dependencies:
   - [OpenGL](https://www.opengl.org/) - Used for the GUI tool only
   - [ImGui](https://github.com/ocornut/imgui) - Used for the GUI tool only
   - [GLEW](https://glew.sourceforge.net/) - Used for the GUI tool only
-  - [Native File Dialog](https://github.com/mlabbe/nativefiledialog-extended) - Used for the GUI tool only
+  - [Native File Dialog](https://github.com/btzy/nativefiledialog-extended) - Used for the GUI tool only
 
 When using vcpkg, these dependencies are automatically managed. The optional
 components (tests and CLI tool) can be disabled during the build process if you
