@@ -1,7 +1,11 @@
 name: clang-tidy
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  checks: write
 
 jobs:
   clang-tidy-check:
@@ -24,9 +28,6 @@ jobs:
           echo "VCPKG_ROOT=~/vcpkg" >> $GITHUB_ENV
 
       - uses: actions/checkout@v4
-        with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.event.pull_request.head.ref }}
 
       - name: Get changed files
         id: changed-files
